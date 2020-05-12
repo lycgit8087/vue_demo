@@ -13,6 +13,12 @@
       <div class="aaa" @click="push_me" >123412560</div>
 
 
+      <div class="aaa" @click="push_me" >123412560</div>
+      <div class="aaa" @click="push_me" >123412560</div>
+      <div class="aaa" @click="push_me" >123412560</div>
+      <div class="aaa" @click="push_me" >123412560</div>
+
+
 
 
 
