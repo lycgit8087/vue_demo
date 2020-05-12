@@ -2,7 +2,7 @@
   <div class='shop'>
       <div>{{reversedMessage.num}}</div>
       <el-button @click="add_a" >add a {{this.$store.state.num}}</el-button>
-      <el-button @click="add_b" >add b {{b}}</el-button>
+      <el-button @click="add_b" >add b== {{b}}</el-button>
       <el-calendar v-model="value">
       </el-calendar>
        <router-link :to="{ path: '/hello' }" tag="div">hello</router-link>
