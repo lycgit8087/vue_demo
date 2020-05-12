@@ -6,9 +6,9 @@ Vue.use(Vuex);
      //要设置的初始属性值
    };
 const getters = {   //实时监听state值的变化(最新状态)
-    // total_num(state) {  //承载变化的showFooter的值
-    //    return state.num
-    // },
+    total_num(state) {  //承载变化的showFooter的值
+       return state.num+1
+    },
 };
 const mutations = {
    add_num(state,num=2){
