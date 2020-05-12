@@ -1,17 +1,8 @@
 <template>
   <div class='shop'>
-      <!-- 5555
-      <ul>
-          <li v-for="(item) in list" :key="item.text" @click="click_me"  :data-text="item.text" >{{item.text}}</li>
-      </ul> -->
-
+      
       <el-calendar v-model="value">
       </el-calendar>
-
-
-
-
-
        <router-link :to="{ path: '/hello' }" tag="div">hello</router-link>
   </div>
 </template>
