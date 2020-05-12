@@ -8,10 +8,13 @@ import axios from 'axios';
 import './style/reset.css'
 // import './style/border.css'
 import Cookies from 'js-cookie'
-import {Calendar} from 'element-ui';
+import {Calendar,Button} from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import {post,fetch,patch,put,get_token} from './utils/http'
+import store from "./store"
 Vue.use(Calendar)
+Vue.use(Button)
+
 //定义全局变量
 Vue.prototype.$post=post;
 Vue.prototype.$fetch=fetch;
@@ -27,6 +30,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })
