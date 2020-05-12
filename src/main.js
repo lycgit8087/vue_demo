@@ -6,7 +6,7 @@ import router from './router'
 import 'lib-flexible'
 import axios from 'axios';
 import './style/reset.css'
-import './style/border.css'
+// import './style/border.css'
 import Cookies from 'js-cookie'
 import {Calendar} from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';

@@ -1,9 +1,9 @@
 <template>
   <div class='shop'>
-      5555
+      <!-- 5555
       <ul>
           <li v-for="(item) in list" :key="item.text" @click="click_me"  :data-text="item.text" >{{item.text}}</li>
-      </ul>
+      </ul> -->
 
       <el-calendar v-model="value">
       </el-calendar>
@@ -68,5 +68,37 @@ export default {
   .aaa{
     display: flex;
     color: red;
+  }
+  .el-calendar-table td{
+    border: none;
+    width: 60px;
+  }
+  .el-calendar-table .el-calendar-day{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    width: 60px;
+    padding: 0;
+    margin: 0;
+    /* height: auto; */
+  }
+  .el-calendar-table{
+    width: auto;
+  }
+  .el-calendar-table tr td:first-child{
+    border: none;
+  }
+  .el-calendar-table tr:first-child td{
+    border: none;
+  }
+  .el-calendar-table thead th{
+    text-align: center;
+  }
+  .el-calendar__body{
+    padding: 0;
+  }
+  tbody{
+    border: none;
   }
 </style>
