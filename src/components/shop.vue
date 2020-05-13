@@ -1,6 +1,6 @@
 <template>
   <div class='shop'>
-      <div>{{reversedMessage.num}}</div>
+      <div>{{reversedMessage.num}}--{{this.$store.getters.total_num}}</div>
       <el-button @click="add_a" >add a {{this.$store.state.num}}</el-button>
       <el-button @click="add_b" >add b {{b}}</el-button>
       <el-button type="primary">上传<i class="el-icon-upload el-icon--right"></i></el-button>
@@ -65,7 +65,6 @@ export default {
       },
       add_a(){
         this.$store.dispatch('add',5)
-        console.log(this.$store.getters.total_num)
 
       },
        add_b(){

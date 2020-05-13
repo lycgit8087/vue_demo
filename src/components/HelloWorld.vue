@@ -1,6 +1,13 @@
 <template>
   <div class="hello">
-    1111
+   <el-row type="flex" class="row-bg" :gutter="20"   >
+  <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
+  <el-col :span="6"><div class="grid-content bg-purple-light"></div></el-col>
+  <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
+  <el-col :span="6"><div class="grid-content bg-purple-light"></div></el-col>
+  
+
+</el-row>
        <router-link :to="{ path: '/' }" tag="div">home</router-link>
 
   </div>
@@ -19,18 +26,29 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+.el-row {
+    margin-bottom: 20px;
+   
+  }
+  
+  .el-col {
+    border-radius: 4px;
+  }
+  .bg-purple-dark {
+    background: #99a9bf;
+  }
+  .bg-purple {
+    background: yellow;
+  }
+  .bg-purple-light {
+    background: rebeccapurple;
+  }
+  .grid-content {
+    border-radius: 4px;
+    min-height: 36px;
+  }
+  .row-bg {
+    padding: 10px 0;
+    background-color: #f9fafc;
+  }
 </style>
