@@ -3,6 +3,7 @@
       <div>{{reversedMessage.num}}</div>
       <el-button @click="add_a" >add a {{this.$store.state.num}}</el-button>
       <el-button @click="add_b" >add b {{b}}</el-button>
+      <el-button type="primary">上传<i class="el-icon-upload el-icon--right"></i></el-button>
       <el-calendar v-model="value">
       </el-calendar>
        <router-link :to="{ path: '/hello' }" tag="div">hello</router-link>
@@ -35,23 +36,23 @@ export default {
   },
   components: {},
   created(){
-      console.log(this.$store.state.num)
-       var data = {
-                encrypted_data: "mN/sdaasPN/VbwZtsz+jIbOS7kSp8kYYGy2TZc1D31pRty+5wk7uV/iaKQpeuG32G9/WMKXKO6d/chOcEwRF61Jw3H3h/8ch6SOYVrXWpIBnQfqxGOUEqtlpinsun9PQDlexSPOBK8wk4PJ+6xrPb76lvNch6Kom5AVRMgB49pZ+6cPjFsUAr+LRrbe1NCotCOOOhV3IAbGQ7v63IAMJwFKNMQt4EWVQj4QbjNy1ZRCwlDF/0YpdIIxzplx0pIPYsQZMHmLkNSN3P1jdzexGRlfG7m18UqeYbuja63Z9v5CA3Mjymf7OgzU3ii5dlKV31sgVfU411NbnnVcMiNvjNOKedMlNUdntUPcTgcncCy+zKyih0cD8GvfZddwssCZfevqC1y19c6Wcg7kGdZkCtBzW9RrqmC01/vVax6+aSos/7koVDhczmNtwhyawGN/GiXrF1UREPs7BgGFqTQw2AHBGNT+vTI17YrSBgGtYQ/xwoH79JHHrJbgZqgyH73FumeNkfRVWJ+7G8uyROD6WYmxgvWrFa4FSz3C7UUPAVFY=",
-                iv: "P8D5GMpRHJURkSNCCkxAjA==",
-                jscode: "043Mw93l1X89Lq0aYM2l1Ihh3l1Mw932",
-                mode: "wxapp",
-                modules:"smartcube",
-                token_type:"module",
-              }
-      this.$get_token("/api?c=api",data).then(res=>{
-          console.log(res)
-      })
+      // console.log(this.$store.state.num)
+      //  var data = {
+      //           encrypted_data: "mN/sdaasPN/VbwZtsz+jIbOS7kSp8kYYGy2TZc1D31pRty+5wk7uV/iaKQpeuG32G9/WMKXKO6d/chOcEwRF61Jw3H3h/8ch6SOYVrXWpIBnQfqxGOUEqtlpinsun9PQDlexSPOBK8wk4PJ+6xrPb76lvNch6Kom5AVRMgB49pZ+6cPjFsUAr+LRrbe1NCotCOOOhV3IAbGQ7v63IAMJwFKNMQt4EWVQj4QbjNy1ZRCwlDF/0YpdIIxzplx0pIPYsQZMHmLkNSN3P1jdzexGRlfG7m18UqeYbuja63Z9v5CA3Mjymf7OgzU3ii5dlKV31sgVfU411NbnnVcMiNvjNOKedMlNUdntUPcTgcncCy+zKyih0cD8GvfZddwssCZfevqC1y19c6Wcg7kGdZkCtBzW9RrqmC01/vVax6+aSos/7koVDhczmNtwhyawGN/GiXrF1UREPs7BgGFqTQw2AHBGNT+vTI17YrSBgGtYQ/xwoH79JHHrJbgZqgyH73FumeNkfRVWJ+7G8uyROD6WYmxgvWrFa4FSz3C7UUPAVFY=",
+      //           iv: "P8D5GMpRHJURkSNCCkxAjA==",
+      //           jscode: "043Mw93l1X89Lq0aYM2l1Ihh3l1Mw932",
+      //           mode: "wxapp",
+      //           modules:"smartcube",
+      //           token_type:"module",
+      //         }
+      // this.$get_token("/api?c=api",data).then(res=>{
+      //     console.log(res)
+      // })
 
-      this.$post("post_list","/api?c=api",{id:151})
-      .then(res=>{
-        console.log(res)
-      })
+      // this.$post("post_list","/api?c=api",{id:151})
+      // .then(res=>{
+      //   console.log(res)
+      // })
   },
   mounted(){},
   methods: {
