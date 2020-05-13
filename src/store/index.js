@@ -7,7 +7,7 @@ Vue.use(Vuex);
    };
 const getters = {   //实时监听state值的变化(最新状态)
     total_num(state) {  //承载变化的showFooter的值
-       return state.num+1
+       return state.num+3
     },
 };
 const mutations = {
