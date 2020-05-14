@@ -20,7 +20,6 @@ Vue.prototype.$fetch=fetch;
 Vue.prototype.$patch=patch;
 Vue.prototype.$put=put;
 Vue.prototype.$get_token=get_token;
-
 Vue.prototype.$axios=axios;
 Vue.prototype.$Cookies=Cookies;
 Vue.config.productionTip = false
