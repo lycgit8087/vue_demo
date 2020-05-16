@@ -1,6 +1,12 @@
-<!-- hello -->
+<!-- back -->
 <template>
-<div class='hello'></div>
+<div class='Back'>
+    <div class="back_to" @click="BackIt" >
+            <i class="el-icon-back"></i>
+
+        </div>
+
+</div>
 </template>
 
 <script>
@@ -9,7 +15,7 @@
 
 export default {
 //import引入的组件需要注入到对象中才能使用
-name: 'hello',
+name: 'Back',
 components: {},
 data() {
 //这里存放数据
@@ -23,7 +29,9 @@ computed: {},
 watch: {},
 //方法集合
 methods: {
-
+    BackIt(){
+        this.$router.go(-1)
+    },
 },
 //生命周期 - 创建完成（可以访问当前this实例）
 created() {
@@ -42,7 +50,16 @@ destroyed() {}, //生命周期 - 销毁完成
 activated() {}, //如果页面有keep-alive缓存功能，这个函数会触发
 }
 </script>
-<style  scoped>
+<style  >
 /* //@import url(); 引入公共css类 */
+.back_to{
+    height: 90px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+[class*=" el-icon-"], [class^=el-icon-]{
+    font-size: 50px;
+}
 
 </style>

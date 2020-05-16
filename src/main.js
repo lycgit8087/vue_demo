@@ -12,6 +12,8 @@ import ElementUI  from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import {post,fetch,patch,put,get_token} from './utils/http'
 import store from "./store"
+import Back from './components/Back'
+Vue.component("back",Back);
 
 Vue.use(ElementUI);
 

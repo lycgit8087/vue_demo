@@ -67,7 +67,7 @@ axios.interceptors.request.use(
     config.timeout = 6000  //超时时间
     config.data = JSON.stringify(config.data);
     if(config.headers.action!="token_get"){
-  let {timestamp,hashInBase64,apiaction,appid}=get_msg(config.headers.action)
+    let {timestamp,hashInBase64,apiaction,appid}=get_msg(config.headers.action)
 
         //设置请求头
     config.headers = {

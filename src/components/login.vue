@@ -11,7 +11,7 @@
       </div>
 
       <!-- 二维码 -->
-      <div class="qrcode_bg">
+      <div class="qrcode_bg" @click="ToIndex" >
         <div class="qrcode_view" ref="qrcode_bg_style">
           <div id="qrcode" ></div>
         </div>
@@ -42,39 +42,44 @@ export default {
       tab_index: 0,
       fullHeight: document.documentElement.clientHeight,
       fullWidth: document.documentElement.clientWidth,
-      
     };
   },
   //监听属性 类似于data概念
   computed: {},
   //监控data中的数据变化
   watch: {
-    fullHeight() {
-      //  this.qrcode()
+    fullHeight(oldval) {
+        document.getElementById('qrcode').innerHTML = ''
+        this.qrcode()
     },
-    fullWidth() {
-    //   this.qrcode()
-    console.log(this.$refs)
+    fullWidth(val) {
+        this.fullWidth=val
+        document.getElementById('qrcode').innerHTML = ''
+        this.qrcode()
+
+
+       
     }
   },
   //方法集合
   methods: {
     qrcode() {
-      let el_width = this.$refs.qrcode_bg_style.offsetWidth,
-        el_heigth = this.$refs.qrcode_bg_style.offsetHeight;
-        console.log(QRCode)
+      let el_width = this.$refs.qrcode_bg_style.clientWidth
+        
          new QRCode("qrcode", {
           width: el_width, // 设置宽度，单位像素
           height: el_width, // 设置高度，单位像素
           text: "https://www.baidu.com" // 设置二维码内容或跳转地址
         });
-
     },
 
     // 切换tab
     change_tab(index){
         this.tab_index=index
-    }
+    },
+    ToIndex(){
+      this.$router.push({name:"ClassIndex"})
+    },
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
@@ -88,6 +93,7 @@ export default {
       return (() => {
         window.fullHeight = document.documentElement.clientHeight;
         window.fullWidth = document.documentElement.clientWidth;
+        
         that.fullHeight = window.fullHeight;
         that.fullWidth = window.fullWidth;
       })();
@@ -96,7 +102,9 @@ export default {
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
-  updated() {}, //生命周期 - 更新之后
+  updated() {
+
+  }, //生命周期 - 更新之后
   beforeDestroy() {}, //生命周期 - 销毁之前
   destroyed() {}, //生命周期 - 销毁完成
   activated() {} //如果页面有keep-alive缓存功能，这个函数会触发
@@ -133,14 +141,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 500px;
-  height: 500px;
-  background: rgba(241, 241, 241, 1);
-  border-radius: 20px;
-}
-.qrcode_view {
   width: 195px;
   height: 195px;
+  background: rgba(241, 241, 241, 1);
+  border-radius: 20px;
 }
 .Scan_me{
     width: 195px;
@@ -198,8 +202,5 @@ export default {
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
   margin-top: 6px;
-}
-.qrcode_view image {
-  width: 100px;
 }
 </style>

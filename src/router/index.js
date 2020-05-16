@@ -5,19 +5,19 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/hello',
-      name: 'HelloWorld',
-      component: () => import('@/components/HelloWorld')
-    },
-    {
-      path: '/shop',
-      name: 'shop',
-      component: () => import('@/components/shop')
+      path: '/class_index',
+      name: 'ClassIndex',
+      component: () => import('@/components/ClassIndex')
     },
     {
       path: '/',
-      name: 'login',
-      component: () => import('@/components/login')
+      name: 'Login',
+      component: () => import('@/components/Login')
+    },
+    {
+      path: '/exam_list',
+      name: 'ExamList',
+      component: () => import('@/components/ExamList')
     },
   ]
 })
