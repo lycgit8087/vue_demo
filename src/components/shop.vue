@@ -4,6 +4,8 @@
       <el-button @click="add_a" >add a {{this.$store.state.num}}</el-button>
       <el-button @click="add_b" >add b {{b}}</el-button>
       <el-button type="primary">上传<i class="el-icon-upload el-icon--right"></i></el-button>
+
+      <div id="qrcode" ref="qrcode"></div>
       <el-calendar v-model="value">
       </el-calendar>
        <router-link :to="{ path: '/hello' }" tag="div">hello</router-link>
@@ -54,12 +56,18 @@ export default {
       //   console.log(res)
       // })
   },
-  mounted(){},
+  mounted(){
+
+
+
+  },
   methods: {
       click_me(e){
           console.log(e)
           console.log(e.srcElement.dataset.text)
       },
+
+     
       push_me(){
           console.log(21234)
       },

@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-// import 'lib-flexible'
+import 'lib-flexible'
 import axios from 'axios';
 import './style/reset.css'
 // import './style/border.css'
@@ -12,6 +12,7 @@ import ElementUI  from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import {post,fetch,patch,put,get_token} from './utils/http'
 import store from "./store"
+
 Vue.use(ElementUI);
 
 //定义全局变量

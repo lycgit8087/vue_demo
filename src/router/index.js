@@ -1,9 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
-import Shop from '@/components/shop'
-
-
 Vue.use(Router)
 
 export default new Router({
@@ -11,12 +7,17 @@ export default new Router({
     {
       path: '/hello',
       name: 'HelloWorld',
-      component: HelloWorld
+      component: () => import('@/components/HelloWorld')
+    },
+    {
+      path: '/shop',
+      name: 'shop',
+      component: () => import('@/components/shop')
     },
     {
       path: '/',
-      name: 'shop',
-      component: Shop
+      name: 'login',
+      component: () => import('@/components/login')
     },
   ]
 })
