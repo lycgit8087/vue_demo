@@ -78,7 +78,8 @@ export default {
         this.tab_index=index
     },
     ToIndex(){
-      this.$router.push({name:"ClassIndex"})
+      console.log(this.$router)
+      this.$router.replace({name:"ClassIndex"})
     },
   },
   //生命周期 - 创建完成（可以访问当前this实例）

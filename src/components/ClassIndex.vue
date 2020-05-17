@@ -95,7 +95,7 @@ export default {
         this.$router.push({name:'ExamList',params:{id:101}})
     },
     BackLogin(){
-        this.$router.push({name:'Login',params:{id:101}})
+        this.$router.replace({name:'Login',params:{id:101}})
 
     },
   },
