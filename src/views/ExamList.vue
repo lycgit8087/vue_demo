@@ -229,6 +229,9 @@ font-size: 32px;
   justify-content: center;
   font-size: 25px;
 }
+.el-button+.el-button{
+  margin-left: 0 !important;
+}
 .exam_list_left_title{
 font-size:38px;
 /* font-family:PingFangSC-Medium,PingFang SC; */
