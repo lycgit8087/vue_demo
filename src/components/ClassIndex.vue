@@ -13,7 +13,7 @@
           <!-- <el-avatar :size="size" :src="HeadImage"></el-avatar> -->
           <div class="CLassIndex_Right_Top_Msg">
             <p>嬴政</p>
-            <p>数学老师 班主任</p>
+            <p>数学老师 班主任1</p>
           </div>
         </div>
 
