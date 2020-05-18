@@ -88,7 +88,7 @@ export default {
   mounted() {
     this.qrcode(); //生成二维码
     //获取屏幕宽高
-    this.$message(`宽：${document.documentElement.clientWidth},高：${document.documentElement.clientHeight}`);
+    this.$message(`宽：${document.documentElement.clientWidth},高 ：${document.documentElement.clientHeight}`);
     
     const that = this;
     window.onresize = () => {
