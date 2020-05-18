@@ -335,6 +335,8 @@ export default {
 .el-button {
   border: 1px solid #dcdfe6 !important;
   padding: 12px 20px;
+  box-sizing: border-box;
+  
 }
 tbody {
   border: none !important;

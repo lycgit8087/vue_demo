@@ -71,12 +71,7 @@ export default {
   //方法集合
   methods: {
     SeeIt(){
-      let a=1236
-      this.$alert(`<div class="msg_text" v-for="i in 6" :key="i" >${a}</div>`, '', {
-          dangerouslyUseHTMLString: true,
-          center:true,
-          confirmButtonText:"点击查看"
-        });
+    
     },
 
   },
