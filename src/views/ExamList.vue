@@ -227,6 +227,7 @@ font-size: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 25px;
 }
 .exam_list_left_title{
 font-size:38px;
