@@ -13,7 +13,11 @@ import 'element-ui/lib/theme-chalk/index.css';
 import {post,fetch,patch,put,get_token} from './utils/http'
 import store from "./store"
 import Back from './components/Back'
+import AlertView from './components/AlertView'
+
 Vue.component("back",Back);
+Vue.component("alert-view",AlertView);
+
 
 Vue.use(ElementUI);
 

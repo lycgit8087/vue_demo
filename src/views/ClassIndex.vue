@@ -2,14 +2,24 @@
 <template>
   <div class="CLassIndex">
     <div class="CLassIndex_Left">
-      <el-calendar v-model="value"></el-calendar>
+      <el-calendar v-model="value">
+        <template
+    slot="dateCell"
+    slot-scope="{date, data}">
+    <p :class="data.isSelected ? 'is-selected' : ''">
+      {{ data.day.split('-').slice(2).join('-') }}
+       <!-- {{ data.isSelected ? '✔️' : ''}} -->
+    </p>
+  </template>
+
+      </el-calendar>
     </div>
 
     <div class="CLassIndex_Right">
       <!-- 教师头部信息 -->
       <div class="CLassIndex_Right_Top">
         <div class="CLassIndex_Right_Top_Left">
-          <el-image :src="HeadImage" fit="fit"></el-image>
+          <el-image :src="HeadImage" fit="cover"></el-image>
           <!-- <el-avatar :size="size" :src="HeadImage"></el-avatar> -->
           <div class="CLassIndex_Right_Top_Msg">
             <p>嬴政</p>
@@ -20,13 +30,15 @@
         <div class="ResetLogin" @click="BackLogin" >退出登录</div>
       </div>
 
+      <!-- <alert-view :list="listarr" ></alert-view> -->
+
       <!-- 标题 -->
       <div class="ListTitle">备课列表</div>
 
       <!-- 列表内容 -->
 
       <div class="ListView">
-        <el-scrollbar style="60vh" class="scroll_view">
+        <el-scrollbar  class="scroll_view">
           <ul class="ListParent">
             <li v-for="i in count" :key="i" class="ListItem" @click="TOExamList" >
               <div>
@@ -64,6 +76,7 @@ export default {
       value:Date.parse(new Date()) ,
       HeadImage: require("../assets/login_img.png"),
       count: 10,
+      listarr:[{num:0,text:"123"}],
       loading: false
     };
   },
@@ -114,20 +127,30 @@ export default {
 </script>
 <style >
 /* //@import url(); 引入公共css类 */
+/* @import url('../style/style.css'); */
+  .is-selected {
+    color: #1989FA;
+  }
 .CLassIndex {
   display: flex;
   align-items: center;
-  padding: 150px 75px 150px 50px;
+  padding: 0px 75px 0px 50px;
   box-sizing: border-box;
+  
 }
 .CLassIndex_Left {
   width: 857px;
-  height: 90vh;
+  /* height: 100%; */
+  margin-top: 150px;
+  /* height: 80vh; */
 }
 .CLassIndex_Right {
   display: flex;
   flex-direction: column;
-  height: 90vh;
+  height: 100%;
+  margin-top: 150px;
+  width: 930px;
+
 }
 
 .CLassIndex_Right_Top {
@@ -158,20 +181,23 @@ export default {
 }
 .CLassIndex_Right_Top_Msg p:nth-child(1) {
   font-size: 36px;
-  font-family: PingFangSC-Semibold, PingFang SC;
+  /* font-family: PingFangSC-Semibold, PingFang SC; */
   font-weight: 600;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 9px;
 }
 .CLassIndex_Right_Top_Msg p:nth-child(2) {
   font-size: 24px;
-  font-family: PingFangSC-Regular, PingFang SC;
+  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
 }
 .el-scrollbar .el-scrollbar__wrap {
   overflow-x: hidden;
 }
+.el-tree-node>.el-tree-node__children{
+   overflow:visible !important;
+ }
 .scroll_view {
   height: 500px;
   width: 100%;
@@ -183,7 +209,7 @@ export default {
   box-sizing: border-box;
   padding-left: 14px;
   font-size: 30px;
-  font-family: PingFangSC-Medium, PingFang SC;
+  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 30px;
@@ -195,7 +221,7 @@ export default {
   box-sizing: border-box;
 }
 .ListItem {
-  width: 852px;
+  width: 100%;
   height: 150px;
   background: rgba(255, 255, 255, 1);
   box-shadow: 0px 5px 15px 0px rgba(27, 27, 78, 0.05);
@@ -231,25 +257,25 @@ export default {
 }
 .ListParentChildViewTop p:nth-child(1) {
   font-size: 36px;
-  font-family: PingFangSC-Medium, PingFang SC;
+  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
 }
 .ListParentChildViewTop p:nth-child(2) {
   font-size: 24px;
-  font-family: PingFangSC-Medium, PingFang SC;
+  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
 }
 .ListParentChildViewBot p:nth-child(1) {
   font-size: 24px;
-  font-family: PingFangSC-Regular, PingFang SC;
+  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(135, 139, 148, 1);
 }
 .ListParentChildViewBot p:nth-child(2) {
   font-size: 24px;
-  font-family: PingFangSC-Regular, PingFang SC;
+  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(135, 139, 148, 1);
 }
@@ -259,48 +285,63 @@ export default {
   font-size: 26px;
 }
 .el-calendar-table td {
-  border: none;
-  width: 60px;
+  border: none !important;
+  width: 70px;
+  /* height: 70px;
+  border-radius: 50%; */
 }
 .el-calendar-table .el-calendar-day {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 75px;
+  height: 70px;
   padding: 0;
   margin: 0;
   /* height: auto; */
 }
+/* .el-calendar-table td.is-selected{
+  background: #409EFF;
+} */
+
 .el-calendar__header {
-  padding: 12px 20px;
+  
+  display: flex;
+  align-items: center;
+  padding: 0px 20px;
   box-sizing: border-box;
+  margin-bottom: 80px;
+  margin-top: 20px;
+  border-bottom: none !important;
+  /* height: 120px; */
+  align-items: center;
+  
 }
 .el-calendar-table .el-calendar-day {
-  padding: 0;
+  padding: 0 !important;
 }
 .el-calendar-table tr td:first-child {
-  border: none;
+  border: none !important;
 }
 .el-calendar-table tr:first-child td {
-  border: none;
+  border: none !important;
 }
 .el-calendar-table thead th {
   text-align: center;
   height: 80px;
 }
 .el-calendar__body {
-  padding: 0;
+  padding: 0 !important;
 }
 .el-button {
-  border: 1px solid #dcdfe6;
+  border: 1px solid #dcdfe6 !important;
   padding: 12px 20px;
 }
 tbody {
-  border: none;
+  border: none !important;
 }
 .ResetLogin {
   font-size: 30px;
-  font-family: PingFangSC-Regular, PingFang SC;
+  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(164, 169, 255, 1);
 }

@@ -21,7 +21,7 @@
       </div>
 
       <!-- 试题 -->
-      <div class="exam_list_view">
+      <div class="exam_list_view"  >
         <p>试题</p>
         <el-scrollbar class="scroll_view">
           <div class="exam_list_view_item" v-for="i in list_arr" :key="i">
@@ -30,7 +30,7 @@
               <p class="exam_list_view_item_right_title">数的运算一 练习题</p>
               <p class="exam_list_view_item_right_num">共8题</p>
               <div class="exam_list_view_item_right_edit">
-                <el-button type="primary">查看</el-button>
+                <el-button type="primary" @click="SeeIt" >查看</el-button>
                 <el-button type="primary">发送</el-button>
                 <el-button type="primary">数据</el-button>
               </div>
@@ -55,6 +55,7 @@ export default {
     return {
       HeadImage: require("../assets/login_img.png"),
       file_image: require("../assets/file.png"),
+      loading:true,
       file_arr: [
           {url:require("../assets/Word.png"),name:"word"},
           {url:require("../assets/Ppt.png"),name:"PPt"},
@@ -68,7 +69,17 @@ export default {
   //监控data中的数据变化
   watch: {},
   //方法集合
-  methods: {},
+  methods: {
+    SeeIt(){
+      let a=1236
+      this.$alert(`<div class="msg_text" v-for="i in 6" :key="i" >${a}</div>`, '', {
+          dangerouslyUseHTMLString: true,
+          center:true,
+          confirmButtonText:"点击查看"
+        });
+    },
+
+  },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
   //生命周期 - 挂载完成（可以访问DOM元素）
@@ -86,12 +97,31 @@ export default {
 </script>
 <style >
 /* //@import url(); 引入公共css类 */
+/* @import url('../style/index.css'); */
+.el-button--small, .el-button--small.is-round{
+  width:576px;
+height:94px;
+box-shadow:0px 9px 27px 0px rgba(84,93,255,0.3);
+border-radius:18px;
+padding: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+margin-right: 0;
+font-size: 32px;
+}
+.el-message-box{
+  width: auto;
+}
 .ExamList {
   display: flex;
   width: 100%;
   height: 100vh;
   align-items: center;
   justify-content: space-between;
+}
+.msg_text{
+  color: rebeccapurple;
 }
 .exam_list_left {
   width: 1118px;
@@ -116,9 +146,10 @@ export default {
 .el-tree-node>.el-tree-node__children{
    overflow:visible !important;
  }
+ 
 .file_list > p {
   font-size: 32px;
-  font-family: PingFangSC-Medium, PingFang SC;
+  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(0, 3, 54, 1);
   margin-bottom: 40px;
@@ -148,14 +179,14 @@ export default {
 }
 .exam_list_view > p {
   font-size: 32px;
-  font-family: PingFangSC-Medium, PingFang SC;
+  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(0, 3, 54, 1);
   margin-bottom: 16px;
 }
 .scroll_view {
   height: 800px;
-  width: 100%;
+  width: 702px;
 }
 .exam_list_view_item {
   height: 200px;
@@ -175,13 +206,13 @@ export default {
 }
 .exam_list_view_item_right_title {
   font-size: 25px;
-  font-family: PingFangSC-Medium, PingFang SC;
+  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
 }
 .exam_list_view_item_right_num {
   font-size: 22px;
-  font-family: PingFangSC-Regular, PingFang SC;
+  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(100, 100, 100, 1);
   margin-top: 15px;
@@ -191,7 +222,7 @@ export default {
   flex-wrap: wrap;
   margin-top: 14px;
 }
-.ExamList .el-button {
+.exam_list_view_item_right_edit .el-button {
   width: 90px;
   height: 50px;
   box-shadow: 0px 9px 27px 0px rgba(84, 93, 255, 0.3);
@@ -204,14 +235,14 @@ export default {
 }
 .exam_list_left_title{
 font-size:38px;
-font-family:PingFangSC-Medium,PingFang SC;
+/* font-family:PingFangSC-Medium,PingFang SC; */
 font-weight:500;
 color:rgba(32,32,32,1);
 margin-bottom: 54px;
 }
 .exam_list_left_text{
 font-size:32px;
-font-family:PingFangSC-Medium,PingFang SC;
+/* font-family:PingFangSC-Medium,PingFang SC; */
 font-weight:500;
 color:rgba(32,32,32,1);
 }

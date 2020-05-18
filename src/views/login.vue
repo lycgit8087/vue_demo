@@ -88,13 +88,13 @@ export default {
   mounted() {
     this.qrcode(); //生成二维码
     //获取屏幕宽高
-
+    this.$message(`宽：${document.documentElement.clientWidth},高：${document.documentElement.clientHeight}`);
+    
     const that = this;
     window.onresize = () => {
       return (() => {
         window.fullHeight = document.documentElement.clientHeight;
         window.fullWidth = document.documentElement.clientWidth;
-        
         that.fullHeight = window.fullHeight;
         that.fullWidth = window.fullWidth;
       })();
@@ -113,6 +113,7 @@ export default {
 </script>
 <style  scoped>
 /* @import url(); 引入公共css类 */
+
 
 .login_left {
   width: 1920px;
@@ -160,7 +161,7 @@ export default {
 }
 .login_right_tab p {
   font-size: 48px;
-  font-family: PingFangSC-Regular, PingFang SC;
+  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
   height: 80px;
@@ -193,13 +194,13 @@ export default {
 }
 .login_text p:nth-child(1) {
   font-size: 44px;
-  font-family: PingFangSC-Medium, PingFang SC;
+  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
 }
 .login_text p:nth-child(2) {
   font-size: 24px;
-  font-family: PingFangSC-Regular, PingFang SC;
+  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
   margin-top: 6px;

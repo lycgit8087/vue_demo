@@ -7,17 +7,17 @@ export default new Router({
     {
       path: '/class_index',
       name: 'ClassIndex',
-      component: () => import('@/components/ClassIndex')
+      component: () => import('@/views/ClassIndex')
     },
     {
       path: '/',
       name: 'Login',
-      component: () => import('@/components/Login')
+      component: () => import('@/views/Login')
     },
     {
       path: '/exam_list',
       name: 'ExamList',
-      component: () => import('@/components/ExamList')
+      component: () => import('@/views/ExamList')
     },
   ]
 })
