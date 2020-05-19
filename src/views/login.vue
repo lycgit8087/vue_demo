@@ -2,25 +2,29 @@
 <template>
   <div class="login">
     <div class="login_left">
-      <el-image :src="login_image" fit="cover" ></el-image>
+      <el-image :src="login_image" fit="cover"></el-image>
     </div>
     <div class="login_right">
       <div class="login_right_tab">
-        <p :class="tab_index==0?'login_right_tab_active':''" @click="change_tab(0)" >扫一扫</p>
-        <p :class="tab_index==1?'login_right_tab_active':''" @click="change_tab(1)" >人脸识别</p>
+        <p :class="tab_index==0?'login_right_tab_active':''" @click="change_tab(0)">扫一扫</p>
+        <p :class="tab_index==1?'login_right_tab_active':''" @click="change_tab(1)">人脸识别</p>
       </div>
 
       <!-- 二维码 -->
-      <div class="qrcode_bg" @click="ToIndex" >
-        <div class="qrcode_view" ref="qrcode_bg_style">
-          <div id="qrcode" ></div>
+      <div v-show="tab_index==0">
+        <div class="qrcode_bg" @click="ToIndex">
+          <div class="qrcode_view" ref="qrcode_bg_style">
+            <div id="qrcode"></div>
+          </div>
+        </div>
+        <!-- 登录 -->
+        <div class="login_text">
+          <p>快速安全登录</p>
+          <p>微信扫码登录</p>
         </div>
       </div>
-
-      <!-- 登录 -->
-      <div class="login_text">
-        <p>快速安全登录</p>
-        <p>微信扫码登录</p>
+      <div v-show="tab_index==1">
+        <face :faceView="checkFaceView" @canvasToImage="getImgFile"></face>
       </div>
     </div>
   </div>
@@ -42,6 +46,12 @@ export default {
       tab_index: 0,
       fullHeight: document.documentElement.clientHeight,
       fullWidth: document.documentElement.clientWidth,
+      openFaceView: true,
+      faceloading: false,
+      videoinput: true,
+      fileList: [],
+      face: "",
+      checkFaceView: true
     };
   },
   //监听属性 类似于data概念
@@ -49,47 +59,84 @@ export default {
   //监控data中的数据变化
   watch: {
     fullHeight(oldval) {
-        document.getElementById('qrcode').innerHTML = ''
-        this.qrcode()
+      document.getElementById("qrcode").innerHTML = "";
+      this.qrcode();
     },
     fullWidth(val) {
-        this.fullWidth=val
-        document.getElementById('qrcode').innerHTML = ''
-        this.qrcode()
-
-
-       
+      this.fullWidth = val;
+      document.getElementById("qrcode").innerHTML = "";
+      this.qrcode();
     }
   },
   //方法集合
   methods: {
     qrcode() {
-      let el_width = this.$refs.qrcode_bg_style.clientWidth
-        
-         new QRCode("qrcode", {
-          width: el_width, // 设置宽度，单位像素
-          height: el_width, // 设置高度，单位像素
-          text: "https://www.baidu.com" // 设置二维码内容或跳转地址
-        });
+      let el_width = this.$refs.qrcode_bg_style.clientWidth;
+
+      new QRCode("qrcode", {
+        width: el_width, // 设置宽度，单位像素
+        height: el_width, // 设置高度，单位像素
+        text: "https://www.baidu.com" // 设置二维码内容或跳转地址
+      });
     },
 
     // 切换tab
-    change_tab(index){
-        this.tab_index=index
+    change_tab(index) {
+      this.tab_index = index;
+      if (index == 0) {
+        // document.getElementById('qrcode').innerHTML = ''
+        // this.qrcode()
+      }
     },
-    ToIndex(){
-      console.log(this.$router)
-      this.$router.replace({name:"ClassIndex"})
+    ToIndex() {
+      console.log(this.$router);
+      this.$router.replace({ name: "ClassIndex" });
     },
+    // 弹出人脸识别框
+    checkFace() {
+      this.checkFaceView = true;
+    },
+    // 获取截取图片
+    getImgFile(d) {
+      this.face = d;
+      this.checkFaceView = false;
+    }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
-  created() {},
+  created() {
+    // 判断有无摄像头
+    var deviceList = [];
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then(devices => {
+        devices.forEach(device => {
+          deviceList.push(device.kind);
+        });
+        if (deviceList.indexOf("videoinput") == "-1") {
+          this.$message({
+            message: "未能识别摄像头，无法使用人脸识别",
+            type: "warning"
+          });
+
+          return false;
+        } else {
+          console.info("有摄像头");
+
+          this.videoinput = true;
+        }
+      })
+      .catch(function(err) {
+        alert(err.name + ": " + err.message);
+      });
+  },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
     this.qrcode(); //生成二维码
     //获取屏幕宽高
-    this.$message(`宽 ：${document.documentElement.clientWidth},高 ：${document.documentElement.clientHeight}`);
-    
+    this.$message(
+      `宽 ：${document.documentElement.clientWidth},高 ：${document.documentElement.clientHeight}`
+    );
+
     const that = this;
     window.onresize = () => {
       return (() => {
@@ -103,9 +150,7 @@ export default {
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
-  updated() {
-
-  }, //生命周期 - 更新之后
+  updated() {}, //生命周期 - 更新之后
   beforeDestroy() {}, //生命周期 - 销毁之前
   destroyed() {}, //生命周期 - 销毁完成
   activated() {} //如果页面有keep-alive缓存功能，这个函数会触发
@@ -113,7 +158,6 @@ export default {
 </script>
 <style  scoped>
 /* @import url(); 引入公共css类 */
-
 
 .login_left {
   width: 1920px;
@@ -148,9 +192,9 @@ export default {
   background: rgba(241, 241, 241, 1);
   border-radius: 20px;
 }
-.Scan_me{
-    width: 195px;
-    height: 195px;
+.Scan_me {
+  width: 195px;
+  height: 195px;
 }
 .login_right_tab {
   width: 100%;
@@ -161,7 +205,6 @@ export default {
 }
 .login_right_tab p {
   font-size: 48px;
-  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
   height: 80px;
@@ -174,7 +217,7 @@ export default {
 }
 .login_right_tab_active {
   color: #545dff !important ;
-   border-bottom: 9px solid #545DFF;
+  border-bottom: 9px solid #545dff;
 }
 .qrcode_bg {
   width: 293px;
@@ -194,15 +237,20 @@ export default {
 }
 .login_text p:nth-child(1) {
   font-size: 44px;
-  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
 }
 .login_text p:nth-child(2) {
   font-size: 24px;
-  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
   margin-top: 6px;
+}
+.face {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 </style>

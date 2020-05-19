@@ -52,6 +52,9 @@ activated() {}, //如果页面有keep-alive缓存功能，这个函数会触发
 </script>
 <style  >
 /* //@import url(); 引入公共css类 */
+.Back{
+width: 100%;
+}
 .back_to{
     height: 90px;
     width: 100%;

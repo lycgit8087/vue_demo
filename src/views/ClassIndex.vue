@@ -181,14 +181,12 @@ export default {
 }
 .CLassIndex_Right_Top_Msg p:nth-child(1) {
   font-size: 36px;
-  /* font-family: PingFangSC-Semibold, PingFang SC; */
   font-weight: 600;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 9px;
 }
 .CLassIndex_Right_Top_Msg p:nth-child(2) {
   font-size: 24px;
-  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
 }
@@ -209,7 +207,6 @@ export default {
   box-sizing: border-box;
   padding-left: 14px;
   font-size: 30px;
-  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 30px;
@@ -257,25 +254,21 @@ export default {
 }
 .ListParentChildViewTop p:nth-child(1) {
   font-size: 36px;
-  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
 }
 .ListParentChildViewTop p:nth-child(2) {
   font-size: 24px;
-  /* font-family: PingFangSC-Medium, PingFang SC; */
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
 }
 .ListParentChildViewBot p:nth-child(1) {
   font-size: 24px;
-  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(135, 139, 148, 1);
 }
 .ListParentChildViewBot p:nth-child(2) {
   font-size: 24px;
-  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(135, 139, 148, 1);
 }
@@ -343,7 +336,6 @@ tbody {
 }
 .ResetLogin {
   font-size: 30px;
-  /* font-family: PingFangSC-Regular, PingFang SC; */
   font-weight: 400;
   color: rgba(164, 169, 255, 1);
 }
