@@ -186,6 +186,9 @@ export default {
       this.send_toggle = true;
     },
     SeeData() {},
+    to_see_data(){
+
+    },
     check_now(index) {
       let { people_arr } = this;
       people_arr[index].is_check = !people_arr[index].is_check;
@@ -357,7 +360,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 25px;
+  font-size: 25px !important;
 }
 .el-button + .el-button {
   margin-left: 0 !important;
@@ -378,7 +381,7 @@ export default {
   height: 94px;
   box-shadow: 0px 9px 27px 0px rgba(84, 93, 255, 0.3);
   border-radius: 18px;
-  font-size: 32px;
+  font-size: 32px !important;
 }
 .see_dialog_center {
   display: flex;
@@ -404,10 +407,13 @@ export default {
   margin-bottom: 50px;
 }
 .see_dialog_center_tree {
-  font-size: 32px;
+  font-size: 32px !important;
   font-weight: 400;
   color: rgba(100, 100, 100, 1);
   margin-bottom: 72px;
+}
+.el-dialog__headerbtn .el-dialog__close{
+  font-size: 40px !important;
 }
 .see_item {
   width: 100%;
@@ -425,7 +431,7 @@ export default {
   /* background:rgba(253,104,125,1); */
   box-shadow: 0px 9px 27px 0px rgba(253, 104, 125, 0.3);
   border-radius: 9px;
-  font-size: 24px;
+  font-size: 24px !important;
   margin-right: 27px;
 }
 .send_confrm {
@@ -433,7 +439,7 @@ export default {
   height: 72px;
   box-shadow: 0px 9px 27px 0px rgba(84, 93, 255, 0.3);
   border-radius: 9px;
-  font-size: 24px;
+  font-size: 24px !important;
 }
 .send_dialog_center {
   display: flex;
@@ -542,10 +548,10 @@ export default {
   margin-bottom: 10px;
 }
 .success_text{
-font-size:43px;
+font-size:43px !important;
 font-weight:500;
 color:rgba(0,173,86,1);
-margin-bottom: 88px;
+margin-bottom: 88px !important;
 }
 .to_see_data{
 width:576px;
@@ -563,6 +569,20 @@ display: flex;
 align-items: center;
 height: 94px;
 margin-top: 30px;
+}
+.el-checkbox.is-bordered.el-checkbox--medium .el-checkbox__label{
+  font-size: 24px !important;
+}
+.el-checkbox.is-bordered.el-checkbox--medium .el-checkbox__inner{
+  width: 24px !important;
+  height: 24px !important;
+}
+.el-checkbox__inner::after{
+  height: 10px !important;
+  width: 10px !important;
+}
+.el-checkbox__input.is-checked .el-checkbox__inner::after{
+  transform: rotate(45deg) scaleY(1.5) !important;
 }
 
 </style>

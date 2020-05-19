@@ -31,7 +31,27 @@
       </div>
 
       <!-- <alert-view :list="listarr" ></alert-view> -->
+      <div class="picker_view" >
+        <!-- 时间筛选 -->
+          <el-date-picker
+      v-model="value2"
+      type="daterange"
+      align="right"
+      unlink-panels
+      range-separator="至"
+      start-placeholder="开始日期"
+      end-placeholder="结束日期"
+      :picker-options="pickerOptions">
+    </el-date-picker>
 
+    <!-- 选择器 -->
+      <el-cascader
+    v-model="value"
+    :options="options"
+    @change="handleChange"></el-cascader>
+
+      </div>
+    
       <!-- 标题 -->
       <div class="ListTitle">备课列表</div>
 
@@ -77,8 +97,81 @@ export default {
       HeadImage: require("../assets/login_img.png"),
       count: 10,
       listarr:[{num:0,text:"123"}],
-      loading: false
-    };
+      loading: false,
+      value2:"",
+      pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
+        options: [{
+          value: 'zhinan',
+          label: '指南',
+          children: [{
+            value: 'shejiyuanze',
+            label: '设计原则',
+            children: [{
+              value: 'yizhi',
+              label: '一致'
+            }, {
+              value: 'fankui',
+              label: '反馈'
+            }, {
+              value: 'xiaolv',
+              label: '效率'
+            }, {
+              value: 'kekong',
+              label: '可控'
+            }]
+          }, {
+            value: 'daohang',
+            label: '导航',
+            children: [{
+              value: 'cexiangdaohang',
+              label: '侧向导航'
+            }, {
+              value: 'dingbudaohang',
+              label: '顶部导航'
+            }]
+          }]
+        }, {
+          value: 'ziyuan',
+          label: '资源',
+          children: [{
+            value: 'axure',
+            label: 'Axure Components'
+          }, {
+            value: 'sketch',
+            label: 'Sketch Templates'
+          }, {
+            value: 'jiaohu',
+            label: '组件交互文档'
+          }]
+        }]
+      };
+    
   },
   //监听属性 类似于data概念
   computed: {
@@ -104,6 +197,9 @@ export default {
         this.loading = false;
       }, 2000);
     },
+      handleChange(value) {
+        console.log(value);
+      },
     TOExamList(){
         this.$router.push({name:'ExamList',params:{id:101}})
     },
@@ -133,24 +229,22 @@ export default {
   }
 .CLassIndex {
   display: flex;
-  align-items: center;
-  padding: 0px 75px 0px 50px;
+  padding: 150px 75px 0px 50px;
   box-sizing: border-box;
+  height: 100vh;
   
 }
 .CLassIndex_Left {
   width: 857px;
-  /* height: 100%; */
-  margin-top: 150px;
-  /* height: 80vh; */
 }
 .CLassIndex_Right {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  margin-top: 150px;
   width: 930px;
 
+}
+.CLassIndex_Left .el-button{
+  font-size: 28px;
 }
 
 .CLassIndex_Right_Top {
@@ -197,7 +291,7 @@ export default {
    overflow:visible !important;
  }
 .scroll_view {
-  height: 500px;
+  height: 350px;
   width: 100%;
 }
 .ListTitle {
@@ -275,7 +369,7 @@ export default {
 
 /* 日历 */
 .el-calendar__title {
-  font-size: 26px;
+  font-size: 26px !important;
 }
 .el-calendar-table td {
   border: none !important;
@@ -338,5 +432,145 @@ tbody {
   font-size: 30px;
   font-weight: 400;
   color: rgba(164, 169, 255, 1);
+}
+.picker_view{
+  display: flex;
+  align-items: center;
+  margin-left: 86px;
+  margin-bottom: 30px;
+}
+.picker_view .el-date-editor--daterange.el-input__inner{
+  width: 400px !important;
+  /* height: 100px; */
+  padding: 5px 10px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 26px !important;
+}
+.picker_view .el-date-editor .el-range-input, .el-date-editor .el-range-separator{
+  font-size: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.picker_view .el-date-editor .el-range__icon{
+  font-size: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.picker_view .el-date-range-picker__header{
+  height: 60px !important;
+}
+.picker_view .el-input__inner{
+  height: 70px !important;
+  font-size: 26px !important;
+}
+.picker_view .el-cascader .el-input .el-icon-arrow-down{
+  font-size: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.el-cascader-node{
+  height: 60px !important;
+  font-size: 26px !important;
+  font-weight: normal !important;
+}
+.el-cascader-node.in-active-path{
+  font-weight: normal !important;
+
+}
+.el-cascader-node.is-active{
+  font-weight: normal !important;
+}
+.el-cascader-node__label{
+  padding-left: 20px !important;
+}
+.picker_view .el-cascader{
+  margin-left: 30px !important;
+}
+.picker_view .el-picker-panel__shortcut{
+  font-size: 26px !important;
+}
+/* .el-date-range-picker.has-sidebar{
+  width: 1000px;
+} */
+.el-picker-panel [slot=sidebar], .el-picker-panel__sidebar{
+  width: 150px !important;
+}
+   .el-picker-panel__shortcut{
+  font-size: 20px !important;
+  height: 50px !important;
+  display: flex;
+  align-items: center;
+}
+.el-picker-panel [slot=sidebar]+.el-picker-panel__body, .el-picker-panel__sidebar+.el-picker-panel__body{
+  margin-left: 150px !important;
+}
+.el-date-editor .el-range__close-icon{
+  font-size: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.el-date-table{
+  font-size: 26px !important;
+ 
+}
+.el-date-table td span{
+  height: 60px !important;
+  width: 60px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+.el-date-table td, .el-date-table td div{
+  height: 70px !important;
+  width: 70px !important;
+ 
+}
+.el-date-table td div{
+   display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.el-date-table td{
+  height: 70px  !important;
+  width: 70px  !important;
+  padding: 0;
+  /* display: flex; */
+  align-items: center;
+}
+.el-date-range-picker .el-picker-panel__body{
+  display: flex;
+
+}
+.el-picker-panel__body-wrapper{
+  width: 1100px !important;
+}
+.el-date-range-picker__content{
+  width: auto !important;
+}
+.el-date-range-picker.has-sidebar{
+  width: auto !important;
+}
+.el-date-range-picker__header{
+  height: 40px !important;
+  margin-bottom: 20px !important;
+}
+.el-date-table th{
+  text-align: center;
+  font-size: 26px !important;
+}
+.el-date-range-picker__header div{
+  font-size: 26px !important;
+  display: flex;
+  height: 40px !important;
+  align-items: center;
+  justify-content: center;
+}
+.el-picker-panel__icon-btn{
+  font-size: 26px !important;
+}
+.el-picker-panel [slot=sidebar], .el-picker-panel__sidebar{
+  font-size: 26px !important;
 }
 </style>

@@ -61,7 +61,7 @@ width: 100%;
     display: flex;
     align-items: center;
 }
-[class*=" el-icon-"], [class^=el-icon-]{
+.Back [class*=" el-icon-"], .Back [class^=el-icon-]{
     font-size: 50px;
 }
 
