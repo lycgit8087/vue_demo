@@ -5,18 +5,16 @@
       <video id="video" preload autoplay loop muted></video>
       <canvas id="canvas" width="581" height="436"></canvas>
       <canvas id="canvas1" width="581" height="436"></canvas>
+      <canvas v-show="a==0" id="shortCut" width="140" height="140"  ></canvas>
+      <div id="img" v-show="a==0"></div>
+
+
     </div>
     <div class="btns">
       <el-button type="primary" @click="start">打开摄像头</el-button>
-      <el-button type="primary" @click="screenshot">手动截图</el-button>
       <el-button type="primary" @click="keepImg">保存图片</el-button>
     </div>
-    <!-- <div class="imgs" v-show="imgView">
-      <p>未保存图片</p>
-      <canvas id="shortCut" width="140" height="140"></canvas>
-      <p>已保存图片</p>
-      <div id="img"></div>
-    </div> -->
+    
   </div>
 </template>
 <script>
@@ -28,12 +26,18 @@ export default {
   data() {
     return {
       saveArray: {},
-      imgView: false
+      imgView: false,
+      a:1,
+      BaseImage:""
     };
+  },
+  created(){
+    // this.start()
   },
   methods: {
     // 打开摄像头
     start() {
+      let {faceView}=this
       var saveArray = {};
       var canvas = document.getElementById("canvas");
       var context = canvas.getContext("2d");
@@ -67,22 +71,17 @@ export default {
       context1.lineTo(190, 318);
       context1.lineTo(190, 118);
       context1.stroke();
-      setInterval(() => {
-        if (
-          saveArray.x > 200 &&
-          saveArray.x + saveArray.width < 400 &&
-          saveArray.y > 120 &&
-          saveArray.y + saveArray.height < 320 &&
-          saveArray.width < 180 &&
-          saveArray.height < 180
-        ) {
-          console.log(saveArray);
+      setTimeout(()=>{
+         console.log(faceView)
+          if(faceView){
           this.getPhoto();
+
+          }
           for (var key in saveArray) {
             delete saveArray[key];
           }
-        }
-      }, 2000);
+      },3000)
+      
     },
     // 获取人像照片
     getPhoto() {
@@ -91,11 +90,9 @@ export default {
       var context2 = can.getContext("2d");
       context2.drawImage(video, 210, 130, 210, 210, 0, 0, 140, 140);
       this.imgView = true;
+      this.keepImg()
     },
-    // 截屏
-    screenshot() {
-      this.getPhoto();
-    },
+    
     // 将canvas转化为图片
     convertCanvasToImage(canvas) {
       var image = new Image();
@@ -121,15 +118,16 @@ export default {
       var photoImg = document.createElement("img");
       photoImg.src = this.convertCanvasToImage(can).src;
       img.appendChild(photoImg);
+      this.BaseImage=this.convertCanvasToImage(can).src
       //获取到转化为base64的图片地址
         this.$emit(
           "canvasToImage",
           this.dataURLtoFile(this.convertCanvasToImage(can).src, "person.jpg")
         );
       
-      console.log(
-        this.dataURLtoFile(this.convertCanvasToImage(can).src, "person.jpg")
-      );
+      // console.log(
+      //   this.dataURLtoFile(this.convertCanvasToImage(can).src, "person.jpg")
+      // );
     },
     clearCanvas() {
       var c = document.getElementById("canvas");
@@ -154,16 +152,16 @@ export default {
   watch: {
     faceView(v) {
       if (v == false) {
-        this.closeFace();
+        // this.closeFace();
       }
     },
     imgView(v) {
       if (v == true) {
-        this.$message.success({
-          message: "截取成功！点击保存图片",
-          offset: 380,
-          duration: 1000
-        });
+        // this.$message.success({
+        //   message: "截取成功！点击保存图片",
+        //   offset: 380,
+        //   duration: 1000
+        // });
       }
     }
   },
@@ -189,6 +187,9 @@ export default {
       position: absolute;
       width: 581px;
       height: 436px;
+    }
+    #shortCut{
+      opacity: 0;
     }
   .btns {
     padding: 10px;

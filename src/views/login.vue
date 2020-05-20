@@ -89,7 +89,6 @@ export default {
       }
     },
     ToIndex() {
-      console.log(this.$router);
       this.$router.replace({ name: "ClassIndex" });
     },
     // 弹出人脸识别框
@@ -104,25 +103,15 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-    let data={
-         user_type:1,
+    this.$post("token_get","/api?c=api",{
+      user_type:1,
       mode:0,
       username:"test",
       password:"123456"
-      }
-      
-    this.$post("token_get","/api?c=api",data)
+      })
       .then(res=>{
         console.log(res)
       })
-      this.$axios({
-        method:"post"
-      })
-
-     
-
-
-  
     // 判断有无摄像头
     var deviceList = [];
     navigator.mediaDevices
@@ -139,8 +128,6 @@ export default {
 
           return false;
         } else {
-          console.info("有摄像头");
-
           this.videoinput = true;
         }
       })
