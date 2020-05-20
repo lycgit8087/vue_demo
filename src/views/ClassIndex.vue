@@ -44,12 +44,19 @@
       :picker-options="pickerOptions">
     </el-date-picker>
 
-    <!-- 选择器 -->
+    <!-- 年级班级选择器 -->
       <el-cascader
     v-model="value"
     :options="options"
-    @change="handleChange"></el-cascader>
+    @change="handleChange" placeholder="年级/班级"></el-cascader>
+    <!-- 科目章节 -->
 
+     <el-cascader
+    v-model="value"
+    :options="options"
+    @change="handleChange" placeholder="科目/章节" ></el-cascader>
+
+  
       </div>
     
       <!-- 标题 -->
@@ -57,13 +64,13 @@
 
       <!-- 列表内容 -->
 
-      <div class="ListView">
-        <el-scrollbar  class="scroll_view">
-          <ul class="ListParent">
-            <li v-for="i in count" :key="i" class="ListItem" @click="TOExamList" >
-              <div>
+      <div class="ListView" v-infinite-scroll="load" style="overflow:auto">
+        <!-- <el-scrollbar  class="scroll_view"> -->
+          <div  class="ListItem" v-for="i in count" :key="i"  @click="TOExamList" >
+
+            <div>
                 <div class="ListParentChildViewTop">
-                  <p>数的运算（一）</p>
+                  <p>数的运算{{i}}</p>
                   <p>08:10</p>
                 </div>
                 <div class="ListParentChildViewBot">
@@ -71,10 +78,8 @@
                   <p>一年级105级</p>
                 </div>
               </div>
-            </li>
-          </ul>
-        </el-scrollbar>
-
+          </div>
+      
         <p v-if="loading">加载中...</p>
         <p v-if="noMore">没有更多了</p>
       </div>
@@ -99,6 +104,7 @@ export default {
       listarr:[{num:0,text:"123"}],
       loading: false,
       value2:"",
+      selet_value:"",
       pickerOptions: {
           shortcuts: [{
             text: '最近一周',
@@ -126,6 +132,22 @@ export default {
             }
           }]
         },
+          option: [{
+          value: '选项1',
+          label: '黄金糕'
+        }, {
+          value: '选项2',
+          label: '双皮奶'
+        }, {
+          value: '选项3',
+          label: '蚵仔煎'
+        }, {
+          value: '选项4',
+          label: '龙须面'
+        }, {
+          value: '选项5',
+          label: '北京烤鸭'
+        }],
         options: [{
           value: 'zhinan',
           label: '指南',
@@ -240,7 +262,7 @@ export default {
 .CLassIndex_Right {
   display: flex;
   flex-direction: column;
-  width: 930px;
+  width: 1014px;
 
 }
 .CLassIndex_Left .el-button{
@@ -287,9 +309,9 @@ export default {
 .el-scrollbar .el-scrollbar__wrap {
   overflow-x: hidden;
 }
-.el-tree-node>.el-tree-node__children{
+/* .el-tree-node>.el-tree-node__children{
    overflow:visible !important;
- }
+ } */
 .scroll_view {
   height: 350px;
   width: 100%;
@@ -306,11 +328,6 @@ export default {
   margin-bottom: 30px;
   margin-left: 86px;
 }
-.ListView {
-  width: 100%;
-  padding-left: 86px;
-  box-sizing: border-box;
-}
 .ListItem {
   width: 100%;
   height: 150px;
@@ -320,15 +337,25 @@ export default {
   margin-bottom: 20px;
   box-sizing: border-box;
   display: flex;
+  
 }
-.ListParent {
-  display: flex;
+.ListView {
+  width: 100%;
+  padding-left: 86px;
+  box-sizing: border-box;
+  /* display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 10px 10px;
+  justify-content: center; */
+  padding-right:  10px;
   box-sizing: border-box;
   width: 100%;
+  height: 450px;
+}
+.ListView::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
 }
 .ListItem > div {
   width: 100%;
@@ -382,8 +409,9 @@ export default {
   align-items: center;
   justify-content: center;
   height: 70px;
-  padding: 0;
   margin: 0;
+  padding: 0 !important;
+  font-size: 26px !important;
   /* height: auto; */
 }
 /* .el-calendar-table td.is-selected{
@@ -403,9 +431,7 @@ export default {
   align-items: center;
   
 }
-.el-calendar-table .el-calendar-day {
-  padding: 0 !important;
-}
+
 .el-calendar-table tr td:first-child {
   border: none !important;
 }
@@ -415,6 +441,7 @@ export default {
 .el-calendar-table thead th {
   text-align: center;
   height: 80px;
+  font-size: 26px !important;
 }
 .el-calendar__body {
   padding: 0 !important;
@@ -440,7 +467,7 @@ tbody {
   margin-bottom: 30px;
 }
 .picker_view .el-date-editor--daterange.el-input__inner{
-  width: 400px !important;
+  width: 600px !important;
   /* height: 100px; */
   padding: 5px 10px !important;
   box-sizing: border-box !important;
@@ -452,6 +479,10 @@ tbody {
   font-size: 26px !important;
   display: flex !important;
   align-items: center !important;
+}
+.el-date-editor .el-range-separator{
+  width: auto !important;
+
 }
 .picker_view .el-date-editor .el-range__icon{
   font-size: 26px !important;
@@ -487,6 +518,7 @@ tbody {
 }
 .picker_view .el-cascader{
   margin-left: 30px !important;
+  
 }
 .picker_view .el-picker-panel__shortcut{
   font-size: 26px !important;
@@ -572,5 +604,14 @@ tbody {
 }
 .el-picker-panel [slot=sidebar], .el-picker-panel__sidebar{
   font-size: 26px !important;
+}
+.el-select-dropdown__item{
+  font-size: 26px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
+.el-select-dropdown__wrap{
+  height: 300px;
 }
 </style>

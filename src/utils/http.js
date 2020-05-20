@@ -72,12 +72,7 @@ axios.interceptors.request.use(
         //设置请求头
     config.headers = {
         'Content-Type':'application/x-www-form-urlencoded',
-        "timestamp":timestamp,
-        "appid":appid,
-        "signature":hashInBase64,
         "action":apiaction,
-        "module":"smartcube",
-        "token":"S2Yxc211SzQ5UDNnVmZ6WHRKSW5Kc1RTRDFFOURxK0IwejRiZitSQVB4NnJVUnZIQS84cVowd3pjQ3Fob1p2WGtvaXVrd0hQNmQyUkZUcFdqYzc2djh0TXc5bWdtSXl3MXRYc3RDYzRMVWI3cEorT1RGNi90MFljTWJ4Qy9qVkZMek05N09jYkptQ1ZJMndMdGRDZFdnPT0="
       }
     }
     

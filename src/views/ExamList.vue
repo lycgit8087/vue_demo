@@ -21,7 +21,7 @@
       <!-- 试题 -->
       <div class="exam_list_view">
         <p>试题</p>
-          <el-scrollbar class="scroll_view">
+          <div class="scroll_view" v-infinite-scroll="load" style="overflow:auto">
             <div class="exam_list_view_item" v-for="i in list_arr" :key="i">
               <el-image :src="file_image" fit="fit"></el-image>
               <div class="exam_list_view_item_right">
@@ -34,7 +34,7 @@
                 </div>
               </div>
             </div>
-          </el-scrollbar>
+          </div>
       </div>
 
       <!--  查看  -->
@@ -185,7 +185,9 @@ export default {
     SendIt() {
       this.send_toggle = true;
     },
-    SeeData() {},
+    SeeData() {
+      this.$router.push({name:"Census"})
+    },
     to_see_data(){
 
     },
@@ -259,7 +261,7 @@ export default {
   width: 1118px;
   height: 100%;
   background: #f8f8ff;
-  padding: 30px 100px;
+  padding: 0px 100px 30px 20px;
   box-sizing: border-box;
 }
 .exam_list_right {
@@ -315,8 +317,13 @@ export default {
   margin-bottom: 16px;
 }
 .scroll_view {
-  height: 800px;
+  height: 570px;
   width: 702px;
+}
+.scroll_view::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
 }
 .exam_list_view_item {
   height: 200px;
@@ -558,7 +565,7 @@ width:576px;
 height:94px;
 box-shadow:0px 9px 27px 0px rgba(84,93,255,0.3);
 border-radius:18px;
-font-size: 32px;
+font-size: 32px !important;
 
 }
 .back_index{

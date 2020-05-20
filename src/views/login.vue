@@ -104,6 +104,18 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
+
+    this.$post("token_get","/api?c=api",{
+      user_type:1,
+      mode:0,
+      username:"test",
+      password:"123456"
+      })
+      .then(res=>{
+        console.log(res)
+      })
+
+  
     // 判断有无摄像头
     var deviceList = [];
     navigator.mediaDevices

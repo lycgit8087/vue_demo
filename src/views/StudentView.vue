@@ -13,7 +13,7 @@
       <span class="student_view_right_title">答题卡</span>
       <span class="student_view_right_text">2020上学期一年级模拟试题（一）：语文</span>
 
-      <el-scrollbar class="student_scroll_view">
+      <div class="student_scroll_view" v-infinite-scroll="load" style="overflow:auto">
         <div class="student_scroll_view_item" v-for="item in list" :key="item">
           <span>填空题</span>
           <div class="student_scroll_view_item_des">
@@ -24,7 +24,7 @@
             >{{item}}</span>
           </div>
         </div>
-      </el-scrollbar>
+      </div>
     </div>
   </div>
 </template>
@@ -61,7 +61,7 @@ export default {
   background: #f8f8ff;
   display: flex;
   flex-direction: column;
-  padding: 30px 100px;
+  padding: 0 100px 30px 20px;
   box-sizing: border-box;
   align-items: center;
 }
@@ -83,6 +83,8 @@ export default {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 58px;
+  padding: 0 70px;
+  box-sizing: border-box;
 }
 .left_des span:nth-child(1) {
   font-size: 36px;
@@ -117,6 +119,11 @@ export default {
 .student_scroll_view {
   width: 100%;
   height: 70vh;
+}
+.student_scroll_view::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
 }
 .el-tree-node > .el-tree-node__children {
   overflow: visible !important;
