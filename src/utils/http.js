@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Message, Loading } from 'element-ui'
 import Cookies from 'js-cookie'
+import qs from 'qs'
 
 let loadingInstance = null
 const hash = require("./hmac-sha256")
@@ -65,7 +66,7 @@ axios.interceptors.request.use(
     config.baseURL = ''
     config.withCredentials = true // 允许携带token ,这个是解决跨域产生的相关问题
     config.timeout = 6000  //超时时间
-    config.data = JSON.stringify(config.data);
+    config.data = qs.stringify(config.data);
     if(config.headers.action!="token_get"){
     let {timestamp,hashInBase64,apiaction,appid}=get_msg(config.headers.action)
 
@@ -79,6 +80,7 @@ axios.interceptors.request.use(
     // if(token){
     //   config.params = {'token':token}
     // }
+    console.log(config)
     return config;
   },
   error => {
@@ -155,8 +157,11 @@ export function fetch(url,params={}){
  * @returns {Promise}
  */
 
- export function post(apiaction,url,data = {}){
+ export function post(apiaction,url,data){
   return new Promise((resolve,reject) => {
+    
+     
+    
     axios.post(url, data, { headers: {
     "action":apiaction, } }
 ).then((response) => {

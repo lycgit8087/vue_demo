@@ -104,16 +104,23 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-
-    this.$post("token_get","/api?c=api",{
-      user_type:1,
+    let data={
+         user_type:1,
       mode:0,
       username:"test",
       password:"123456"
-      })
+      }
+      
+    this.$post("token_get","/api?c=api",data)
       .then(res=>{
         console.log(res)
       })
+      this.$axios({
+        method:"post"
+      })
+
+     
+
 
   
     // 判断有无摄像头
