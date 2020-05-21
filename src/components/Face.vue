@@ -99,12 +99,9 @@ export default {
       var video = document.getElementById("video");
       var can = document.getElementById("shortCut");
       var context2 = can.getContext("2d");
-      console.log(this.$refs.video_view)
       let el_width = this.$refs.video_view.clientWidth;
       let el_height = this.$refs.video_view.clientHeight;
-
-
-      console.log(el_width,el_height)
+      // console.log(el_width,el_height)
       // context2.drawImage(video, 210, 130, 210, 210, 0, 0, 140, 140);
       context2.drawImage(video, 0, 0, el_width, el_height, 0, 0, el_width, el_height);
 
@@ -115,44 +112,17 @@ export default {
     // 将canvas转化为图片
     convertCanvasToImage(canvas) {
       var image = new Image();
-      console.log(image)
       image.src = canvas.toDataURL("image/jpeg");
-      return image;
+      let src=image.src
+      src=src.substring(src.indexOf(",")+1,src.length)
+      return src;
     },
-    //将base64转换为文件，dataurl为base64字符串，filename为文件名（必须带后缀名，如.jpg,.png）
-    dataURLtoFile(dataurl, filename) {
-      var arr = dataurl.split(","),
-        mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]),
-        n = bstr.length,
-        u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-      return new File([u8arr], filename, { type: mime });
-    },
+    
     // 保存图片
     keepImg() {
       var can = document.getElementById("shortCut");
-      var img = document.getElementById("img");
-      var photoImg = document.createElement("img");
-      photoImg.src = this.convertCanvasToImage(can).src;
-      img.appendChild(photoImg);
-      this.BaseImage=this.convertCanvasToImage(can).src
-      //获取到转化为base64的图片地址
-        // this.$emit(
-        //   "canvasToImage",
-        //   this.dataURLtoFile(this.convertCanvasToImage(can).src, "person.jpg")
-        // );
-        // this.$emit(
-        //   "canvasToImage",
-        //   this.convertCanvasToImage(can).src
-        // );
-        this.LoginIn()
-      
-      // console.log(
-      //   this.dataURLtoFile(this.convertCanvasToImage(can).src, "person.jpg")
-      // );
+      this.BaseImage=this.convertCanvasToImage(can)
+      this.LoginIn()
     },
 
      // 登录
