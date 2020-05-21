@@ -5,9 +5,9 @@
     element-loading-spinner="el-icon-loading"
     element-loading-background="rgba(0, 0, 0, 0.8)" >
     <div class="container">
-      <video id="video" preload autoplay loop muted></video>
-      <canvas id="canvas" width="581" height="436"></canvas>
-      <canvas id="canvas1" width="581" height="436"></canvas>
+      <video id="video" preload autoplay loop muted ref="video_view" ></video>
+      <canvas id="canvas" ></canvas>
+      <canvas id="canvas1" ></canvas>
       <canvas v-show="a==0" id="shortCut" width="140" height="140"  ></canvas>
       <div id="img" v-show="a==0"></div>
 
@@ -38,6 +38,7 @@ export default {
   created(){
   },
   methods: {
+ 
     // 打开摄像头
     start() {
       let {faceView}=this
@@ -65,14 +66,22 @@ export default {
           saveArray.height = rect.height;
         });
       });
+         console.log(this.$refs.video_view)
+      let el_width = this.$refs.video_view.clientWidth;
+      let el_height = this.$refs.video_view.clientHeight;
       var canvas1 = document.getElementById("canvas1");
       var context1 = canvas1.getContext("2d");
       context1.strokeStyle = "#69fff1";
-      context1.moveTo(190, 118);
-      context1.lineTo(390, 118);
-      context1.lineTo(390, 318);
-      context1.lineTo(190, 318);
-      context1.lineTo(190, 118);
+      // context1.moveTo(190, 118);
+      // context1.lineTo(390, 118);
+      // context1.lineTo(390, 318);
+      // context1.lineTo(190, 318);
+      // context1.lineTo(190, 118);
+      context1.moveTo(0, 0);
+      context1.lineTo(0, el_width);
+      context1.lineTo(el_height, el_width);
+      context1.lineTo(0, el_height);
+      context1.lineTo(0, el_width);
       context1.stroke();
       setTimeout(()=>{
         this.loading=true
@@ -90,7 +99,15 @@ export default {
       var video = document.getElementById("video");
       var can = document.getElementById("shortCut");
       var context2 = can.getContext("2d");
-      context2.drawImage(video, 210, 130, 210, 210, 0, 0, 140, 140);
+      console.log(this.$refs.video_view)
+      let el_width = this.$refs.video_view.clientWidth;
+      let el_height = this.$refs.video_view.clientHeight;
+
+
+      console.log(el_width,el_height)
+      // context2.drawImage(video, 210, 130, 210, 210, 0, 0, 140, 140);
+      context2.drawImage(video, 0, 0, el_width, el_height, 0, 0, el_width, el_height);
+
       this.imgView = true;
       this.keepImg()
     },
@@ -98,7 +115,8 @@ export default {
     // 将canvas转化为图片
     convertCanvasToImage(canvas) {
       var image = new Image();
-      image.src = canvas.toDataURL("image/png");
+      console.log(image)
+      image.src = canvas.toDataURL("image/jpeg");
       return image;
     },
     //将base64转换为文件，dataurl为base64字符串，filename为文件名（必须带后缀名，如.jpg,.png）

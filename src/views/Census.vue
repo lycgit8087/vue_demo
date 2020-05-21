@@ -432,9 +432,6 @@ export default {
   position: relative;
   padding: 18px 28px;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 .list_view_scroll_other_title{
   display: flex;

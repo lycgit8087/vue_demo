@@ -2,16 +2,13 @@
 <template>
   <div class="CLassIndex">
     <div class="CLassIndex_Left">
-      <el-calendar v-model="value" first-day-of-week="1">
-        <template
-    slot="dateCell"
-    slot-scope="{date, data}">
-    <p :class="data.isSelected ? 'is-selected' : ''">
-      {{ data.day.split('-').slice(2).join('-') }}
-       <!-- {{ data.isSelected ? '✔️' : ''}} -->
-    </p>
-  </template>
-
+      <el-calendar v-model="value" :first-day-of-week="1">
+        <template slot="dateCell" slot-scope="{date, data}">
+          <p :class="data.isSelected ? 'is-selected' : ''">
+            {{ data.day.split('-').slice(2).join('-') }}
+            <!-- {{ data.isSelected ? '✔️' : ''}} -->
+          </p>
+        </template>
       </el-calendar>
     </div>
 
@@ -20,45 +17,45 @@
       <div class="CLassIndex_Right_Top">
         <div class="CLassIndex_Right_Top_Left">
           <el-image :src="HeadImage" fit="cover"></el-image>
-          <!-- <el-avatar :size="size" :src="HeadImage"></el-avatar> -->
           <div class="CLassIndex_Right_Top_Msg">
             <p>嬴政</p>
             <p>数学老师 班主任1</p>
           </div>
         </div>
 
-        <div class="ResetLogin" @click="BackLogin" >退出登录</div>
+        <div class="ResetLogin" @click="BackLogin">退出登录</div>
       </div>
 
-      <!-- <alert-view :list="listarr" ></alert-view> -->
-      <div class="picker_view" >
+      <div class="picker_view">
         <!-- 时间筛选 -->
-          <el-date-picker
-      v-model="value2"
-      type="daterange"
-      align="right"
-      unlink-panels
-      range-separator="至"
-      start-placeholder="开始日期"
-      end-placeholder="结束日期"
-      :picker-options="pickerOptions">
-    </el-date-picker>
+        <el-date-picker
+          v-model="value2"
+          type="daterange"
+          align="right"
+          unlink-panels
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          :picker-options="pickerOptions"
+        ></el-date-picker>
 
-    <!-- 年级班级选择器 -->
-      <el-cascader
-    v-model="value"
-    :options="options"
-    @change="handleChange" placeholder="年级/班级"></el-cascader>
-    <!-- 科目章节 -->
+        <!-- 年级班级选择器 -->
+        <el-cascader
+          v-model="class_value"
+          :options="options"
+          @change="handleChangeClass"
+          placeholder="年级/班级"
+        ></el-cascader>
+        <!-- 科目章节 -->
 
-     <el-cascader
-    v-model="value"
-    :options="options"
-    @change="handleChange" placeholder="科目/章节" ></el-cascader>
-
-  
+        <el-cascader
+          v-model="course_value"
+          :options="options"
+          @change="handleChangeCourse"
+          placeholder="科目/章节"
+        ></el-cascader>
       </div>
-    
+
       <!-- 标题 -->
       <div class="ListTitle">备课列表</div>
 
@@ -66,20 +63,19 @@
 
       <div class="ListView" v-infinite-scroll="load" style="overflow:auto">
         <!-- <el-scrollbar  class="scroll_view"> -->
-          <div  class="ListItem" v-for="i in count" :key="i"  @click="TOExamList" >
-
-            <div>
-                <div class="ListParentChildViewTop">
-                  <p>数的运算{{i}}</p>
-                  <p>08:10</p>
-                </div>
-                <div class="ListParentChildViewBot">
-                  <p>用数学“9加几” [课时2]</p>
-                  <p>一年级105级</p>
-                </div>
-              </div>
+        <div class="ListItem" v-for="i in count" :key="i" @click="TOExamList">
+          <div>
+            <div class="ListParentChildViewTop">
+              <p>数的运算{{i}}</p>
+              <p>08:10</p>
+            </div>
+            <div class="ListParentChildViewBot">
+              <p>用数学“9加几” [课时2]</p>
+              <p>一年级105级</p>
+            </div>
           </div>
-      
+        </div>
+
         <p v-if="loading">加载中...</p>
         <p v-if="noMore">没有更多了</p>
       </div>
@@ -90,7 +86,7 @@
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
 
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -99,102 +95,99 @@ export default {
   data() {
     //这里存放数据
     return {
-      value:Date.parse(new Date()) ,
+      value: Date.parse(new Date()),
+      class_value: [],
+      course_value: [],
       HeadImage: require("../assets/login_img.png"),
       count: 10,
-      listarr:[{num:0,text:"123"}],
+      listarr: [{ num: 0, text: "123" }],
       loading: false,
-      value2:"",
-      selet_value:"",
+      value2: "",
+      selet_value: "",
       pickerOptions: {
-          shortcuts: [{
-            text: '最近一周',
+        shortcuts: [
+          {
+            text: "最近一周",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近一个月',
+          },
+          {
+            text: "最近一个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近三个月',
+          },
+          {
+            text: "最近三个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }]
+          }
+        ]
+      },
+      options: [
+        {
+          value: "zhinan",
+          label: "指南",
+          children: [
+            {
+              value: "shejiyuanze",
+              label: "设计原则",
+              children: [
+                {
+                  value: "yizhi",
+                  label: "一致"
+                },
+                {
+                  value: "fankui",
+                  label: "反馈"
+                },
+                {
+                  value: "xiaolv",
+                  label: "效率"
+                },
+                {
+                  value: "kekong",
+                  label: "可控"
+                }
+              ]
+            },
+            {
+              value: "daohang",
+              label: "导航"
+            }
+          ]
         },
-          option: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }],
-        options: [{
-          value: 'zhinan',
-          label: '指南',
-          children: [{
-            value: 'shejiyuanze',
-            label: '设计原则',
-            children: [{
-              value: 'yizhi',
-              label: '一致'
-            }, {
-              value: 'fankui',
-              label: '反馈'
-            }, {
-              value: 'xiaolv',
-              label: '效率'
-            }, {
-              value: 'kekong',
-              label: '可控'
-            }]
-          }, {
-            value: 'daohang',
-            label: '导航',
-            children: [{
-              value: 'cexiangdaohang',
-              label: '侧向导航'
-            }, {
-              value: 'dingbudaohang',
-              label: '顶部导航'
-            }]
-          }]
-        }, {
-          value: 'ziyuan',
-          label: '资源',
-          children: [{
-            value: 'axure',
-            label: 'Axure Components'
-          }, {
-            value: 'sketch',
-            label: 'Sketch Templates'
-          }, {
-            value: 'jiaohu',
-            label: '组件交互文档'
-          }]
-        }]
-      };
-    
+        {
+          value: "ziyuan",
+          label: "资源",
+          children: [
+            {
+              value: "axure",
+              label: "Axure Components"
+            },
+            {
+              value: "sketch",
+              label: "Sketch Templates"
+            },
+            {
+              value: "jiaohu",
+              label: "组件交互文档"
+            }
+          ]
+        }
+      ]
+    };
   },
   //监听属性 类似于data概念
   computed: {
@@ -207,9 +200,9 @@ export default {
   },
   //监控data中的数据变化
   watch: {
-      value(val){
-          console.log(Date.parse(val))
-      }
+    value(val) {
+      console.log(Date.parse(val));
+    }
   },
   //方法集合
   methods: {
@@ -220,17 +213,21 @@ export default {
         this.loading = false;
       }, 2000);
     },
-      handleChange(value) {
-        console.log(value);
-      },
-    TOExamList(){
-        this.$router.push({name:'ExamList',params:{id:101}})
+    handleChangeClass() {
+      let { class_value } = this;
+      console.log(class_value);
     },
-    BackLogin(){
-        this.$Cookies.set("token","")
-        this.$router.replace({name:'Login',params:{id:101}})
-
+    handleChangeCourse() {
+      let { course_value } = this;
+      console.log(course_value);
     },
+    TOExamList() {
+      this.$router.push({ name: "ExamList", params: { id: 101 } });
+    },
+    BackLogin() {
+      this.$Cookies.set("token", "");
+      this.$router.replace({ name: "Login", params: { id: 101 } });
+    }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
@@ -248,15 +245,14 @@ export default {
 <style >
 /* //@import url(); 引入公共css类 */
 /* @import url('../style/style.css'); */
-  .is-selected {
-    color: #1989FA;
-  }
+.is-selected {
+  color: #1989fa;
+}
 .CLassIndex {
   display: flex;
   padding: 150px 75px 0px 50px;
   box-sizing: border-box;
   height: 100vh;
-  
 }
 .CLassIndex_Left {
   width: 857px;
@@ -265,9 +261,8 @@ export default {
   display: flex;
   flex-direction: column;
   width: 1014px;
-
 }
-.CLassIndex_Left .el-button{
+.CLassIndex_Left .el-button {
   font-size: 28px;
 }
 
@@ -339,7 +334,6 @@ export default {
   margin-bottom: 20px;
   box-sizing: border-box;
   display: flex;
-  
 }
 .ListView {
   width: 100%;
@@ -349,7 +343,7 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center; */
-  padding-right:  10px;
+  padding-right: 10px;
   box-sizing: border-box;
   width: 100%;
   height: 450px;
@@ -370,7 +364,7 @@ export default {
 }
 .ListParentChildViewTop,
 .ListParentChildViewBot {
-    display: flex;
+  display: flex;
   width: 100%;
   align-items: center;
   justify-content: space-between;
@@ -421,7 +415,6 @@ export default {
 } */
 
 .el-calendar__header {
-  
   display: flex;
   align-items: center;
   padding: 0px 20px;
@@ -431,7 +424,6 @@ export default {
   border-bottom: none !important;
   /* height: 120px; */
   align-items: center;
-  
 }
 
 .el-calendar-table tr td:first-child {
@@ -452,7 +444,6 @@ export default {
   border: 1px solid #dcdfe6 !important;
   padding: 12px 20px;
   box-sizing: border-box;
-  
 }
 tbody {
   border: none !important;
@@ -462,13 +453,13 @@ tbody {
   font-weight: 400;
   color: rgba(164, 169, 255, 1);
 }
-.picker_view{
+.picker_view {
   display: flex;
   align-items: center;
   margin-left: 86px;
   margin-bottom: 30px;
 }
-.picker_view .el-date-editor--daterange.el-input__inner{
+.picker_view .el-date-editor--daterange.el-input__inner {
   width: 600px !important;
   /* height: 100px; */
   padding: 5px 10px !important;
@@ -477,143 +468,142 @@ tbody {
   align-items: center !important;
   font-size: 26px !important;
 }
-.picker_view .el-date-editor .el-range-input, .el-date-editor .el-range-separator{
+.picker_view .el-date-editor .el-range-input,
+.el-date-editor .el-range-separator {
   font-size: 26px !important;
   display: flex !important;
   align-items: center !important;
 }
-.el-date-editor .el-range-separator{
+.el-date-editor .el-range-separator {
   width: auto !important;
-
 }
-.picker_view .el-date-editor .el-range__icon{
+.picker_view .el-date-editor .el-range__icon {
   font-size: 26px !important;
   display: flex !important;
   align-items: center !important;
 }
-.picker_view .el-date-range-picker__header{
+.picker_view .el-date-range-picker__header {
   height: 60px !important;
 }
-.picker_view .el-input__inner{
+.picker_view .el-input__inner {
   height: 70px !important;
   font-size: 26px !important;
 }
-.picker_view .el-cascader .el-input .el-icon-arrow-down{
+.picker_view .el-cascader .el-input .el-icon-arrow-down {
   font-size: 26px !important;
   display: flex !important;
   align-items: center !important;
 }
-.el-cascader-node{
+.el-cascader-node {
   height: 60px !important;
   font-size: 26px !important;
   font-weight: normal !important;
 }
-.el-cascader-node.in-active-path{
-  font-weight: normal !important;
-
-}
-.el-cascader-node.is-active{
+.el-cascader-node.in-active-path {
   font-weight: normal !important;
 }
-.el-cascader-node__label{
+.el-cascader-node.is-active {
+  font-weight: normal !important;
+}
+.el-cascader-node__label {
   padding-left: 20px !important;
 }
-.picker_view .el-cascader{
+.picker_view .el-cascader {
   margin-left: 30px !important;
-  
 }
-.picker_view .el-picker-panel__shortcut{
+.picker_view .el-picker-panel__shortcut {
   font-size: 26px !important;
 }
 /* .el-date-range-picker.has-sidebar{
   width: 1000px;
 } */
-.el-picker-panel [slot=sidebar], .el-picker-panel__sidebar{
+.el-picker-panel [slot="sidebar"],
+.el-picker-panel__sidebar {
   width: 150px !important;
 }
-   .el-picker-panel__shortcut{
+.el-picker-panel__shortcut {
   font-size: 20px !important;
   height: 50px !important;
   display: flex;
   align-items: center;
 }
-.el-picker-panel [slot=sidebar]+.el-picker-panel__body, .el-picker-panel__sidebar+.el-picker-panel__body{
+.el-picker-panel [slot="sidebar"] + .el-picker-panel__body,
+.el-picker-panel__sidebar + .el-picker-panel__body {
   margin-left: 150px !important;
 }
-.el-date-editor .el-range__close-icon{
+.el-date-editor .el-range__close-icon {
   font-size: 26px !important;
   display: flex !important;
   align-items: center !important;
 }
-.el-date-table{
+.el-date-table {
   font-size: 26px !important;
- 
 }
-.el-date-table td span{
+.el-date-table td span {
   height: 60px !important;
   width: 60px !important;
   display: flex !important;
   align-items: center;
   justify-content: center;
 }
-.el-date-table td, .el-date-table td div{
+.el-date-table td,
+.el-date-table td div {
   height: 70px !important;
   width: 70px !important;
- 
 }
-.el-date-table td div{
-   display: flex;
+.el-date-table td div {
+  display: flex;
   align-items: center;
   justify-content: center;
 }
-.el-date-table td{
-  height: 70px  !important;
-  width: 70px  !important;
+.el-date-table td {
+  height: 70px !important;
+  width: 70px !important;
   padding: 0;
   /* display: flex; */
   align-items: center;
 }
-.el-date-range-picker .el-picker-panel__body{
+.el-date-range-picker .el-picker-panel__body {
   display: flex;
-
 }
-.el-picker-panel__body-wrapper{
+.el-picker-panel__body-wrapper {
   width: 1100px !important;
 }
-.el-date-range-picker__content{
+.el-date-range-picker__content {
   width: auto !important;
 }
-.el-date-range-picker.has-sidebar{
+.el-date-range-picker.has-sidebar {
   width: auto !important;
 }
-.el-date-range-picker__header{
+.el-date-range-picker__header {
   height: 40px !important;
   margin-bottom: 20px !important;
 }
-.el-date-table th{
+.el-date-table th {
   text-align: center;
   font-size: 26px !important;
 }
-.el-date-range-picker__header div{
+.el-date-range-picker__header div {
   font-size: 26px !important;
   display: flex;
   height: 40px !important;
   align-items: center;
   justify-content: center;
 }
-.el-picker-panel__icon-btn{
+.el-picker-panel__icon-btn {
   font-size: 26px !important;
 }
-.el-picker-panel [slot=sidebar], .el-picker-panel__sidebar{
+.el-picker-panel [slot="sidebar"],
+.el-picker-panel__sidebar {
   font-size: 26px !important;
 }
-.el-select-dropdown__item{
+.el-select-dropdown__item {
   font-size: 26px;
   height: 60px;
   display: flex;
   align-items: center;
 }
-.el-select-dropdown__wrap{
+.el-select-dropdown__wrap {
   height: 300px;
 }
 </style>
