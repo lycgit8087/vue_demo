@@ -10,7 +10,7 @@ export default new Router({
       component: () => import('@/views/ClassIndex')
     },
     {
-      path: '/',
+      path: '/login',
       name: 'Login',
       component: () => import('@/views/Login')
     },
@@ -28,6 +28,11 @@ export default new Router({
       path: '/census',
       name: 'Census',
       component: () => import('@/views/Census')
+    },
+    {
+      path: '/exam_detail',
+      name: 'ExamDetail',
+      component: () => import('@/views/ExamDetail')
     },
   ]
 })

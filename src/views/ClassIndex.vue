@@ -2,7 +2,7 @@
 <template>
   <div class="CLassIndex">
     <div class="CLassIndex_Left">
-      <el-calendar v-model="value">
+      <el-calendar v-model="value" first-day-of-week="1">
         <template
     slot="dateCell"
     slot-scope="{date, data}">
@@ -90,6 +90,7 @@
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
+import Cookies from 'js-cookie'
 
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -226,6 +227,7 @@ export default {
         this.$router.push({name:'ExamList',params:{id:101}})
     },
     BackLogin(){
+        this.$Cookies.set("token","")
         this.$router.replace({name:'Login',params:{id:101}})
 
     },

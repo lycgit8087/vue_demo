@@ -19,7 +19,7 @@
         </div>
         <!-- 登录 -->
         <div class="login_text">
-          <p>快速安全登录</p>
+          <p @click="LoginIn" >快速安全登录</p>
           <p>微信扫码登录</p>
         </div>
       </div>
@@ -51,7 +51,8 @@ export default {
       videoinput: true,
       fileList: [],
       face: "",
-      checkFaceView: true
+      checkFaceView: true,
+      QrcodeUrl:""
     };
   },
   //监听属性 类似于data概念
@@ -70,49 +71,54 @@ export default {
   },
   //方法集合
   methods: {
+    // 地址转二维码
     qrcode() {
       let el_width = this.$refs.qrcode_bg_style.clientWidth;
-
+      let {QrcodeUrl}=this
       new QRCode("qrcode", {
         width: el_width, // 设置宽度，单位像素
         height: el_width, // 设置高度，单位像素
-        text: "https://www.baidu.com" // 设置二维码内容或跳转地址
+        text: QrcodeUrl // 设置二维码内容或跳转地址
       });
     },
-
-    // 切换tab
-    change_tab(index) {
-      this.tab_index = index;
-      if (index == 0) {
-        // document.getElementById('qrcode').innerHTML = ''
-        // this.qrcode()
-      }
-    },
-    ToIndex() {
-      this.$router.replace({ name: "ClassIndex" });
-    },
-    // 弹出人脸识别框
-    checkFace() {
-      this.checkFaceView = true;
-    },
-    // 获取截取图片
-    getImgFile(d) {
-      this.face = d;
-      this.checkFaceView = false;
-    }
-  },
-  //生命周期 - 创建完成（可以访问当前this实例）
-  created() {
-    this.$post("token_get","/api?c=api",{
+    // 登录
+    LoginIn(){
+      console.log(123)
+       this.$get_token("/?c=api",{
       user_type:1,
       mode:0,
       username:"test",
       password:"123456"
-      })
-      .then(res=>{
+      }).then(res=>{
         console.log(res)
       })
-    // 判断有无摄像头
+    },
+    get_qrcode(){
+      let self=this
+      this.$post("qrcode_get","/?c=api",{
+        user_type:1,
+        code_type:0,
+
+      }).then(res=>{
+        self.QrcodeUrl=res.text
+        self.qrcode()
+      })
+    },
+    // 获取base图片
+    getImgFile(e){
+      console.log(e)
+    },
+
+    // 切换tab
+    change_tab(index) {
+      
+      if (index == 1){
+        // this.$message.success({
+        //       message: "人脸识别成功！",
+        //       offset: 380,
+        //       duration: 1000
+        //     });
+        // 判断有无摄像头
     var deviceList = [];
     navigator.mediaDevices
       .enumerateDevices()
@@ -125,6 +131,7 @@ export default {
             message: "未能识别摄像头，无法使用人脸识别",
             type: "warning"
           });
+          // this.tab_index = 0;
 
           return false;
         } else {
@@ -134,9 +141,25 @@ export default {
       .catch(function(err) {
         alert(err.name + ": " + err.message);
       });
+      }
+
+      this.tab_index = index;
+    },
+    ToIndex() {
+      this.$router.replace({ name: "ClassIndex" });
+    },
+    // 弹出人脸识别框
+    checkFace() {
+      this.checkFaceView = true;
+    },
+  },
+  //生命周期 - 创建完成（可以访问当前this实例）
+  created() {
+    this.get_qrcode()
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
+
     this.qrcode(); //生成二维码
     //获取屏幕宽高
     this.$message(
@@ -188,6 +211,9 @@ export default {
   top: 0;
   background: #fff;
   z-index: 2;
+}
+#qrcode canvas{
+  display: none;
 }
 .qrcode_view {
   display: flex;

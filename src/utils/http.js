@@ -5,82 +5,39 @@ import qs from 'qs'
 
 let loadingInstance = null
 const hash = require("./hmac-sha256")
-console.log(process.env.NODE_ENV,process.env.API_UR)
-
-
-// 获取信息
-function get_msg(apiaction){
-    let appid = "7540d5fee7d947b8",
-        ApiKey = "86101569218e47c49b26ae4c9b141b6b",
-        moudle_name = apiaction == "token_get" ? '' : 'smartcube'
-    let timestamp = Date.parse(new Date());
-        timestamp = timestamp/1000;
-    let hashfist = hash.CryptoJS.HmacSHA256(timestamp + appid +moudle_name+ apiaction, ApiKey)
-    let hashInBase64 = hash.CryptoJS.enc.Base64.stringify(hashfist);
-    
-    let obj = {
-      hashInBase64,
-      timestamp,
-      appid,
-      apiaction
-    }
-    return obj
-}
-
-// 获取token方法
-export function get_token(url,params={}){
-  let {timestamp,hashInBase64,apiaction,appid}=get_msg("token_get")
-    return new Promise((resolve,reject) => {
-        axios.post(url, params, { 
-        headers: { 
-        "timestamp" : timestamp,
-        "appid" : appid,
-        "signature" : hashInBase64,
-        "action" : apiaction,
-        "module" : "" 
-      } 
-    }
-    ).then((response) => {
-        Cookies.set("token",response.data.token)
-
-        resolve(response.data);
-    
-    }).catch(err => {
-        reject(err)
-      });  
-    })
-  }
-
+const root = process.env.API_ROOT;
 //http request 拦截器
-
-
 axios.interceptors.request.use(
   config => {
-
-    loadingInstance = Loading.service({
-      lock: true,
-      text: 'loading...'
-    })
-     const token = Cookies.get("token");//注意使用的时候需要引入cookie方法，推荐js-cookie
-    console.log(config)
+    // if(config.headers.action!="token_get"){
+      loadingInstance = Loading.service({
+        lock: true,
+        text: 'loading...'
+      })
+    // }
+    const token = Cookies.get("token");//注意使用的时候需要引入cookie方法，推荐js-cookie
     config.baseURL = ''
+    config.url = root + config.url;
     config.withCredentials = true // 允许携带token ,这个是解决跨域产生的相关问题
     config.timeout = 6000  //超时时间
     config.data = qs.stringify(config.data);
     if(config.headers.action!="token_get"){
-    let {timestamp,hashInBase64,apiaction,appid}=get_msg(config.headers.action)
-
-        //设置请求头
+      //设置请求头
     config.headers = {
         'Content-Type':'application/x-www-form-urlencoded',
-        "action":apiaction,
+        "action":config.headers.action,
+        "token":token
+      }
+    }else{
+      config.headers = {
+        'Content-Type':'application/x-www-form-urlencoded',
+        "action":"token_get",
       }
     }
     
     // if(token){
     //   config.params = {'token':token}
     // }
-    console.log(config)
     return config;
   },
   error => {
@@ -94,7 +51,6 @@ axios.interceptors.response.use(
   response => {
       console.log(response)
       loadingInstance.close()
-
       if(response.data.response_code==-1){
         
         Message({
@@ -103,11 +59,6 @@ axios.interceptors.response.use(
           duration: 3 * 1000
         })
       }
-
-      
-
-      // loadingInstance.close()
-
     // if(response.data.errCode ==2){
     //   router.push({
     //     path:"/login",
@@ -125,6 +76,44 @@ axios.interceptors.response.use(
   }
 )
 
+
+// 获取信息
+function get_msg(apiaction){
+  let appid = "7540d5fee7d947b8",
+      ApiKey = "86101569218e47c49b26ae4c9b141b6b",
+      moudle_name = apiaction == "token_get" ? '' : 'smartcube'
+  let timestamp = Date.parse(new Date());
+      timestamp = timestamp/1000;
+  let hashfist = hash.CryptoJS.HmacSHA256(timestamp + appid +moudle_name+ apiaction, ApiKey)
+  let hashInBase64 = hash.CryptoJS.enc.Base64.stringify(hashfist);
+  
+  let obj = {
+    hashInBase64,
+    timestamp,
+    appid,
+    apiaction
+  }
+  return obj
+}
+
+// 获取token方法
+export function get_token(url,params={}){
+// let {timestamp,hashInBase64,apiaction,appid}=get_msg("token_get")
+  return new Promise((resolve,reject) => {
+      axios.post(url, params, { 
+      headers: { 
+      "action" : "token_get",
+    } 
+  }
+  ).then((response) => {
+      Cookies.set("token",response.data.token)
+      resolve(response.data);
+  
+  }).catch(err => {
+      reject(err)
+    });  
+  })
+}
 
 
 

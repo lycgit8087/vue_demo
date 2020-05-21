@@ -1,6 +1,9 @@
 <!-- 人脸识别 -->
 <template>
-  <div class="face">
+  <div class="face" v-loading="loading"
+    element-loading-text="识别中"
+    element-loading-spinner="el-icon-loading"
+    element-loading-background="rgba(0, 0, 0, 0.8)" >
     <div class="container">
       <video id="video" preload autoplay loop muted></video>
       <canvas id="canvas" width="581" height="436"></canvas>
@@ -11,15 +14,15 @@
 
     </div>
     <div class="btns">
-      <el-button type="primary" @click="start">打开摄像头</el-button>
-      <el-button type="primary" @click="keepImg">保存图片</el-button>
+      <el-button type="primary" icon="el-icon-user" @click="start">人脸识别</el-button>
+      <!-- <el-button type="primary" @click="keepImg">保存图片</el-button> -->
     </div>
     
   </div>
 </template>
 <script>
-import "../utils/tracking-min.js"; // 需要引入(下载链接在文末)
-import "../utils/face-min.js"; // // 需要引入(下载链接在文末)
+import "../utils/tracking-min.js"; // 
+import "../utils/face-min.js"; // // 
 export default {
   name: "testTracking",
   props: ["faceView"],
@@ -27,12 +30,12 @@ export default {
     return {
       saveArray: {},
       imgView: false,
+      loading:false,
       a:1,
       BaseImage:""
     };
   },
   created(){
-    // this.start()
   },
   methods: {
     // 打开摄像头
@@ -72,15 +75,14 @@ export default {
       context1.lineTo(190, 118);
       context1.stroke();
       setTimeout(()=>{
-         console.log(faceView)
+        this.loading=true
           if(faceView){
           this.getPhoto();
-
           }
           for (var key in saveArray) {
             delete saveArray[key];
           }
-      },3000)
+      },5000)
       
     },
     // 获取人像照片
@@ -120,14 +122,34 @@ export default {
       img.appendChild(photoImg);
       this.BaseImage=this.convertCanvasToImage(can).src
       //获取到转化为base64的图片地址
-        this.$emit(
-          "canvasToImage",
-          this.dataURLtoFile(this.convertCanvasToImage(can).src, "person.jpg")
-        );
+        // this.$emit(
+        //   "canvasToImage",
+        //   this.dataURLtoFile(this.convertCanvasToImage(can).src, "person.jpg")
+        // );
+        // this.$emit(
+        //   "canvasToImage",
+        //   this.convertCanvasToImage(can).src
+        // );
+        this.LoginIn()
       
       // console.log(
       //   this.dataURLtoFile(this.convertCanvasToImage(can).src, "person.jpg")
       // );
+    },
+
+     // 登录
+    LoginIn(){
+      let{BaseImage}=this
+       this.$get_token("/?c=api",{
+      user_type:1,
+      mode:1,
+      image:BaseImage,
+      }).then(res=>{
+        
+        console.log(res)
+      })
+        this.loading=false
+
     },
     clearCanvas() {
       var c = document.getElementById("canvas");
@@ -177,6 +199,9 @@ export default {
     height: 436px;
     
    
+  }
+  .face .el-button{
+    font-size: 26px !important;
   }
   #canvas1 {
       position: absolute;

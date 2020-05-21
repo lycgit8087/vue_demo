@@ -4,6 +4,7 @@
 
 const path = require('path')
 
+
 module.exports = {
   dev: {
 
@@ -15,7 +16,7 @@ module.exports = {
         target: 'https://aits.imofang.cn/app.aspx',//后端接口地址
         changeOrigin: true,//是否允许跨越
         pathRewrite: {
-            '^/api': '/api',//重写,
+            '^/api': '',//重写,
         }
     }
     },
@@ -59,6 +60,15 @@ module.exports = {
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
     assetsPublicPath: './',
+    proxyTable: {
+      '/api': {
+        target: 'https://aits.imofang.cn/app.aspx',//后端接口地址
+        changeOrigin: true,//是否允许跨越
+        pathRewrite: {
+            '^/api': '',//重写,
+        }
+    }
+    },
 
     /**
      * Source Maps
