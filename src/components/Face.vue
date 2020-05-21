@@ -66,7 +66,6 @@ export default {
           saveArray.height = rect.height;
         });
       });
-         console.log(this.$refs.video_view)
       let el_width = this.$refs.video_view.clientWidth;
       let el_height = this.$refs.video_view.clientHeight;
       var canvas1 = document.getElementById("canvas1");
