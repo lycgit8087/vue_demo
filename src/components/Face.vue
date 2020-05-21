@@ -15,7 +15,6 @@
     </div>
     <div class="btns">
       <el-button type="primary" icon="el-icon-user" @click="start">人脸识别</el-button>
-      <!-- <el-button type="primary" @click="keepImg">保存图片</el-button> -->
     </div>
     
   </div>
@@ -42,6 +41,7 @@ export default {
     // 打开摄像头
     start() {
       let {faceView}=this
+      this.loading=true
       var saveArray = {};
       var canvas = document.getElementById("canvas");
       var context = canvas.getContext("2d");
