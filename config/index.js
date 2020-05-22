@@ -14,6 +14,7 @@ module.exports = {
     proxyTable: {
       '/api': {
         target: 'https://aits.imofang.cn/app.aspx',//后端接口地址
+        // target:"http://192.168.11.104/app.aspx",
         changeOrigin: true,//是否允许跨越
         pathRewrite: {
             '^/api': '',//重写,

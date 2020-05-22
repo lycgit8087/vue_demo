@@ -1,9 +1,6 @@
 <!-- 人脸识别 -->
 <template>
-  <div class="face" v-loading="loading"
-    element-loading-text="识别中"
-    element-loading-spinner="el-icon-loading"
-    element-loading-background="rgba(0, 0, 0, 0.8)" >
+  <div class="face">
     <div class="container">
       <video id="video" preload autoplay loop muted ref="video_view" ></video>
       <canvas id="canvas" ></canvas>
@@ -14,7 +11,8 @@
 
     </div>
     <div class="btns">
-      <el-button type="primary" icon="el-icon-user" @click="start">人脸识别</el-button>
+      <el-button type="primary" icon="el-icon-user" @click="start" :loading="isLoading" :disabled="isLoading"  >
+        {{isLoading?'识别中':'人脸识别'}}</el-button>
     </div>
     
   </div>
@@ -29,7 +27,7 @@ export default {
     return {
       saveArray: {},
       imgView: false,
-      loading:false,
+      isLoading:false,
       a:1,
       BaseImage:""
     };
@@ -41,7 +39,8 @@ export default {
     // 打开摄像头
     start() {
       let {faceView}=this
-      this.loading=true
+      this.isLoading=true
+      let self=this
       var saveArray = {};
       var canvas = document.getElementById("canvas");
       var context = canvas.getContext("2d");
@@ -54,36 +53,12 @@ export default {
       this.trackerTask = window.tracking.track("#video", tracker, {
         camera: true
       });
-      tracker.on("track", function(event) {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        event.data.forEach(function(rect) {
-          context.strokeStyle = "#fff";
-          context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-          context.fillStyle = "#fff";
-          saveArray.x = rect.x;
-          saveArray.y = rect.y;
-          saveArray.width = rect.width;
-          saveArray.height = rect.height;
-        });
-      });
+      
       let el_width = this.$refs.video_view.clientWidth;
       let el_height = this.$refs.video_view.clientHeight;
       var canvas1 = document.getElementById("canvas1");
       var context1 = canvas1.getContext("2d");
-      context1.strokeStyle = "#69fff1";
-      // context1.moveTo(190, 118);
-      // context1.lineTo(390, 118);
-      // context1.lineTo(390, 318);
-      // context1.lineTo(190, 318);
-      // context1.lineTo(190, 118);
-      context1.moveTo(0, 0);
-      context1.lineTo(0, el_width);
-      context1.lineTo(el_height, el_width);
-      context1.lineTo(0, el_height);
-      context1.lineTo(0, el_width);
-      context1.stroke();
       setTimeout(()=>{
-        this.loading=true
           if(faceView){
           this.getPhoto();
           }
@@ -100,10 +75,7 @@ export default {
       var context2 = can.getContext("2d");
       let el_width = this.$refs.video_view.clientWidth;
       let el_height = this.$refs.video_view.clientHeight;
-      // console.log(el_width,el_height)
-      // context2.drawImage(video, 210, 130, 210, 210, 0, 0, 140, 140);
-      context2.drawImage(video, 0, 0, el_width, el_height, 0, 0, el_width, el_height);
-
+      context2.drawImage(video, 5, 5, el_width, el_height, 0, 0, 180, 180);
       this.imgView = true;
       this.keepImg()
     },
@@ -128,14 +100,25 @@ export default {
     LoginIn(){
       let{BaseImage}=this
        this.$get_token("/?c=api",{
-      user_type:1,
-      mode:1,
-      image:BaseImage,
+              user_type:1,
+              mode:1,
+              image:BaseImage,
       }).then(res=>{
+           this.$message.success({
+              message: "人脸识别成功！",
+              offset: 380,
+              duration: 1000
+            });
+            this.closeFace()
+            setTimeout(()=>{
+            this.$router.replace({ name: "ClassIndex" });
+            
+            },1000)
+
         
-        console.log(res)
       })
-        this.loading=false
+      this.isLoading=false
+
 
     },
     clearCanvas() {
@@ -161,7 +144,8 @@ export default {
   watch: {
     faceView(v) {
       if (v == false) {
-        // this.closeFace();
+
+        this.closeFace();
       }
     },
     imgView(v) {
@@ -223,8 +207,5 @@ export default {
 
     
   }
- .imgs p {
-      font-size: 16px;
-    }
 
 </style>

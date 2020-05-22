@@ -29,5 +29,13 @@ export default {
 
 <style>
 
+.el-message__content{
+  font-size: 30px !important;
+
+}
+.el-message__icon{
+  font-size: 30px !important;
+}
+
 
 </style>

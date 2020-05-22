@@ -19,12 +19,12 @@
         </div>
         <!-- 登录 -->
         <div class="login_text">
-          <p @click="LoginIn" >快速安全登录</p>
+          <p @click="LoginIn">快速安全登录</p>
           <p>微信扫码登录</p>
         </div>
       </div>
       <div v-show="tab_index==1">
-        <face :faceView="checkFaceView" @canvasToImage="getImgFile"></face>
+        <face :faceView="checkFaceView"></face>
       </div>
     </div>
   </div>
@@ -52,7 +52,8 @@ export default {
       fileList: [],
       face: "",
       checkFaceView: true,
-      QrcodeUrl:""
+      QrcodeUrl: "",
+      oc_id: ""
     };
   },
   //监听属性 类似于data概念
@@ -74,7 +75,7 @@ export default {
     // 地址转二维码
     qrcode() {
       let el_width = this.$refs.qrcode_bg_style.clientWidth;
-      let {QrcodeUrl}=this
+      let { QrcodeUrl } = this;
       new QRCode("qrcode", {
         width: el_width, // 设置宽度，单位像素
         height: el_width, // 设置高度，单位像素
@@ -82,90 +83,121 @@ export default {
       });
     },
     // 登录
-    LoginIn(){
-      console.log(123)
-       this.$get_token("/?c=api",{
-      user_type:1,
-      mode:0,
-      username:"test",
-      password:"123456"
-      }).then(res=>{
-        console.log(res)
-      })
-    },
-    get_qrcode(){
-      let self=this
-      this.$post("qrcode_get","/?c=api",{
-        user_type:1,
-        code_type:0,
-
-      }).then(res=>{
-        self.QrcodeUrl=res.text
-        self.qrcode()
-      })
-    },
-    // 获取base图片
-    getImgFile(e){
-      console.log(e)
+    LoginIn() {
+      console.log(123);
+      this.$get_token("/?c=api", {
+        user_type: 1,
+        mode: 0,
+        username: "test",
+        password: "123456"
+      }).then(res => {
+        this.ToIndex();
+      });
     },
 
+    // 二维码登录
+    LoginQrcode() {
+      let { oc_id } = this;
+      this.$get_token("/?c=api", {
+        user_type: 1,
+        mode: 2,
+        oc_id: oc_id
+      }).then(res => {
+        console.log(res);
+
+        if (res.token == "") {
+          setTimeout(() => {
+            this.LoginQrcode();
+          }, 2000);
+        } else {
+          console.log(123);
+          this.ToIndex();
+        }
+      });
+    },
+
+    // 获取二维码
+    get_qrcode() {
+      this.$post("qrcode_get", "/?c=api", {
+        user_type: 1,
+        code_type: 0
+      }).then(res => {
+        this.QrcodeUrl = res.text;
+        this.oc_id = res.oc_id;
+        this.qrcode();
+        // this.LoginQrcode()
+      });
+    },
     // 切换tab
     change_tab(index) {
-      
-      if (index == 1){
-        // this.$message.success({
-        //       message: "人脸识别成功！",
-        //       offset: 380,
-        //       duration: 1000
-        //     });
+      if (index == 1) {
         // 判断有无摄像头
-    var deviceList = [];
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then(devices => {
-        devices.forEach(device => {
-          deviceList.push(device.kind);
-        });
-        if (deviceList.indexOf("videoinput") == "-1") {
-          this.$message({
-            message: "未能识别摄像头，无法使用人脸识别",
-            type: "warning"
-          });
-          // this.tab_index = 0;
+        var deviceList = [];
+        navigator.mediaDevices
+          .enumerateDevices()
+          .then(devices => {
+            devices.forEach(device => {
+              deviceList.push(device.kind);
+            });
+            if (deviceList.indexOf("videoinput") == "-1") {
+              this.$message({
+                message: "未能识别摄像头，无法使用人脸识别",
+                type: "warning"
+              });
+              this.tab_index = 0;
 
-          return false;
-        } else {
-          this.videoinput = true;
-        }
-      })
-      .catch(function(err) {
-        alert(err.name + ": " + err.message);
-      });
+              return false;
+            } else {
+              this.videoinput = true;
+              this.checkFaceView = true;
+
+            }
+          })
+          .catch(function(err) {
+            alert(err.name + ": " + err.message);
+          });
+      }else {
+        this.checkFaceView=false
       }
 
       this.tab_index = index;
     },
     ToIndex() {
+      this.checkFaceView = false;
+
       this.$router.replace({ name: "ClassIndex" });
     },
-    // 弹出人脸识别框
-    checkFace() {
-      this.checkFaceView = true;
-    },
+    
+    // 将canvas转化为图片
+    convertCanvasToImage(canvas) {
+      var image = new Image();
+      image.src = canvas.toDataURL("image/jpeg");
+      let src = image.src;
+      // src=src.substring(src.indexOf(",")+1,src.length)
+      return src;
+    }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-    this.get_qrcode()
+    this.get_qrcode();
+  },
+
+
+  // 保存图片
+  keepImg() {
+    var can = document.getElementById("shortCut");
+    this.BaseImage = this.convertCanvasToImage(can);
+    this.LoginIn();
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
-
     this.qrcode(); //生成二维码
     //获取屏幕宽高
-    this.$message(
-      `宽 ：${document.documentElement.clientWidth},高 ：${document.documentElement.clientHeight}`
-    );
-
+    // this.$message(
+    //   `宽 ：${document.documentElement.clientWidth},高 ：${document.documentElement.clientHeight}`
+    // );
+    var can = document.getElementsByClassName("Scan_me");
+    console.log(can.img);
     const that = this;
     window.onresize = () => {
       return (() => {
@@ -212,21 +244,17 @@ export default {
   background: #fff;
   z-index: 2;
 }
-#qrcode canvas{
+#qrcode canvas {
   display: none;
 }
 .qrcode_view {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 195px;
-  height: 195px;
+  width: 350px;
+  height: 350px;
   background: rgba(241, 241, 241, 1);
   border-radius: 20px;
-}
-.Scan_me {
-  width: 195px;
-  height: 195px;
 }
 .login_right_tab {
   width: 100%;
@@ -252,8 +280,8 @@ export default {
   border-bottom: 9px solid #545dff;
 }
 .qrcode_bg {
-  width: 293px;
-  height: 293px;
+  width: 450px;
+  height: 450px;
   background: rgba(241, 241, 241, 1);
   border-radius: 11px;
   display: flex;
