@@ -18,8 +18,8 @@
         <div class="CLassIndex_Right_Top_Left">
           <el-image :src="HeadImage" fit="cover"></el-image>
           <div class="CLassIndex_Right_Top_Msg">
-            <p>嬴政</p>
-            <p>数学老师 班主任1</p>
+            <p>{{UserInfo.name}}</p>
+            <p>{{UserInfo.belong}}</p>
           </div>
         </div>
 
@@ -104,6 +104,7 @@ export default {
       loading: false,
       value2: "",
       selet_value: "",
+      UserInfo:{},
       pickerOptions: {
         shortcuts: [
           {
@@ -227,10 +228,21 @@ export default {
     BackLogin() {
       this.$Cookies.set("token", "");
       this.$router.replace({ name: "Login", params: { id: 101 } });
-    }
+    },
+    // 获取用户信息
+     GetUserInfo(){
+       this.$post("user_info", "/?c=api", {
+      }).then(res => {
+        this.UserInfo=res
+        
+      });
+    },
   },
   //生命周期 - 创建完成（可以访问当前this实例）
-  created() {},
+  created() {
+        this.GetUserInfo()
+
+  },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
   beforeCreate() {}, //生命周期 - 创建之前

@@ -128,6 +128,8 @@ export default {
         // this.LoginQrcode()
       });
     },
+
+   
     // 切换tab
     change_tab(index) {
       if (index == 1) {
