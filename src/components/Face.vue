@@ -75,7 +75,9 @@ export default {
       var context2 = can.getContext("2d");
       let el_width = this.$refs.video_view.clientWidth;
       let el_height = this.$refs.video_view.clientHeight;
-      context2.drawImage(video, 5, 5, el_width, el_height, 0, 0, 180, 180);
+      // context2.drawImage(video, 5, 5, el_width, el_height, 0, 0, 180, 180);
+      context2.drawImage(video, 0, 0, el_width, el_height);
+
       this.imgView = true;
       this.keepImg()
     },
