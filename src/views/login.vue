@@ -20,7 +20,7 @@
         <!-- 登录 -->
         <div class="login_text">
           <p @click="LoginIn">快速安全登录</p>
-          <p>微信扫码登录</p>
+          <p @click="LoginImage" >微信扫码登录</p>
         </div>
       </div>
       <div v-show="tab_index==1">
@@ -72,6 +72,17 @@ export default {
   },
   //方法集合
   methods: {
+
+    LoginImage(){
+      this.$get_token("/?c=api",{
+              user_type:1,
+              mode:1,
+              image:"",
+      }).then(res=>{
+            this.$router.replace({ name: "ClassIndex" });
+
+      })
+    },
     // 地址转二维码
     qrcode() {
       let el_width = this.$refs.qrcode_bg_style.clientWidth;
@@ -88,7 +99,7 @@ export default {
       this.$get_token("/?c=api", {
         user_type: 1,
         mode: 0,
-        username: "test",
+        username: "fang",
         password: "123456"
       }).then(res => {
         this.ToIndex();

@@ -3,17 +3,22 @@
   <div class="ExamList">
     <div class="exam_list_left">
       <back></back>
-      <p class="exam_list_left_title">数的运算（一）</p>
-      <p class="exam_list_left_text">教学建议教材分析</p>
+      <div class="left_view" v-infinite-scroll="left_scroll" style="overflow:auto">
+        <div v-for="item in tcontents" :key="item.tcid">
+          <p class="exam_list_left_title">{{item.tctitle}}</p>
+          <div v-html="item.tccontent"></div>
+        </div>
+      </div>
+      <!-- <p class="exam_list_left_text">教学建议教材分析</p> -->
     </div>
     <div class="exam_list_right">
       <!-- 附件 -->
       <div class="file_list">
         <p>附件</p>
         <div class="file_list_view">
-          <div v-for="item in file_arr" :key="item.name">
+          <div v-for="item in files" :key="item.name">
             <el-image :src="item.url" fit="fit"></el-image>
-            <p>{{item.name}}</p>
+            <p>{{item.fcname}}</p>
           </div>
         </div>
       </div>
@@ -21,46 +26,49 @@
       <!-- 试题 -->
       <div class="exam_list_view">
         <p>试题</p>
-          <div class="scroll_view" v-infinite-scroll="load" style="overflow:auto">
-            <div class="exam_list_view_item" v-for="i in list_arr" :key="i">
-              <el-image :src="file_image" fit="fit"></el-image>
-              <div class="exam_list_view_item_right">
-                <p class="exam_list_view_item_right_title">数的运算一 练习题</p>
-                <p class="exam_list_view_item_right_num">共8题</p>
-                <div class="exam_list_view_item_right_edit">
-                  <el-button type="primary" @click="SeeIt">查看</el-button>
-                  <el-button type="primary" @click="SendIt">发送</el-button>
-                  <el-button type="primary" @click="SeeData">数据</el-button>
-                </div>
+        <div class="scroll_view" v-infinite-scroll="right_scroll" style="overflow:auto">
+          <div class="exam_list_view_item" v-for="item in paper_list" :key="item.pid">
+            <el-image :src="file_image" fit="fit"></el-image>
+            <div class="exam_list_view_item_right">
+              <p class="exam_list_view_item_right_title">{{item.title}}</p>
+              <p class="exam_list_view_item_right_num">共{{item.qcount}}题</p>
+              <div class="exam_list_view_item_right_edit">
+                <el-button type="primary" @click="SeeIt(item.pid)">查看</el-button>
+                <el-button type="primary" @click="SendIt(item.pid)">发送</el-button>
+                <el-button type="primary" @click="SeeData">数据</el-button>
               </div>
             </div>
           </div>
+        </div>
       </div>
 
       <!--  查看  -->
       <el-dialog :visible.sync="centerDialogVisible" center>
         <div class="see_dialog_center">
           <span class="see_dialog_center_title">
-            2020上学期二年级
-            模拟试题（一）
+            {{plist.title}}
           </span>
-          <span class="see_dialog_center_text">总分100分，作答120分钟</span>
-          <span class="see_dialog_center_tree">共分为4个部分：</span>
+          <span class="see_dialog_center_text">总分{{plist.count}}分，作答{{plist.qminute}}分钟</span>
+          <span class="see_dialog_center_tree">共分为{{plist.datalength}}个部分：</span>
 
-          <div class="see_item" v-for="item in see_list" :key="item.text">
-            <span>{{item.text}}</span>
-            <span>{{item.num}}</span>
+          <div class="see_item" v-for="item in plist.content" :key="item.partname">
+            <span>{{item.partname}}</span>
+            <span>{{item.partscore}}</span>
           </div>
         </div>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" class="see" @click="centerDialogVisible = false">点击查看</el-button>
+          <el-button type="primary" class="see" @click="ToExamDetail">点击查看</el-button>
         </span>
       </el-dialog>
 
       <!-- 试题发送 -->
 
-      <el-dialog :visible.sync="send_toggle" :show-close="false"  v-loading="send_loading"
-    element-loading-text="发送中" >
+      <el-dialog
+        :visible.sync="send_toggle"
+        :show-close="false"
+        v-loading="send_loading"
+        element-loading-text="发送中"
+      >
         <div class="send_dialog_center">
           <div class="send_dialog_center_check">
             <span>一年级107班</span>
@@ -75,11 +83,11 @@
               @click="check_now(index)"
             >
               <div class="people_view_item_image">
-                <el-image :src="item.url"></el-image>
+                <el-image :src="item.avatar" fit="cover"></el-image>
                 <el-image v-if="item.is_check" :src="CheckedImage"></el-image>
                 <div v-if="!item.is_check" class="image_bg"></div>
               </div>
-              <span :class="item.is_check?'action_text':'span_text'">{{item.name}}</span>
+              <span :class="item.is_check?'action_text':'span_text'">{{item.sname}}</span>
             </div>
           </div>
         </div>
@@ -94,9 +102,9 @@
       <el-dialog :visible.sync="send_success" :show-close="false">
         <div class="send_success_center">
           <el-image :src="SuccessImage"></el-image>
-          <span class="success_text" >发送成功</span>
+          <span class="success_text">发送成功</span>
           <el-button type="primary" class="to_see_data" @click="to_see_data">查看数据</el-button>
-          <div class="back_index" @click="BackIndex" >返回首页</div>
+          <div class="back_index" @click="BackIndex">返回首页</div>
         </div>
       </el-dialog>
     </div>
@@ -106,6 +114,11 @@
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
+  import WordIcon from '../assets/word_icon.png';
+  import VideoIcon from '../assets/video_icon.png';
+  import PPtIcon from '../assets/ppt_icon.png';
+  import ImageIcon from '../assets/image_icon.png';
+
 
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -118,33 +131,15 @@ export default {
       file_image: require("../assets/file.png"),
       loading: true,
       file_arr: [
-        { url: require("../assets/Word.png"), name: "word" },
-        { url: require("../assets/Ppt.png"), name: "PPt" }
+        {text:"jpg,png",url:ImageIcon},
+        {text:"mp4",url:VideoIcon},
+        {text:"doc,docx",url:WordIcon},
+        {text:"pptx,ppt",url:PPtIcon},
       ],
       centerDialogVisible: false,
       CheckedImage: require("../assets/check_it.png"),
       SuccessImage: require("../assets/send_success.png"),
-
-      people_arr: [
-        {
-          url: require("../assets/login_img.png"),
-          id: 1,
-          is_check: true,
-          name: "111"
-        },
-        {
-          url: require("../assets/login_img.png"),
-          id: 2,
-          is_check: true,
-          name: "123"
-        },
-        {
-          url: require("../assets/login_img.png"),
-          id: 3,
-          is_check: true,
-          name: "134"
-        }
-      ],
+      people_arr: [],
       list_arr: 6,
       see_list: [
         { text: "基础知识", num: 46 },
@@ -152,10 +147,18 @@ export default {
         { text: "基础知识2", num: 16 },
         { text: "基础知识3", num: 6 }
       ],
+      files:[],
+      paper_list: [],
+      pid:0,
+      plist:{
+      },
+      class_id:0,
       send_toggle: false,
+      tcontents: [],
       send_success: false,
       checked: true,
-      send_loading:false
+      send_loading: false,
+      plid: 0,
     };
   },
   //监听属性 类似于data概念
@@ -179,45 +182,160 @@ export default {
   },
   //方法集合
   methods: {
-    SeeIt() {
+
+   async GetStudent(){
+     let {class_id}=this
+     let {org_id,url}=this.$store.state
+     
+        await this.$post("module_api", "/?c=api", {
+          module_tag: "mclass",
+        module_action: "student_lists",
+        org_id: org_id,
+        class_id: class_id,
+      }).then(res=>{
+        let list=res.data
+        for(let i in list){
+          list[i].avatar=url+list[i].avatar
+          list[i].is_check=true
+        }
+        this.people_arr=list
+      })
+    },
+   async SeeIt(pid) {
+      this.pid=pid
+      await this.$post("paper_list", "/?c=api", {
+         pids:pid
+      }).then(res=>{
+        let plist=res.data
+        if(plist.length){
+          plist=plist[0]
+          let count=0
+          if(plist.content.length){
+            for(let i in plist.content){
+              count+=plist.content[i].partscore
+            }
+          }
+          plist.count=count
+          plist.datalength=plist.content.length
+
+        }
+        console.log(plist)
+
+        this.plist=plist
+      })
       this.centerDialogVisible = true;
     },
-    SendIt() {
+    SendIt(pid) {
+      this.pid=pid
       this.send_toggle = true;
     },
-    SeeData() {
-      this.$router.push({name:"Census"})
-    },
-    to_see_data(){
+    left_scroll(){
 
     },
+    right_scroll(){
+
+    },
+    SeeData() {
+      this.$router.push({ name: "Census" });
+    },
+    ToExamDetail(){
+      let {pid}=this
+      this.centerDialogVisible=false
+      this.$router.push({ name: "ExamDetail",query:{pid:pid} });
+
+    },
+    to_see_data() {},
+    async GetInfo() {
+      let { plid,file_arr } = this;
+      await this.$post("module_api", "/?c=api", {
+        module_tag: "gfteachingplan",
+        module_action: "get_prepare_lesson",
+        plid: plid
+      }).then(res => {
+        let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
+        for (let i in tcontents) {
+          tcontents[i].tccontent = this.htmlspecialchars_decode(
+            tcontents[i].tccontent
+          );
+        }
+        for(let i in files){
+          let fname=files[i].fpath.substring(files[i].fpath.lastIndexOf(".")+1,files[i].fpath.length)
+          let num =file_arr.findIndex(item=>item.text.indexOf(fname)!=-1)
+          files[i].url=file_arr[num].url
+        }
+        this.tcontents = tcontents;
+        this.files=files
+        this.paper_list=paper_list
+      });
+    },
+
+    htmlspecialchars_decode(str) {
+      if (str.length == 0) return str;
+      str = str.replace(/&amp;/g, "&");
+      str = str.replace(/&lt;/g, "<");
+      str = str.replace(/&gt;/g, ">");
+      str = str.replace(/&quot;/g, "'");
+      str = str.replace(/&#039;/g, "'");
+
+      str = str.replace(/\<p/gi, '<p class="p_class" style="margin-bottom:10px" ');
+      str = str.replace(/\<span/gi, '<span class="span_class" ')
+
+      // if (fistindex == "https://api-sf.imofang.cn/app.aspx?") {
+        if (str.indexOf("src='/files") != -1) {
+          str = str.replace(/src='/g, `src='http://sc.imofang.cn`);
+        } else {
+          // str = str.replace(/src='/g, `src='${uploadurl}`);
+        str = str.replace(/src='/g, `src='https://files.imofang.cn`);
+
+        }
+      // } else {
+      // }
+      str = str.replace(/\<img/gi, '<img style="max-width:100%;height:auto" ');
+      return str;
+    },
+
+    // 推送试题
     check_now(index) {
       let { people_arr } = this;
       people_arr[index].is_check = !people_arr[index].is_check;
       this.people_arr = people_arr;
     },
     send_data() {
-      this.send_loading=true
-      setTimeout(()=>{
-      this.send_loading=false
-      this.close_send();
-      this.send_success = true;
-      },3000)
-      
+      let {pid,people_arr}=this
+      this.send_loading = true;
+      let people_ids=[]
+      for(let i in people_arr){
+        if(people_arr[i].is_check){
+          people_ids.push(people_arr[i].sid)
+        }
+      }
+      this.$post("paper_push", "/?c=api", {
+        tag: pid,
+        students: people_ids.join(","),
+      }).then(res => {
+         this.send_loading = false;
+        this.close_send();
+        this.send_success = true;
+      });
     },
-    BackIndex(){
-      this.$router.replace({name:"ClassIndex"})
-
+    BackIndex() {
+      this.$router.replace({ name: "ClassIndex" });
     },
     close_send() {
       this.send_toggle = !this.send_toggle;
     }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
-  created() {},
+  created() {
+    this.plid = this.$route.query.plid;
+    this.class_id=this.$route.query.class_id;
+   
+  },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
-    console.log(this.$route.params.id);
+    
+    this.GetInfo();//获取备课详情
+    this.GetStudent()//获取学生列表
   },
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
@@ -246,6 +364,12 @@ export default {
 }
 .el-message-box {
   width: auto;
+}
+.p_class{
+  font-size: 26px !important;
+}
+.span_class{
+  line-height: 1 !important;
 }
 .ExamList {
   display: flex;
@@ -298,7 +422,16 @@ export default {
   justify-content: center;
   align-items: center;
   margin-bottom: 40px;
+  width: 100px;
 }
+.file_list_view > div p{
+  width: 100%;
+  white-space:nowrap;/* 规定文本是否折行 */  
+  overflow: hidden;/* 规定超出内容宽度的元素隐藏 */
+  text-overflow: ellipsis;
+
+}
+
 .file_list_view > div img {
   width: 54px;
   height: 54px;
@@ -320,7 +453,7 @@ export default {
   height: 570px;
   width: 702px;
 }
-.scroll_view::-webkit-scrollbar {
+.scroll_view::-webkit-scrollbar ,.left_view::-webkit-scrollbar{
   /*滚动条整体样式*/
   width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
   height: 1px;
@@ -376,7 +509,8 @@ export default {
   font-size: 38px;
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
-  margin-bottom: 54px;
+  margin-bottom: 30px;
+  margin-top: 20px;
 }
 .exam_list_left_text {
   font-size: 32px;
@@ -419,7 +553,7 @@ export default {
   color: rgba(100, 100, 100, 1);
   margin-bottom: 72px;
 }
-.el-dialog__headerbtn .el-dialog__close{
+.el-dialog__headerbtn .el-dialog__close {
   font-size: 40px !important;
 }
 .see_item {
@@ -468,6 +602,11 @@ export default {
 }
 .el-dialog__body {
   padding-top: 50px;
+}
+.left_view {
+  height: 90vh;
+  padding-left: 20px;
+  box-sizing: border-box;
 }
 /* .el-checkbox__inner{
   width: 30px;
@@ -554,42 +693,40 @@ export default {
   height: 345px;
   margin-bottom: 10px;
 }
-.success_text{
-font-size:43px !important;
-font-weight:500;
-color:rgba(0,173,86,1);
-margin-bottom: 88px !important;
+.success_text {
+  font-size: 43px !important;
+  font-weight: 500;
+  color: rgba(0, 173, 86, 1);
+  margin-bottom: 88px !important;
 }
-.to_see_data{
-width:576px;
-height:94px;
-box-shadow:0px 9px 27px 0px rgba(84,93,255,0.3);
-border-radius:18px;
-font-size: 32px !important;
-
+.to_see_data {
+  width: 576px;
+  height: 94px;
+  box-shadow: 0px 9px 27px 0px rgba(84, 93, 255, 0.3);
+  border-radius: 18px;
+  font-size: 32px !important;
 }
-.back_index{
-font-size:32px;
-font-weight:500;
-color:rgba(135,139,148,1);
-display: flex;
-align-items: center;
-height: 94px;
-margin-top: 30px;
+.back_index {
+  font-size: 32px;
+  font-weight: 500;
+  color: rgba(135, 139, 148, 1);
+  display: flex;
+  align-items: center;
+  height: 94px;
+  margin-top: 30px;
 }
-.el-checkbox.is-bordered.el-checkbox--medium .el-checkbox__label{
+.el-checkbox.is-bordered.el-checkbox--medium .el-checkbox__label {
   font-size: 24px !important;
 }
-.el-checkbox.is-bordered.el-checkbox--medium .el-checkbox__inner{
+.el-checkbox.is-bordered.el-checkbox--medium .el-checkbox__inner {
   width: 24px !important;
   height: 24px !important;
 }
-.el-checkbox__inner::after{
+.el-checkbox__inner::after {
   height: 10px !important;
   width: 10px !important;
 }
-.el-checkbox__input.is-checked .el-checkbox__inner::after{
+.el-checkbox__input.is-checked .el-checkbox__inner::after {
   transform: rotate(45deg) scaleY(1.5) !important;
 }
-
 </style>

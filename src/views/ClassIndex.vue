@@ -29,7 +29,7 @@
       <div class="picker_view">
         <!-- 时间筛选 -->
         <el-date-picker
-          v-model="value2"
+          v-model="time_value"
           type="daterange"
           align="right"
           unlink-panels
@@ -37,12 +37,13 @@
           start-placeholder="开始日期"
           end-placeholder="结束日期"
           :picker-options="pickerOptions"
+          value-format="yyyy/MM/dd"
         ></el-date-picker>
 
         <!-- 年级班级选择器 -->
         <el-cascader
           v-model="class_value"
-          :options="options"
+          :options="class_arr"
           @change="handleChangeClass"
           placeholder="年级/班级"
         ></el-cascader>
@@ -50,9 +51,12 @@
 
         <el-cascader
           v-model="course_value"
-          :options="options"
+          :options="subject_arr"
           @change="handleChangeCourse"
           placeholder="科目/章节"
+          :props="props"
+          collapse-tags
+          clearable
         ></el-cascader>
       </div>
 
@@ -61,23 +65,23 @@
 
       <!-- 列表内容 -->
 
-      <div class="ListView" v-infinite-scroll="load" style="overflow:auto">
+      <div class="ListView" v-infinite-scroll="load" style="overflow:auto" v-loading="isloading"
+    element-loading-text="加载中"
+    element-loading-spinner="el-icon-loading"
+    element-loading-background="rgba(255, 255, 255, 0.1)" >
         <!-- <el-scrollbar  class="scroll_view"> -->
-        <div class="ListItem" v-for="i in count" :key="i" @click="TOExamList">
+        <div class="ListItem" v-for="item in listarr" :key="item.plid" @click="TOExamList(item.plid,item.class_id)">
           <div>
             <div class="ListParentChildViewTop">
-              <p>数的运算{{i}}</p>
-              <p>08:10</p>
+              <p>{{item.acname}}</p>
+              <p>{{item.time}}</p>
             </div>
             <div class="ListParentChildViewBot">
-              <p>用数学“9加几” [课时2]</p>
-              <p>一年级105级</p>
+              <p>{{item.spctitle}} [课时{{item.classhour}}]</p>
+              <p>{{item.gname+item.cname}}</p>
             </div>
           </div>
         </div>
-
-        <p v-if="loading">加载中...</p>
-        <p v-if="noMore">没有更多了</p>
       </div>
     </div>
   </div>
@@ -96,15 +100,20 @@ export default {
     //这里存放数据
     return {
       value: Date.parse(new Date()),
+      
       class_value: [],
       course_value: [],
       HeadImage: require("../assets/login_img.png"),
       count: 10,
-      listarr: [{ num: 0, text: "123" }],
       loading: false,
-      value2: "",
+      time_value: "",
       selet_value: "",
-      UserInfo:{},
+      isloading:false,
+      star_time: "",
+      end_time: "",
+      class_arr: [],
+      UserInfo: {},
+      listarr: [],
       pickerOptions: {
         shortcuts: [
           {
@@ -136,58 +145,9 @@ export default {
           }
         ]
       },
-      options: [
-        {
-          value: "zhinan",
-          label: "指南",
-          children: [
-            {
-              value: "shejiyuanze",
-              label: "设计原则",
-              children: [
-                {
-                  value: "yizhi",
-                  label: "一致"
-                },
-                {
-                  value: "fankui",
-                  label: "反馈"
-                },
-                {
-                  value: "xiaolv",
-                  label: "效率"
-                },
-                {
-                  value: "kekong",
-                  label: "可控"
-                }
-              ]
-            },
-            {
-              value: "daohang",
-              label: "导航"
-            }
-          ]
-        },
-        {
-          value: "ziyuan",
-          label: "资源",
-          children: [
-            {
-              value: "axure",
-              label: "Axure Components"
-            },
-            {
-              value: "sketch",
-              label: "Sketch Templates"
-            },
-            {
-              value: "jiaohu",
-              label: "组件交互文档"
-            }
-          ]
-        }
-      ]
+      ids:[],
+      props: { multiple: true },
+      subject_arr: []
     };
   },
   //监听属性 类似于data概念
@@ -202,7 +162,17 @@ export default {
   //监控data中的数据变化
   watch: {
     value(val) {
-      console.log(Date.parse(val));
+      this.star_time = this.$till.get_time(Date.parse(val), "Y/M/D");
+      this.end_time = this.$till.get_time(Date.parse(val), "Y/M/D");
+      this.GetPrepareLessonList();
+    },
+    time_value(val) {
+      this.star_time = val[0];
+      this.end_time = val[1];
+      this.GetPrepareLessonList();
+    },
+    class_value(val) {
+      this.GetPrepareLessonList();
     }
   },
   //方法集合
@@ -216,31 +186,124 @@ export default {
     },
     handleChangeClass() {
       let { class_value } = this;
-      console.log(class_value);
+      this.class_value=class_value[0];
     },
     handleChangeCourse() {
+      let arr=[]
       let { course_value } = this;
-      console.log(course_value);
+      for(let i in course_value){
+        for(let j in course_value[i]){
+          if(arr.indexOf(course_value[i][j])==-1){
+            arr.push(course_value[i][j])
+          }
+        }
+      }
+      arr.shift()
+      console.log(arr)
+      this.ids=arr
+      this.GetPrepareLessonList()
     },
-    TOExamList() {
-      this.$router.push({ name: "ExamList", params: { id: 101 } });
+    TOExamList(plid,class_id) {
+      this.$router.push({ name: "ExamList", query: { plid: plid,class_id:class_id } });
     },
     BackLogin() {
       this.$Cookies.set("token", "");
       this.$router.replace({ name: "Login", params: { id: 101 } });
     },
     // 获取用户信息
-     GetUserInfo(){
-       this.$post("user_info", "/?c=api", {
-      }).then(res => {
-        this.UserInfo=res
-        
+    async GetUserInfo() {
+      let class_arr = [],
+        subject_arr = [];
+      await this.$post("user_info", "/?c=api", {}).then(res => {
+        this.UserInfo = res;
+        let { belong_data, subject_data } = res;
+        this.$store.dispatch('change_sid',res.sid)
+        this.$store.dispatch('change_org_id',res.org_id)
+
+        for (let i in belong_data) {
+          class_arr.push({
+            value: belong_data[i].id,
+            label: belong_data[i].name
+          });
+        }
+        for (let i in subject_data) {
+          subject_arr.push({
+            value: subject_data[i].id,
+            label: subject_data[i].name
+          });
+        }
+        this.class_arr = class_arr;
+        this.GetSubject(subject_arr)
+
       });
     },
+
+    Subject_arr(data) {
+      for (let i in data) {
+        data[i].label = data[i].name;
+        data[i].value = data[i].id;
+        if (data[i].hasSubList) {
+          data[i].children = this.Subject_arr(data[i].subList);
+        }
+      }
+
+      return data
+    },
+    async GetSubject(data) {
+      let { UserInfo } = this;
+
+      for (let i in data) {
+        let jarr = await this.$post("chapter_list", "/?c=api", {
+          schoolid: UserInfo.org_id,
+          grade: 40,
+          subject: data[i].value
+        });
+        if (jarr.data.length) {
+          data[i].children = this.Subject_arr(jarr.data);
+        }else{
+          data[i].children=[]
+        }
+      }
+      this.subject_arr=data
+     
+    },
+    // 获取备课列表
+    async GetPrepareLessonList() {
+      this.isloading=true
+      let { UserInfo, class_value, star_time, end_time,ids } = this;
+      await this.$post("module_api", "/?c=api", {
+        module_tag: "gfteachingplan",
+        module_action: "get_prepare_lesson_list",
+        org_id: UserInfo.org_id,
+        staff_id: UserInfo.sid,
+        class_id: class_value,
+        chapters: ids.join(","),
+        begin_date: star_time,
+        end_date: end_time
+      }).then(res => {
+        let listarr = res.data;
+
+        for (let i in listarr) {
+          listarr[i].time = this.$till.get_time(
+            listarr[i].ptime * 1000,
+            "Y/M/D"
+          );
+        }
+        this.listarr = listarr;
+      this.isloading=false
+
+      });
+
+    }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
-  created() {
-        this.GetUserInfo()
+  async created() {
+    await this.GetUserInfo();
+    let { value } = this;
+    this.star_time = this.$till.get_time(value, "Y/M/D");
+    this.end_time = this.$till.get_time(value, "Y/M/D");
+
+    await this.GetPrepareLessonList();
 
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
@@ -259,6 +322,13 @@ export default {
 /* @import url('../style/style.css'); */
 .is-selected {
   color: #1989fa;
+}
+.el-tag{
+  font-size: 26px;
+}
+.el-tag--small{
+  height: auto;
+  margin: 5px 10px;
 }
 .CLassIndex {
   display: flex;
@@ -386,6 +456,10 @@ export default {
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
 }
+.el-checkbox__inner {
+  width: 30px;
+  height: 30px;
+}
 .ListParentChildViewTop p:nth-child(2) {
   font-size: 24px;
   font-weight: 500;
@@ -424,6 +498,27 @@ export default {
 }
 /* .el-calendar-table td.is-selected{
   background: #409EFF;
+} */
+.el-checkbox__input.is-checked .el-checkbox__inner::after{
+  transform: rotate(45deg) scaleY(1.5)  !important;
+}
+.el-checkbox__inner::after{
+  height: 12px  !important;
+  width: 12px !important;
+  top: 20% !important;
+  left: 30% !important;
+  transform: translate(-50%,-50%) !important;
+}
+.el-checkbox__input.is-indeterminate .el-checkbox__inner::before{
+  height: 3px !important;
+  width: 20px !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%,-50%) !important;
+}
+/* .el-tag .el-icon-close{
+  width: 10px;
+  height: 10px;
 } */
 
 .el-calendar__header {
