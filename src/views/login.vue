@@ -50,6 +50,7 @@ export default {
       faceloading: false,
       videoinput: true,
       fileList: [],
+      LoginTime:'',
       face: "",
       checkFaceView: true,
       QrcodeUrl: "",
@@ -95,7 +96,6 @@ export default {
     },
     // 登录
     LoginIn() {
-      console.log(123);
       this.$get_token("/?c=api", {
         user_type: 1,
         mode: 0,
@@ -114,15 +114,27 @@ export default {
         mode: 2,
         oc_id: oc_id
       }).then(res => {
-        console.log(res);
-
         if (res.token == "") {
-          setTimeout(() => {
+          let path=this.$route.path
+          if(path=="/login"){
+            
+            this.LoginTime= setTimeout(() => {
             this.LoginQrcode();
           }, 2000);
+          }else{
+            clearTimeout(this.LoginTime)
+          }
+        
         } else {
-          console.log(123);
-          this.ToIndex();
+
+           this.$message.success({
+              message: "扫码登录成功",
+              offset: 380,
+              duration: 1000
+            });
+
+            setTimeout(this.ToIndex(),2100)
+          ;
         }
       });
     },
@@ -136,7 +148,7 @@ export default {
         this.QrcodeUrl = res.text;
         this.oc_id = res.oc_id;
         this.qrcode();
-        // this.LoginQrcode()
+        this.LoginQrcode()
       });
     },
 
@@ -177,7 +189,6 @@ export default {
     },
     ToIndex() {
       this.checkFaceView = false;
-
       this.$router.replace({ name: "ClassIndex" });
     },
     
@@ -210,7 +221,6 @@ export default {
     //   `宽 ：${document.documentElement.clientWidth},高 ：${document.documentElement.clientHeight}`
     // );
     var can = document.getElementsByClassName("Scan_me");
-    console.log(can.img);
     const that = this;
     window.onresize = () => {
       return (() => {
@@ -225,7 +235,11 @@ export default {
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
   updated() {}, //生命周期 - 更新之后
-  beforeDestroy() {}, //生命周期 - 销毁之前
+  beforeDestroy() {
+      clearTimeout(this.LoginTime)
+
+
+  }, //生命周期 - 销毁之前
   destroyed() {}, //生命周期 - 销毁完成
   activated() {} //如果页面有keep-alive缓存功能，这个函数会触发
 };

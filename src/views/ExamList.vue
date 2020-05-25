@@ -6,10 +6,12 @@
       <div class="left_view" v-infinite-scroll="left_scroll" style="overflow:auto">
         <div v-for="item in tcontents" :key="item.tcid">
           <p class="exam_list_left_title">{{item.tctitle}}</p>
+          <div v-if="item.fcname" class="video_view" >
+              <video :src="item.fpath"   controls="controls" ></video>
+          </div>
           <div v-html="item.tccontent"></div>
         </div>
       </div>
-      <!-- <p class="exam_list_left_text">教学建议教材分析</p> -->
     </div>
     <div class="exam_list_right">
       <!-- 附件 -->
@@ -253,11 +255,21 @@ export default {
         plid: plid
       }).then(res => {
         let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
+        console.log(tcontents)
         for (let i in tcontents) {
           tcontents[i].tccontent = this.htmlspecialchars_decode(
             tcontents[i].tccontent
           );
+          if(tcontents[i].fcname){
+            tcontents[i].fpath="https://files.imofang.cn"+tcontents[i].fpath
+          }
         }
+        let type_zore=tcontents.filter(item=>item.tctype==0)
+        let type_one=tcontents.filter(item=>item.tctype==1)
+        let type_two=tcontents.filter(item=>item.tctype==2)
+       
+        
+        tcontents=[...type_two,...type_zore,...type_one]
         for(let i in files){
           let fname=files[i].fpath.substring(files[i].fpath.lastIndexOf(".")+1,files[i].fpath.length)
           let num =file_arr.findIndex(item=>item.text.indexOf(fname)!=-1)
@@ -276,6 +288,8 @@ export default {
       str = str.replace(/&gt;/g, ">");
       str = str.replace(/&quot;/g, "'");
       str = str.replace(/&#039;/g, "'");
+      str = str.replace(/{br}/g, "<br>");
+
 
       str = str.replace(/\<p/gi, '<p class="p_class" style="margin-bottom:10px" ');
       str = str.replace(/\<span/gi, '<span class="span_class" ')
@@ -290,7 +304,7 @@ export default {
         }
       // } else {
       // }
-      str = str.replace(/\<img/gi, '<img style="max-width:100%;height:auto" ');
+      str = str.replace(/\<img/gi, '<img style="max-width:50%;height:auto" ');
       return str;
     },
 
@@ -369,7 +383,7 @@ export default {
   font-size: 26px !important;
 }
 .span_class{
-  line-height: 1 !important;
+  line-height: 1.6 !important;
 }
 .ExamList {
   display: flex;
@@ -677,6 +691,14 @@ export default {
 }
 .action_text {
   color: #202020;
+}
+.video_view{
+  width: 100%;
+  margin-bottom: 20px;
+
+}
+.video_view video{
+  width: 50%;
 }
 .span_text {
   color: #878b94;

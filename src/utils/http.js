@@ -9,13 +9,13 @@ const root = process.env.API_ROOT;
 //http request 拦截器
 axios.interceptors.request.use(
   config => {
-    // if(config.headers.action!="token_get"){
-      // loadingInstance = Loading.service({
-      //   text: 'loading...',
-      //   background:"rgba(255, 255, 255, 0.1)"
+    if(config.headers.action!="token_get"){
+      loadingInstance = Loading.service({
+        text: 'loading...',
+        background:"rgba(255, 255, 255, 0.1)"
         
-      // })
-    // }
+      })
+    }
     const token = Cookies.get("token");//注意使用的时候需要引入cookie方法，推荐js-cookie
     config.baseURL = ''
     config.url = root + config.url;
@@ -51,7 +51,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   response => {
       // console.log(response)
-      // loadingInstance.close()
+      loadingInstance.close()
       if(response.data.response_code==-1){
         
         Message({
