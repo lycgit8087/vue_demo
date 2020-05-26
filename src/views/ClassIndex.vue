@@ -4,7 +4,7 @@
     <div class="CLassIndex_Left">
       <el-calendar v-model="value" :first-day-of-week="1">
         <template slot="dateCell" slot-scope="{date, data}">
-          <div :class="data.isSelected ? 'is-selected' : ''">
+          <div >
             <div  >
               <div v-for="item in time_arr" :key="item.time">
                 <div v-if="data.day.replace(/-/g,'/')==item.day">
@@ -170,6 +170,7 @@ export default {
           }
         ]
       },
+      is_clear:false,
       now_mouth:'',
       list_data: [],
       ids: [],
@@ -207,9 +208,16 @@ export default {
       }
     },
     time_value(val) {
-      this.star_time = val[0];
+      if(val){
+        this.is_clear=true
+        this.star_time = val[0];
       this.end_time = val[1];
       this.GetPrepareLessonList();
+      }else{
+        this.is_clear=false
+        this.GetPrepareLessonList()
+      }
+      
     },
     class_value(val) {
       this.GetPrepareLessonList();
@@ -343,7 +351,8 @@ export default {
         ids,
         value,
         list_data,
-        time_arr
+        time_arr,
+        is_clear
       } = this;
       
     
@@ -372,7 +381,7 @@ export default {
         }
         this.time_arr=time_arr
         this.listarr = listarr;
-        this.list_data = list_data;
+        this.list_data =is_clear? listarr:list_data;
         this.isloading = false;
       });
     }
@@ -817,5 +826,11 @@ tbody {
 .action_data{
   background: #545DFF;
   color: #fff;
+}
+.el-calendar-table td.is-selected{
+  background: none !important;
+}
+.el-backtop, .el-calendar-table td.is-today{
+  color: none !important;
 }
 </style>

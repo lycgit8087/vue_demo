@@ -41,11 +41,12 @@
         </div>
         <div class="html_div" v-html="qas_content"></div>
         <!-- 答案解析 -->
-        <div class="answer_konw">
+        <div class="answer_konw" @click="change_right_toggle" >
           <el-image :src="BookImage"></el-image>
           <span>答案解析</span>
-          <div v-show="right_toggle"></div>
         </div>
+
+        <div class="answer_qri" v-show="right_toggle" v-html="qri" ></div>
 
         <!-- 人员显示 -->
         <div class="poeple_view">
@@ -94,7 +95,7 @@ export default {
       answer_toggle: false,
       is_change_before: false,
       is_change_next: false,
-
+      qri:"",
       is_change: false,
       qas_code: "",
       code: "",
@@ -128,17 +129,18 @@ export default {
       }).then(res => {
         let plist = res.data[0];
         let count = 0;
+        let num=1
         let { content } = plist;
         if (plist.content.length) {
           for (let i in plist.content) {
             count += plist.content[i].partscore;
           }
         }
-        console.log(content)
         // NoToChinese
         for (let i in content) {
           for (let j in content[i].qas) {
-           content[i].qas[j].title=this.NoToChinese(parseInt(j)+1)+"、"+content[i].qas[j].title
+           content[i].qas[j].title=num+". "+content[i].qas[j].title
+           num++
             content[i].qas[j].content = this.htmlspecialchars_decode(
               content[i].qas[j].content
             );
@@ -149,6 +151,12 @@ export default {
         this.plist = plist;
       });
       this.centerDialogVisible = true;
+    },
+
+    // 答案解析显示隐藏
+    change_right_toggle(){
+      let {right_toggle}=this
+      this.right_toggle=!right_toggle
     },
 
     //查看题目
@@ -165,6 +173,10 @@ export default {
         this.ys_data = res.ys_data;
         this.rq_rate = res.rq_rate;
         this.rq_title = res.title;
+        if(res.qri){
+          res.qri = this.htmlspecialchars_decode(res.qri);
+        }
+        this.qri=res.qri
         this.answer_toggle = true;
         this.is_change = false;
         this.is_change_before = false;
@@ -183,6 +195,7 @@ export default {
                 content[parseInt(i) + 1] &&
                 content[parseInt(i) + 1].qas.length != 0
               ) {
+                this.right_toggle=false
                 this.CheckQas(content[parseInt(i) + 1].qas[0].code);
               } else {
                 this.is_change = false;
@@ -193,6 +206,7 @@ export default {
                 });
               }
             } else {
+              this.right_toggle=false
               this.CheckQas(content[i].qas[parseInt(j) + 1].code);
             }
           }
@@ -200,7 +214,46 @@ export default {
       }
     },
 
-    NoToChinese(num) {
+   
+    before() {
+      let { content, qas_code } = this;
+      this.is_change = true;
+      this.is_change_before = true;
+      
+
+      for (let i in content) {
+        for (let j in content[i].qas) {
+          if (qas_code == content[i].qas[j].code) {
+            if (j == 0) {
+              if (
+                content[parseInt(i) - 1] &&
+                content[parseInt(i) - 1].qas.length != 0
+              ) {
+                this.right_toggle=false
+                this.CheckQas(
+                  content[parseInt(i) - 1].qas[
+                    content[parseInt(i) - 1].qas.length - 1
+                  ].code
+                );
+              } else {
+                this.is_change = false;
+                this.is_change_before = false;
+
+                this.$message({
+                  message: "已到顶部",
+                  type: "warning"
+                });
+              }
+            } else {
+              this.right_toggle=false
+              this.CheckQas(content[i].qas[parseInt(j) - 1].code);
+            }
+          }
+        }
+      }
+    },
+
+     NoToChinese(num) {
       if (!/^\d*(\.\d*)?$/.test(num)) {
         alert("Number is wrong!");
         return "Number is wrong!";
@@ -250,40 +303,6 @@ export default {
       }
       return re;
     },
-    before() {
-      let { content, qas_code } = this;
-      this.is_change = true;
-      this.is_change_before = true;
-
-      for (let i in content) {
-        for (let j in content[i].qas) {
-          if (qas_code == content[i].qas[j].code) {
-            if (j == 0) {
-              if (
-                content[parseInt(i) - 1] &&
-                content[parseInt(i) - 1].qas.length != 0
-              ) {
-                this.CheckQas(
-                  content[parseInt(i) - 1].qas[
-                    content[parseInt(i) - 1].qas.length - 1
-                  ].code
-                );
-              } else {
-                this.is_change = false;
-                this.is_change_next = true;
-
-                this.$message({
-                  message: "已到顶部",
-                  type: "warning"
-                });
-              }
-            } else {
-              this.CheckQas(content[i].qas[parseInt(j) - 1].code);
-            }
-          }
-        }
-      }
-    },
 
     htmlspecialchars_decode(str) {
       if (str.length == 0) return str;
@@ -297,11 +316,15 @@ export default {
         /\<p/gi,
         '<p class="p_class" style="margin-bottom:10px" '
       );
+      //  str = str.replace(
+      //   /\<p\/>/gi,
+      //   '</div> '
+      // );
       str = str.replace(/\<span/gi, '<span class="span_class" ');
 
       // if (fistindex == "https://api-sf.imofang.cn/app.aspx?") {
       if (str.indexOf("src='/files") != -1) {
-        //   str = str.replace(/src='/g, `src='http://sc.imofang.cn`);
+          str = str.replace(/src='/, `src='http://sc.imofang.cn`)
       } else {
         // str = str.replace(/src='/g, `src='${uploadurl}`);
         // str = str.replace(/src='/g, `src='https://files.imofang.cn/`);
@@ -369,7 +392,7 @@ export default {
   margin-bottom: 18px;
 }
 .exam_list_left_title_item{
-  padding-left: 15px;
+  /* padding-left: 15px; */
   box-sizing: border-box;
   font-size: 32px;
   font-weight: 400;
@@ -418,9 +441,10 @@ export default {
   height: 5px;
 }
 .html_div {
-  padding-left: 30px;
+  /* padding-left: 30px; */
   box-sizing: border-box;
   width: 100%;
+  margin-bottom: 26px;
 }
 .answer_center {
   display: flex;
@@ -489,7 +513,11 @@ export default {
   margin-right: 45px;
   margin-bottom: 35px;
 }
-
+.answer_qri{
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 .poeple_view_item > div img {
   width: 72px;
   height: 72px;

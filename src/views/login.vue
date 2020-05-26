@@ -126,7 +126,7 @@ export default {
           }
         
         } else {
-
+          this.checkFaceView=false
            this.$message.success({
               message: "扫码登录成功",
               offset: 380,

@@ -5,7 +5,7 @@
       <video id="video" preload autoplay loop muted ref="video_view" ></video>
       <canvas id="canvas" ></canvas>
       <canvas id="canvas1" ></canvas>
-      <canvas v-show="a==0" id="shortCut" width="140" height="140"  ></canvas>
+      <canvas v-show="a==0" id="shortCut"   ></canvas>
       <div id="img" v-show="a==0"></div>
 
 
@@ -35,6 +35,7 @@ export default {
   created(){
   },
   methods: {
+
  
     // 打开摄像头
     start() {
@@ -75,9 +76,7 @@ export default {
       var context2 = can.getContext("2d");
       let el_width = this.$refs.video_view.clientWidth;
       let el_height = this.$refs.video_view.clientHeight;
-      // context2.drawImage(video, 5, 5, el_width, el_height, 0, 0, 180, 180);
-      context2.drawImage(video, 0, 0, el_width, el_height);
-
+      context2.drawImage(video, 0, 0, el_width, el_height/1.6);
       this.imgView = true;
       this.keepImg()
     },
@@ -188,6 +187,8 @@ export default {
     }
     #shortCut{
       opacity: 0;
+      width: 581px;
+      height: 636px;
     }
   .btns {
     padding: 10px;

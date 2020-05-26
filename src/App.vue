@@ -36,6 +36,13 @@ export default {
 .el-message__icon{
   font-size: 30px !important;
 }
+.el-loading-mask.is-fullscreen .el-loading-spinner .circular{
+  width: 80px !important;
+  height: 80px !important;
+}
+.el-loading-spinner .el-loading-text{
+  font-size: 36px !important;
+}
 
 
 </style>

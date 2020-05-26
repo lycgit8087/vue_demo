@@ -39,7 +39,7 @@
               <span>用时</span>
               <span>分数</span>
             </div>
-            <div class="student_view_left_scroll" v-infinite-scroll="load" style="overflow:auto">
+            <div class="student_view_left_scroll" v-infinite-scroll="student_left_scroll" style="overflow:auto">
               <div v-for="i in 9" :key="i" @click="ToStudentView" >
                 <div class="stunde_number">
                   <!-- <el-image :src="BookImage" fit="fit"></el-image> -->
@@ -57,7 +57,7 @@
 
           <div class="student_view_right">
             <p>未交题学生 (23)</p>
-            <div class="student_view_right_scroll" v-infinite-scroll="load" style="overflow:auto">
+            <div class="student_view_right_scroll" v-infinite-scroll="student_right_scroll" style="overflow:auto">
               <div v-for="i in 9" :key="i">
                 <el-image :src="BookImage" fit="fit"></el-image>
                 <span>司马昭</span>
@@ -74,28 +74,29 @@
       </div>
       <!-- 题目 -->
       <div class="list_view_scroll" v-infinite-scroll="load" style="overflow:auto" v-show="TabIndex==0" >
-        <div v-for="item in 10" :key="item">
-          <p class="list_view_scroll_number">{{item}}</p>
-          <p>将1/7化为小数，小数点后第100个数字是</p>
+        <div v-for="(item,index) in topic_list" :key="item.code">
+          <p class="list_view_scroll_number">{{index+1}}</p>
+          <p class="list_view_scroll_title" >{{item.title}}</p>
+          <div class="all_cout" v-if="item.points.length" > <p v-for=" pitem in  item.points" :key="pitem.id" >{{pitem.name}}</p> </div>
           <div class="list_view_scroll_bot">
             <div class="list_view_scroll_bot_left">
               <div class="right_number">
                 <p>正确率：</p>
-                <p>74%</p>
+                <p>{{item.rq_rate}}%</p>
               </div>
               <!-- 人数 -->
               <div class="poeple_right">
                 <el-image :src="RightIcon" fit="fit"></el-image>
-                <span>10人</span>
+                <span>{{item.ycount}}人</span>
               </div>
               <div class="poeple_right">
                 <el-image :src="ErrorIcon" fit="fit"></el-image>
-                <span>10人</span>
+                <span>{{item.ncount}}人</span>
               </div>
             </div>
 
             <!-- 科目章节 -->
-            <div class="list_view_scroll_bot_right">数的运算</div>
+            <div class="list_view_scroll_bot_right"></div>
           </div>
         </div>
       </div>
@@ -166,6 +167,8 @@ export default {
       BookImage: require("../assets/open_book.png"),
       RightIcon: require("../assets/right_icon.png"),
       ErrorIcon: require("../assets/eorr.png"),
+      pid:0,
+      topic_list:[],
       TabArr:[
         {text:"题目",type:0},
         {text:"知识点",type:0},
@@ -176,11 +179,35 @@ export default {
     };
   },
   components: {},
-  created() {},
+  created() {
+    this.pid = this.$route.query.pid;
+    this.GetRightList()
+  },
   mounted() {},
   methods: {
     TabCheck(index){
       this.TabIndex=index
+    },
+    student_left_scroll(){
+
+    },
+    student_right_scroll(){
+
+    },
+    load(){
+
+    },
+
+     async GetRightList(){
+       let {pid}=this
+      await this.$post("qa_content_list", "/?c=api", {
+        pid:pid
+      })
+      .then(res=>{
+        let topic_list=res.data
+        this.topic_list=topic_list
+        console.log(res)
+      })
     },
     ToStudentView(){
       this.$router.push({name:"StudentView"})
@@ -564,6 +591,12 @@ export default {
   align-items: center;
   margin-bottom: 28px;
 }
+.list_view_scroll_title{
+font-size:25px;
+font-weight:500;
+color:rgba(32,32,32,1);
+margin-bottom: 20px;
+}
 .answer_center_top > span {
   font-size: 24px;
   font-weight: 500;
@@ -633,5 +666,14 @@ export default {
   color: #bdbdbd;
   justify-content: space-between;
   margin-top: 18px;
+}
+.all_cout{
+  display: flex;
+  align-items: center;
+  color: #bdbdbd;
+  font-size: 26px;
+}
+.all_cout p{
+  margin-right: 15px;
 }
 </style>

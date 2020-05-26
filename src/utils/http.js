@@ -20,7 +20,7 @@ axios.interceptors.request.use(
     config.baseURL = ''
     config.url = root + config.url;
     config.withCredentials = true // 允许携带token ,这个是解决跨域产生的相关问题
-    config.timeout = 6000  //超时时间
+    config.timeout = 10000  //超时时间
     config.data = qs.stringify(config.data);
     if(config.headers.action!="token_get"){
       //设置请求头

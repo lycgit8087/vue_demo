@@ -22,9 +22,20 @@
     　　return format;
   }
 
+  function change_file_url(url){
+    if(url.length==0) return url
+    if (url.indexOf("files/") != -1) {
+      return 'https://sf.imofang.cn/' + url
+    } else {
+      return "https://files.imofang.cn" + url
+    }
+
+  }
+
 
 
 
 module.exports = {
-    get_time
+    get_time,
+    change_file_url
   }

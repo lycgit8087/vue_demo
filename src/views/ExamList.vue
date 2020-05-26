@@ -17,10 +17,12 @@
       <!-- 附件 -->
       <div class="file_list">
         <p>附件</p>
-        <div class="file_list_view">
-          <div v-for="item in files" :key="item.name">
+        <div class="file_list_view"  >
+          <div v-for="item in files" :key="item.name"  >
             <el-image :src="item.url" fit="fit"></el-image>
+         
             <p>{{item.fcname}}</p>
+            <a :href="item.fpath" download target="_self"  ></a>
           </div>
         </div>
       </div>
@@ -37,7 +39,7 @@
               <div class="exam_list_view_item_right_edit">
                 <el-button type="primary" @click="SeeIt(item.pid)">查看</el-button>
                 <el-button type="primary" @click="SendIt(item.pid)">发送</el-button>
-                <el-button type="primary" @click="SeeData">数据</el-button>
+                <el-button type="primary" @click="SeeData(item.pid)">数据</el-button>
               </div>
             </div>
           </div>
@@ -120,7 +122,6 @@
   import VideoIcon from '../assets/video_icon.png';
   import PPtIcon from '../assets/ppt_icon.png';
   import ImageIcon from '../assets/image_icon.png';
-
 
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -237,8 +238,9 @@ export default {
     right_scroll(){
 
     },
-    SeeData() {
-      this.$router.push({ name: "Census" });
+    SeeData(id) {
+      console.log(id)
+      this.$router.push({ name: "Census",query:{pid:id} });
     },
     ToExamDetail(){
       let {pid}=this
@@ -254,6 +256,7 @@ export default {
         module_action: "get_prepare_lesson",
         plid: plid
       }).then(res => {
+        console.log(this.$till)
         let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
         console.log(tcontents)
         for (let i in tcontents) {
@@ -261,7 +264,7 @@ export default {
             tcontents[i].tccontent
           );
           if(tcontents[i].fcname){
-            tcontents[i].fpath="https://files.imofang.cn"+tcontents[i].fpath
+            tcontents[i].fpath= this.$till.change_file_url(tcontents[i].fpath)
           }
         }
         let type_zore=tcontents.filter(item=>item.tctype==0)
@@ -271,11 +274,15 @@ export default {
         
         tcontents=[...type_two,...type_zore,...type_one]
         for(let i in files){
+          files[i].fpath=this.$till.change_file_url(files[i].fpath)
+
           let fname=files[i].fpath.substring(files[i].fpath.lastIndexOf(".")+1,files[i].fpath.length)
           let num =file_arr.findIndex(item=>item.text.indexOf(fname)!=-1)
           files[i].url=file_arr[num].url
+
         }
         this.tcontents = tcontents;
+        console.log(files)
         this.files=files
         this.paper_list=paper_list
       });
@@ -381,6 +388,8 @@ export default {
 }
 .p_class{
   font-size: 26px !important;
+  margin-bottom: 10px !important;
+  line-height: 1.5;
 }
 .span_class{
   line-height: 1.6 !important;
@@ -437,6 +446,7 @@ export default {
   align-items: center;
   margin-bottom: 40px;
   width: 100px;
+  position: relative;
 }
 .file_list_view > div p{
   width: 100%;
@@ -444,6 +454,14 @@ export default {
   overflow: hidden;/* 规定超出内容宽度的元素隐藏 */
   text-overflow: ellipsis;
 
+}
+.file_list_view > div a{
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .file_list_view > div img {
