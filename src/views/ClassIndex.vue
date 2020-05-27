@@ -31,7 +31,11 @@
       <!-- 教师头部信息 -->
       <div class="CLassIndex_Right_Top">
         <div class="CLassIndex_Right_Top_Left">
-          <el-image :src="HeadImage" fit="cover"></el-image>
+          <el-image :src="HeadImage" fit="cover">
+            <div slot="error" class="image-slot">
+        <i class="el-icon-picture-outline"></i>
+      </div>
+          </el-image>
           <div class="CLassIndex_Right_Top_Msg">
             <p>{{UserInfo.name}}</p>
             <p>{{UserInfo.belong}}</p>
@@ -459,12 +463,23 @@ export default {
 .CLassIndex_Right_Top_Left {
   display: flex;
 }
-.CLassIndex_Right_Top img {
+.CLassIndex_Right_Top .el-image {
   width: 120px;
   height: 120px;
   box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.05);
   border-radius: 50%;
   margin-right: 19px;
+}
+.image-slot{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fa;
+}
+[class*=" el-icon-"], [class^=el-icon-]{
+  font-size: 30px;
 }
 .CLassIndex_Right_Top_Msg {
   display: flex;
@@ -555,8 +570,8 @@ export default {
   color: rgba(32, 32, 32, 1);
 }
 .el-checkbox__inner {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height:40px;
 }
 .ListParentChildViewTop p:nth-child(2) {
   font-size: 24px;
@@ -700,8 +715,8 @@ tbody {
   align-items: center !important;
 }
 .el-cascader-node {
-  height: 60px !important;
-  font-size: 26px !important;
+  height: 90px !important;
+  font-size: 30px !important;
   font-weight: normal !important;
 }
 .el-cascader-node.in-active-path {
@@ -712,6 +727,9 @@ tbody {
 }
 .el-cascader-node__label {
   padding-left: 20px !important;
+}
+.el-cascader-menu__wrap{
+  height: 350px !important;
 }
 .picker_view .el-cascader {
   margin-left: 30px !important;

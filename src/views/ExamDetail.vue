@@ -25,6 +25,15 @@
         <div v-for="qitem in item.qas" :key="qitem.id">
           <p class="exam_list_left_title_item">{{qitem.title}}</p>
           <div class="html_div" v-html="qitem.content"></div>
+          <!-- 选择题答案项显示 -->
+          <div v-if="qitem.type==1||qitem.type==2"  >
+          <div class="check_qas_view" v-for=" aitem in  qitem.answers" :key="aitem.id" >
+            <!-- <p>{{aitem.name}}</p> -->
+            <div v-for="oitem in aitem.content.options " class="oitem_item" :key="oitem.value" >
+             <span  >{{oitem.value}}</span>  <span>{{oitem.text}}</span>  
+            </div>
+          </div>
+          </div>
         </div>
       </div>
     </div>
@@ -40,20 +49,41 @@
           </p>
         </div>
         <div class="html_div" v-html="qas_content"></div>
+         <!-- 选择题答案项显示 -->
+          <div v-if="qtype==1||qtype==2" class="check_qas_view_parent" >
+          <div class="check_qas_view" v-for=" aitem in  answer_data" :key="aitem.id" >
+            <!-- <p>{{aitem.name}}</p> -->
+            <div v-for="oitem in aitem.content.options " class="oitem_item" :key="oitem.value" >
+             <span  >{{oitem.value}}</span>  <span>{{oitem.text}}</span>  
+            </div>
+          </div>
+          </div>
+
         <!-- 答案解析 -->
         <div class="answer_konw" @click="change_right_toggle" >
-          <el-image :src="BookImage"></el-image>
+          <el-image :src="BookImage">
+             <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+          </el-image>
           <span>答案解析</span>
         </div>
 
         <div class="answer_qri" v-show="right_toggle" v-html="qri" ></div>
+       
 
         <!-- 人员显示 -->
         <div class="poeple_view">
           <span>答错学生 {{ns_data.length}}</span>
           <div class="poeple_view_item">
             <div v-for="item in ns_data" :key="item.name">
-              <el-image :src="item.avatar"></el-image>
+              <el-image :src="item.avatar">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+              </el-image>
               <span>{{item.name}}</span>
             </div>
           </div>
@@ -102,7 +132,9 @@ export default {
       ns_data: [],
       ys_data: [],
       rq_rate: 0,
-      rq_title: ""
+      rq_title: "",
+      qtype:-1,
+      answer_data:[]
     };
   },
   components: {},
@@ -176,7 +208,9 @@ export default {
         if(res.qri){
           res.qri = this.htmlspecialchars_decode(res.qri);
         }
+        this.answer_data=res.answer_data
         this.qri=res.qri
+        this.qtype=res.type
         this.answer_toggle = true;
         this.is_change = false;
         this.is_change_before = false;
@@ -363,6 +397,22 @@ export default {
 .qas_view {
   width: 100%;
 }
+.oitem_item{
+  display: flex;
+  align-items: center;
+  font-size: 30px;
+  height: 60px;
+
+}
+.oitem_item span{
+  margin-right: 30px;
+}
+.check_qas_view_parent{
+  width: 100%;
+}
+.check_qas_view{
+  margin-bottom: 60px;
+}
 .ExamDetail_right {
   width: 1218px;
   height: 100vh;
@@ -483,7 +533,7 @@ export default {
   margin-bottom: 37px;
   width: 100%;
 }
-.answer_konw img {
+.answer_konw .el-image {
   width: 43px;
   height: 39px;
   margin-right: 20px;
@@ -518,7 +568,7 @@ export default {
   margin-top: 10px;
   margin-bottom: 20px;
 }
-.poeple_view_item > div img {
+.poeple_view_item > div .el-image {
   width: 72px;
   height: 72px;
   border-radius: 50%;

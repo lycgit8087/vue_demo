@@ -19,10 +19,15 @@
         <p>附件</p>
         <div class="file_list_view"  >
           <div v-for="item in files" :key="item.name"  >
-            <el-image :src="item.url" fit="fit"></el-image>
+            <el-image :src="item.url" fit="fit">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+            </el-image>
          
             <p>{{item.fcname}}</p>
-            <a :href="item.fpath" download target="_self"  ></a>
+            <a :href="item.fpath" :download="item.fcname" target="_self"  ></a>
           </div>
         </div>
       </div>
@@ -32,7 +37,11 @@
         <p>试题</p>
         <div class="scroll_view" v-infinite-scroll="right_scroll" style="overflow:auto">
           <div class="exam_list_view_item" v-for="item in paper_list" :key="item.pid">
-            <el-image :src="file_image" fit="fit"></el-image>
+            <el-image :src="file_image" fit="fit">
+               <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+            </el-image>
             <div class="exam_list_view_item_right">
               <p class="exam_list_view_item_right_title">{{item.title}}</p>
               <p class="exam_list_view_item_right_num">共{{item.qcount}}题</p>
@@ -87,8 +96,16 @@
               @click="check_now(index)"
             >
               <div class="people_view_item_image">
-                <el-image :src="item.avatar" fit="cover"></el-image>
-                <el-image v-if="item.is_check" :src="CheckedImage"></el-image>
+                <el-image :src="item.avatar" fit="cover">
+                   <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+                </el-image>
+                <el-image v-if="item.is_check" :src="CheckedImage">
+                   <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+                </el-image>
                 <div v-if="!item.is_check" class="image_bg"></div>
               </div>
               <span :class="item.is_check?'action_text':'span_text'">{{item.sname}}</span>
@@ -105,7 +122,11 @@
       <!-- 发送成功 -->
       <el-dialog :visible.sync="send_success" :show-close="false">
         <div class="send_success_center">
-          <el-image :src="SuccessImage"></el-image>
+          <el-image :src="SuccessImage">
+             <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+          </el-image>
           <span class="success_text">发送成功</span>
           <el-button type="primary" class="to_see_data" @click="to_see_data">查看数据</el-button>
           <div class="back_index" @click="BackIndex">返回首页</div>
@@ -139,6 +160,7 @@ export default {
         {text:"doc,docx",url:WordIcon},
         {text:"pptx,ppt",url:PPtIcon},
       ],
+      aa:123,
       centerDialogVisible: false,
       CheckedImage: require("../assets/check_it.png"),
       SuccessImage: require("../assets/send_success.png"),
@@ -222,7 +244,6 @@ export default {
           plist.datalength=plist.content.length
 
         }
-        console.log(plist)
 
         this.plist=plist
       })
@@ -239,7 +260,6 @@ export default {
 
     },
     SeeData(id) {
-      console.log(id)
       this.$router.push({ name: "Census",query:{pid:id} });
     },
     ToExamDetail(){
@@ -256,9 +276,8 @@ export default {
         module_action: "get_prepare_lesson",
         plid: plid
       }).then(res => {
-        console.log(this.$till)
         let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
-        console.log(tcontents)
+        
         for (let i in tcontents) {
           tcontents[i].tccontent = this.htmlspecialchars_decode(
             tcontents[i].tccontent
@@ -311,8 +330,12 @@ export default {
         }
       // } else {
       // }
-      str = str.replace(/\<img/gi, '<img style="max-width:50%;height:auto" ');
+      str = str.replace(/\<img/gi, '<img @click="seeimage" style="max-width:50%;height:auto" ');
       return str;
+    },
+
+    seeimage(){
+      console.log(123)
     },
 
     // 推送试题
@@ -464,7 +487,7 @@ export default {
   left: 0;
 }
 
-.file_list_view > div img {
+.file_list_view > div .el-image {
   width: 54px;
   height: 54px;
   margin-bottom: 12px;
@@ -497,7 +520,7 @@ export default {
   border-bottom: 2px solid #ecedf1;
   margin-bottom: 50px;
 }
-.exam_list_view_item img {
+.exam_list_view_item .el-image {
   width: 61px;
   height: 61px;
   margin-right: 36px;
@@ -685,7 +708,7 @@ export default {
   margin-bottom: 20px;
   justify-content: center;
 }
-.people_view_item_image .el-image:nth-child(1) img {
+.people_view_item_image .el-image:nth-child(1) {
   height: 90px;
   width: 90px;
   border-radius: 50%;
@@ -728,7 +751,7 @@ export default {
   justify-content: center;
   align-items: center;
 }
-.send_success_center img {
+.send_success_center .el-image {
   width: 352px;
   height: 345px;
   margin-bottom: 10px;
@@ -756,15 +779,15 @@ export default {
   margin-top: 30px;
 }
 .el-checkbox.is-bordered.el-checkbox--medium .el-checkbox__label {
-  font-size: 24px !important;
+  font-size: 30px !important;
 }
 .el-checkbox.is-bordered.el-checkbox--medium .el-checkbox__inner {
-  width: 24px !important;
-  height: 24px !important;
+  width: 30px !important;
+  height: 30px !important;
 }
 .el-checkbox__inner::after {
-  height: 10px !important;
-  width: 10px !important;
+  height: 13px !important;
+  width: 13px !important;
 }
 .el-checkbox__input.is-checked .el-checkbox__inner::after {
   transform: rotate(45deg) scaleY(1.5) !important;

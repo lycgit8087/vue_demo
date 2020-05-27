@@ -2,20 +2,22 @@ import axios from 'axios';
 import { Message, Loading } from 'element-ui'
 import Cookies from 'js-cookie'
 import qs from 'qs'
-
+let requestCount = 0;
 let loadingInstance = null
+let timer;
 const hash = require("./hmac-sha256")
 const root = process.env.API_ROOT;
 //http request 拦截器
 axios.interceptors.request.use(
   config => {
-    if(config.headers.action!="token_get"){
+    if(config.headers.action!="token_get"&&requestCount === 0){
       loadingInstance = Loading.service({
         text: 'loading...',
         background:"rgba(255, 255, 255, 0.1)"
         
       })
     }
+    requestCount++
     const token = Cookies.get("token");//注意使用的时候需要引入cookie方法，推荐js-cookie
     config.baseURL = ''
     config.url = root + config.url;
@@ -46,12 +48,23 @@ axios.interceptors.request.use(
   }
 );
 
+function tryHideLoading() {
+  requestCount-- 
+  //采用setTimeout是为了解决一个请求结束后紧接着有另一请求发起导致loading闪烁的问题
+  timer = setTimeout(() => {    
+    if (requestCount === 0) {
+      loadingInstance.close()
+      clearTimeout(timer)
+    }
+  })
+}
+
 
 //http response 拦截器
 axios.interceptors.response.use(
   response => {
       // console.log(response)
-      loadingInstance.close()
+      tryHideLoading()
       if(response.data.response_code==-1){
         
         Message({
@@ -71,8 +84,7 @@ axios.interceptors.response.use(
   error => {
     console.log(error)
     // const msg = error.Message !== undefined ? error.Message : ''
-  
-  loadingInstance.close()
+    tryHideLoading()
     return Promise.reject(error)
   }
 )

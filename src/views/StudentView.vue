@@ -2,7 +2,11 @@
   <div class="student_view">
     <div class="student_view_left">
       <back></back>
-      <el-image :src="HeadImage" fit="cover"></el-image>
+      <el-image :src="HeadImage" fit="cover">
+         <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+      </el-image>
       <span class="student_name">司马昭</span>
       <div class="left_des" v-for="item in left_arr" :key="item.text">
         <span>{{item.text}}</span>
@@ -65,7 +69,7 @@ export default {
   box-sizing: border-box;
   align-items: center;
 }
-.student_view_left img {
+.student_view_left .el-image {
   width: 162px;
   height: 162px;
   border-radius: 50%;

@@ -2,7 +2,11 @@
 <template>
   <div class="login">
     <div class="login_left">
-      <el-image :src="login_image" fit="cover"></el-image>
+      <el-image :src="login_image" fit="cover">
+         <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+      </el-image>
     </div>
     <div class="login_right">
       <div class="login_right_tab">

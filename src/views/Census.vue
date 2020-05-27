@@ -42,11 +42,14 @@
             <div class="student_view_left_scroll" v-infinite-scroll="student_left_scroll" style="overflow:auto">
               <div v-for="i in 9" :key="i" @click="ToStudentView" >
                 <div class="stunde_number">
-                  <!-- <el-image :src="BookImage" fit="fit"></el-image> -->
                   01
                 </div>
                 <div class="stunde_name">
-                  <el-image :src="BookImage" fit="fit"></el-image>
+                  <el-image :src="BookImage" fit="fit">
+                      <div slot="error" class="image-slot">
+                        <i class="el-icon-picture-outline"></i>
+                      </div>
+                  </el-image>
                   <span>司马昭</span>
                 </div>
                 <div class="stunde_time">23′12″</div>
@@ -59,7 +62,11 @@
             <p>未交题学生 (23)</p>
             <div class="student_view_right_scroll" v-infinite-scroll="student_right_scroll" style="overflow:auto">
               <div v-for="i in 9" :key="i">
-                <el-image :src="BookImage" fit="fit"></el-image>
+                <el-image :src="BookImage" fit="fit">
+                  <div slot="error" class="image-slot">
+                        <i class="el-icon-picture-outline"></i>
+                      </div>
+                </el-image>
                 <span>司马昭</span>
               </div>
             </div>
@@ -74,7 +81,7 @@
       </div>
       <!-- 题目 -->
       <div class="list_view_scroll" v-infinite-scroll="load" style="overflow:auto" v-show="TabIndex==0" >
-        <div v-for="(item,index) in topic_list" :key="item.code">
+        <div v-for="(item,index) in topic_list" :key="item.code" @click="CheckQas(item.code)" >
           <p class="list_view_scroll_number">{{index+1}}</p>
           <p class="list_view_scroll_title" >{{item.title}}</p>
           <div class="all_cout" v-if="item.points.length" > <p v-for=" pitem in  item.points" :key="pitem.id" >{{pitem.name}}</p> </div>
@@ -86,11 +93,19 @@
               </div>
               <!-- 人数 -->
               <div class="poeple_right">
-                <el-image :src="RightIcon" fit="fit"></el-image>
+                <el-image :src="RightIcon" fit="fit">
+                  <div slot="error" class="image-slot">
+                        <i class="el-icon-picture-outline"></i>
+                      </div>
+                </el-image>
                 <span>{{item.ycount}}人</span>
               </div>
               <div class="poeple_right">
-                <el-image :src="ErrorIcon" fit="fit"></el-image>
+                <el-image :src="ErrorIcon" fit="fit">
+                  <div slot="error" class="image-slot">
+                        <i class="el-icon-picture-outline"></i>
+                      </div>
+                </el-image>
                 <span>{{item.ncount}}人</span>
               </div>
             </div>
@@ -134,7 +149,11 @@
         <p v-html="p_html"></p>
         <!-- 答案解析 -->
         <div class="answer_konw">
-          <el-image :src="BookImage"></el-image>
+          <el-image :src="BookImage">
+            <div slot="error" class="image-slot">
+                        <i class="el-icon-picture-outline"></i>
+                      </div>
+          </el-image>
           <span>答案解析</span>
         </div>
 
@@ -143,7 +162,11 @@
           <span>答错学生 12</span>
           <div class="poeple_view_item">
             <div v-for="i in 10" :key="i">
-              <el-image :src="BookImage"></el-image>
+              <el-image :src="BookImage">
+                <div slot="error" class="image-slot">
+                        <i class="el-icon-picture-outline"></i>
+                      </div>
+              </el-image>
               <span>张郃</span>
             </div>
           </div>
@@ -196,6 +219,10 @@ export default {
     },
     load(){
 
+    },
+    CheckQas(){
+    let {answer_toggle}=this
+    this.answer_toggle=!answer_toggle
     },
 
      async GetRightList(){
@@ -250,7 +277,7 @@ export default {
   font-size: 25px;
   margin-left: 30px;
 }
-.poeple_right img {
+.poeple_right .el-image {
   width: 43px;
   height: 43px;
   border-radius: 50%;
@@ -264,7 +291,7 @@ export default {
   color: #00ad56;
   font-size: 25px;
 }
-.stunde_number img {
+.stunde_number .el-image {
   width: 43px;
   height: 43px;
 }
@@ -284,7 +311,7 @@ export default {
   color: #202020;
   font-size: 22px;
 }
-.stunde_name img {
+.stunde_name .el-image {
   width: 54px;
   height: 54px;
   margin-right: 24px;
@@ -509,7 +536,7 @@ export default {
   color: rgba(32, 32, 32, 1);
   margin-bottom: 43px;
 }
-.student_view_right_scroll > div img {
+.student_view_right_scroll > div .el-image {
   width: 61px;
   height: 61px;
   margin-right: 23px;
@@ -622,7 +649,7 @@ margin-bottom: 20px;
   margin-bottom: 37px;
   width: 100%;
 }
-.answer_konw img {
+.answer_konw .el-image {
   width: 43px;
   height: 39px;
   margin-right: 20px;
@@ -653,7 +680,7 @@ margin-bottom: 20px;
   margin-bottom: 35px;
 }
 
-.poeple_view_item > div img {
+.poeple_view_item > div .el-image {
   width: 72px;
   height: 72px;
   border-radius: 50%;
