@@ -19,7 +19,7 @@
         <p>附件</p>
         <div class="file_list_view"  >
           <div v-for="item in files" :key="item.name"  >
-            <el-image :src="item.url" fit="fit">
+            <el-image :src="item.url" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
@@ -37,7 +37,7 @@
         <p>试题</p>
         <div class="scroll_view" v-infinite-scroll="right_scroll" style="overflow:auto">
           <div class="exam_list_view_item" v-for="item in paper_list" :key="item.pid">
-            <el-image :src="file_image" fit="fit">
+            <el-image :src="file_image" fit="cover">
                <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>

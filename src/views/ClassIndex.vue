@@ -38,16 +38,15 @@
           </el-image>
           <div class="CLassIndex_Right_Top_Msg">
             <p>{{UserInfo.name}}</p>
-            <p>{{UserInfo.belong}}</p>
+            <p class="ResetLogin" @click="BackLogin" >退出登录</p>
           </div>
         </div>
 
-        <div class="ResetLogin" @click="BackLogin">退出登录</div>
-      </div>
+        <el-button type="primary" @click="SeeSubject" >备课记录</el-button>
 
-      <div class="picker_view">
-        <!-- 时间筛选 -->
-        <el-date-picker
+      </div>
+       <!-- 时间筛选 -->
+        <!-- <el-date-picker
           v-model="time_value"
           type="daterange"
           align="right"
@@ -57,27 +56,9 @@
           end-placeholder="结束日期"
           :picker-options="pickerOptions"
           value-format="yyyy/MM/dd"
-        ></el-date-picker>
+        ></el-date-picker> -->
 
-        <!-- 年级班级选择器 -->
-        <el-cascader
-          v-model="class_value"
-          :options="class_arr"
-          @change="handleChangeClass"
-          placeholder="年级/班级"
-        ></el-cascader>
-        <!-- 科目章节 -->
-
-        <el-cascader
-          v-model="course_value"
-          :options="subject_arr"
-          @change="handleChangeCourse"
-          placeholder="科目/章节"
-          :props="props"
-          collapse-tags
-          clearable
-        ></el-cascader>
-      </div>
+    
 
       <!-- 标题 -->
       <div class="ListTitle">备课列表</div>
@@ -113,6 +94,60 @@
         </div>
       </div>
     </div>
+
+      <!-- 章节选择 -->
+      <!-- 题目弹出框 -->
+    <el-dialog :visible.sync="sub_toggle">
+      
+      <div class="picker_view">
+      
+        <!-- 年级班级选择器 -->
+        <el-cascader
+          v-model="class_value"
+          :options="class_arr"
+          @change="handleChangeClass"
+          placeholder="年级/班级"
+        ></el-cascader>
+
+        <!-- 科目选择器 -->
+        <el-cascader
+          v-model="class_value"
+          :options="class_arr"
+          @change="handleChangeClass"
+          placeholder="科目"
+        ></el-cascader>
+      </div>
+      <div class="sub_center" v-infinite-scroll="sub_scroll" style="overflow:auto" >
+
+
+
+                <el-tree
+          :data="subject_arr"
+          show-checkbox
+          default-expand-all
+          node-key="id"
+          ref="tree"
+          highlight-current
+          :props="defaultProps">
+        </el-tree>
+
+
+      </div>
+      
+      <div slot="footer">
+        <el-button
+          type="danger"
+          class="send_cancle"
+        >取消</el-button>
+
+        <el-button
+          type="primary"
+          class="send_confrm"
+        >确定</el-button>
+      </div>
+    </el-dialog>
+
+
   </div>
 </template>
 
@@ -128,8 +163,14 @@ export default {
   data() {
     //这里存放数据
     return {
+       defaultProps: {
+          children: 'children',
+          label: 'label'
+        },
       value: "",
       HeadImage: "",
+      answer_toggle:true,
+      sub_toggle:false,
       class_value: [],
       course_value: [],
       count: 10,
@@ -229,6 +270,13 @@ export default {
   },
   //方法集合
   methods: {
+    sub_scroll(){
+
+    },
+    SeeSubject(){
+      let {sub_toggle}=this
+      this.sub_toggle=!sub_toggle
+    },
     load() {
       this.loading = true;
       setTimeout(() => {
@@ -493,11 +541,11 @@ export default {
   color: rgba(32, 32, 32, 1);
   margin-bottom: 9px;
 }
-.CLassIndex_Right_Top_Msg p:nth-child(2) {
+/* .CLassIndex_Right_Top_Msg p:nth-child(2) {
   font-size: 24px;
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
-}
+} */
 .el-scrollbar .el-scrollbar__wrap {
   overflow-x: hidden;
 }
@@ -543,7 +591,7 @@ export default {
   width: 100%;
   height: 450px;
 }
-.ListView::-webkit-scrollbar {
+.ListView::-webkit-scrollbar,.sub_center::-webkit-scrollbar {
   /*滚动条整体样式*/
   width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
   height: 1px;
@@ -556,6 +604,18 @@ export default {
   box-sizing: border-box;
   flex-direction: column;
   justify-content: space-between;
+}
+.sub_center{
+  width: 70vw;
+  height: 60vh;
+}
+.sub_center .el-tree-node__content{
+  height: auto;
+  margin-bottom: 15px;
+}
+ .el-dialog{
+  width: 80vw;
+  margin-top: 2vh !important;
 }
 .ListParentChildViewTop,
 .ListParentChildViewBot {
@@ -599,6 +659,16 @@ export default {
   /* height: 70px;
   border-radius: 50%; */
 }
+.CLassIndex  .send_cancle{
+ width: 180px;
+  height: 72px;
+  font-size: 24px !important ;
+}
+.CLassIndex .send_confrm{
+     width: 180px;
+  height: 72px;
+  font-size: 24px !important ;
+}
 .el-calendar-table .el-calendar-day {
   display: flex;
   align-items: center;
@@ -633,6 +703,14 @@ export default {
   width: 10px;
   height: 10px;
 } */
+
+.CLassIndex_Right_Top .el-button{
+  height: 70px;
+  width: 200px;
+  margin-left: 20px;
+  border-radius: 5px;
+  font-size: 32px;
+}
 
 .el-calendar__header {
   display: flex;
@@ -676,7 +754,6 @@ tbody {
 .picker_view {
   display: flex;
   align-items: center;
-  margin-left: 86px;
   margin-bottom: 30px;
 }
 .picker_view .el-date-editor--daterange.el-input__inner {
@@ -713,6 +790,9 @@ tbody {
   font-size: 26px !important;
   display: flex !important;
   align-items: center !important;
+}
+ .el-cascader-menu{
+  min-width: 350px !important;
 }
 .el-cascader-node {
   height: 90px !important;

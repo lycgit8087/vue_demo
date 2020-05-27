@@ -78,7 +78,7 @@
           <span>答错学生 {{ns_data.length}}</span>
           <div class="poeple_view_item">
             <div v-for="item in ns_data" :key="item.name">
-              <el-image :src="item.avatar">
+              <el-image :src="item.avatar" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>

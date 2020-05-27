@@ -45,7 +45,7 @@
                   01
                 </div>
                 <div class="stunde_name">
-                  <el-image :src="BookImage" fit="fit">
+                  <el-image :src="BookImage" fit="cover">
                       <div slot="error" class="image-slot">
                         <i class="el-icon-picture-outline"></i>
                       </div>
@@ -62,7 +62,7 @@
             <p>未交题学生 (23)</p>
             <div class="student_view_right_scroll" v-infinite-scroll="student_right_scroll" style="overflow:auto">
               <div v-for="i in 9" :key="i">
-                <el-image :src="BookImage" fit="fit">
+                <el-image :src="BookImage" fit="cover">
                   <div slot="error" class="image-slot">
                         <i class="el-icon-picture-outline"></i>
                       </div>
@@ -93,7 +93,7 @@
               </div>
               <!-- 人数 -->
               <div class="poeple_right">
-                <el-image :src="RightIcon" fit="fit">
+                <el-image :src="RightIcon" fit="cover">
                   <div slot="error" class="image-slot">
                         <i class="el-icon-picture-outline"></i>
                       </div>
@@ -101,7 +101,7 @@
                 <span>{{item.ycount}}人</span>
               </div>
               <div class="poeple_right">
-                <el-image :src="ErrorIcon" fit="fit">
+                <el-image :src="ErrorIcon" fit="cover">
                   <div slot="error" class="image-slot">
                         <i class="el-icon-picture-outline"></i>
                       </div>

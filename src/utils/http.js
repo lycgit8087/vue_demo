@@ -24,7 +24,7 @@ axios.interceptors.request.use(
     config.withCredentials = true // 允许携带token ,这个是解决跨域产生的相关问题
     config.timeout = 10000  //超时时间
     config.data = qs.stringify(config.data);
-    if(config.headers.action!="token_get"){
+    if(config.headers.action.indexOf("token")==-1){
       //设置请求头
     config.headers = {
         'Content-Type':'application/x-www-form-urlencoded',
@@ -32,9 +32,10 @@ axios.interceptors.request.use(
         "token":token
       }
     }else{
+
       config.headers = {
         'Content-Type':'application/x-www-form-urlencoded',
-        "action":"token_get",
+        "action":config.headers.action,
       }
     }
     
@@ -63,15 +64,26 @@ function tryHideLoading() {
 //http response 拦截器
 axios.interceptors.response.use(
   response => {
-      // console.log(response)
+      console.log(response)
+      let {config}=response
       tryHideLoading()
       if(response.data.response_code==-1){
-        
-        Message({
-          message: response.data.response_msg,
-          type: 'error',
-          duration: 3 * 1000
-        })
+        let errmessage = response.data.response_msg.toLowerCase()
+        if(errmessage.indexOf("token")!=-1){
+          Cookies.set("token","")
+          get_new_token("/?c=api", {}).then(res => {
+           
+          post(config.url,config.headers.action,config.data)
+            
+          });
+        }else{
+          Message({
+            message: response.data.response_msg,
+            type: 'error',
+            duration: 3 * 1000
+          })
+        }
+       
       }
     // if(response.data.errCode ==2){
     //   router.push({
@@ -107,6 +119,30 @@ function get_msg(apiaction){
     apiaction
   }
   return obj
+}
+function get_new_token(url,params){
+  return new Promise((resolve,reject) => {
+    axios.post(url, params, { 
+    headers: { 
+    "action" : "token_update",
+  } 
+}
+).then((response) => {
+  console.log(response)
+
+  if(response.data.response_code==0){
+    Cookies.set("token",response.data.token)
+    resolve(response.data);
+
+  }else{
+    reject(response)
+
+  }
+
+}).catch(err => {
+    reject(err)
+  });  
+})
 }
 
 // 获取token方法
@@ -173,6 +209,7 @@ export function fetch(url,params={}){
     axios.post(url, data, { headers: {
     "action":apiaction, } }
 ).then((response) => {
+  console.log(response)
     resolve(response.data);
 
 }).catch(err => {
