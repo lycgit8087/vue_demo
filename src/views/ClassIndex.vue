@@ -111,9 +111,9 @@
 
         <!-- 科目选择器 -->
         <el-cascader
-          v-model="class_value"
-          :options="class_arr"
-          @change="handleChangeClass"
+          v-model="sub_value"
+          :options="sub_arr"
+          @change="handleChangeSub"
           placeholder="科目"
         ></el-cascader>
       </div>
@@ -122,13 +122,15 @@
 
 
                 <el-tree
-          :data="subject_arr"
+          :data="subject_tree"
           show-checkbox
           default-expand-all
           node-key="id"
           ref="tree"
           highlight-current
-          :props="defaultProps">
+          :props="defaultProps"
+          @check-change="check_sub"
+          >
         </el-tree>
 
 
@@ -142,6 +144,7 @@
 
         <el-button
           type="primary"
+          @click="confrm_data"
           class="send_confrm"
         >确定</el-button>
       </div>
@@ -168,6 +171,9 @@ export default {
           label: 'label'
         },
       value: "",
+      grade:0,
+      sub_arr:[],
+      sub_value:"",
       HeadImage: "",
       answer_toggle:true,
       sub_toggle:false,
@@ -220,7 +226,11 @@ export default {
       list_data: [],
       ids: [],
       props: { multiple: true },
-      subject_arr: []
+      subject_arr: [],
+      subList:[],
+      subject_tree:[],
+      push_sub_value:-1,
+
     };
   },
   //监听属性 类似于data概念
@@ -264,8 +274,36 @@ export default {
       }
       
     },
-    class_value(val) {
-      this.GetPrepareLessonList();
+    sub_value(val) {
+      let {subList}=this
+      let num=subList.findIndex(item=>item.id==val)
+     
+      let arr=subList[num]
+      console.log(arr)
+      this.subject_tree=this.ChangeSubject_arr(arr.subject_data)
+      console.log(val)
+        // this.sub_value=val
+    },
+    class_value(val){
+      console.log(val)
+
+      let { class_value,class_arr,sub_arr } = this;
+      let value=val,subject_data=[]
+      sub_arr=[]
+      let arr=class_arr.filter(item=>item.value==value)
+      arr=arr[0]
+      this.grade=arr.gid
+      subject_data=arr.subject_data
+      for(let i in subject_data){
+          sub_arr.push({
+            value:subject_data[i].id,
+            label:subject_data[i].name
+          })
+      }
+      this.sub_arr=sub_arr
+      this.class_value = value;
+      // this.push_sub_value=-1
+      this.GetSubject()
     }
   },
   //方法集合
@@ -273,10 +311,37 @@ export default {
     sub_scroll(){
 
     },
+
+    // 获取选中数据
+    confrm_data(){
+      console.log(this.$refs.tree.getCheckedKeys())
+      let ids_arr=this.$refs.tree.getCheckedKeys()
+      this.ids=ids_arr
+      this.sub_toggle=false
+      this.GetPrepareLessonList()
+    },
+
+    check_sub(data){
+      console.log(data)
+    },
+    // 设置默认选择项
+    init_sub_data(){
+      let {list_data,class_arr}=this
+      if(list_data.length==0)return
+       console.log(list_data)
+      list_data=list_data[0]
+      this.grade=list_data.gid
+      this.class_value=list_data.class_id
+      this.push_sub_value=list_data.subject_id
+      
+    },
+    // 查看备课记录
     SeeSubject(){
       let {sub_toggle}=this
+      this.init_sub_data()
       this.sub_toggle=!sub_toggle
     },
+
     load() {
       this.loading = true;
       setTimeout(() => {
@@ -285,23 +350,16 @@ export default {
       }, 2000);
     },
     handleChangeClass() {
-      let { class_value } = this;
-      this.class_value = class_value[0];
+      let { class_value} = this;
+      let value=class_value.join(",")
+      this.class_value = value;
     },
-    handleChangeCourse() {
-      let arr = [];
-      let { course_value } = this;
-      for (let i in course_value) {
-        for (let j in course_value[i]) {
-          if (arr.indexOf(course_value[i][j]) == -1) {
-            arr.push(course_value[i][j]);
-          }
-        }
-      }
-      arr.shift();
-      this.ids = arr;
-      this.GetPrepareLessonList();
+
+    handleChangeSub(){
+      let { sub_value } = this;
+      this.sub_value = sub_value.join(",");
     },
+    // 
     TOExamList(plid, class_id) {
       this.$router.push({
         name: "ExamList",
@@ -348,7 +406,9 @@ export default {
         for (let i in belong_data) {
           class_arr.push({
             value: belong_data[i].id,
-            label: belong_data[i].name
+            label: belong_data[i].name,
+            gid:belong_data[i].gid,
+            subject_data:belong_data[i].subject_data
           });
         }
         for (let i in subject_data) {
@@ -362,33 +422,28 @@ export default {
       });
     },
 
-    Subject_arr(data) {
+    ChangeSubject_arr(data) {
       for (let i in data) {
         data[i].label = data[i].name;
         data[i].value = data[i].id;
         if (data[i].hasSubList) {
-          data[i].children = this.Subject_arr(data[i].subList);
+          data[i].children = this.ChangeSubject_arr(data[i].subList);
         }
       }
 
       return data;
     },
-    async GetSubject(data) {
-      let { UserInfo } = this;
-
-      for (let i in data) {
-        let jarr = await this.$post("chapter_list", "/?c=api", {
-          schoolid: UserInfo.org_id,
-          grade: 40,
-          subject: data[i].value
+    // 获取章节信息
+    async GetSubject() {
+      let { UserInfo,grade,class_value,push_sub_value } = this;
+      let jarr = await this.$post("chapter_list", "/?c=api", {
+          grade: grade,
+          class: class_value
         });
-        if (jarr.data.length) {
-          data[i].children = this.Subject_arr(jarr.data);
-        } else {
-          data[i].children = [];
-        }
+      this.subList=jarr.data
+      if(push_sub_value!=-1){
+        this.sub_value= push_sub_value.toString() 
       }
-      this.subject_arr = data;
     },
     
 
@@ -747,7 +802,7 @@ tbody {
   border: none !important;
 }
 .ResetLogin {
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 400;
   color: rgba(164, 169, 255, 1);
 }
@@ -806,7 +861,7 @@ tbody {
   font-weight: normal !important;
 }
 .el-cascader-node__label {
-  padding-left: 20px !important;
+  padding-left: 30px !important;
 }
 .el-cascader-menu__wrap{
   height: 350px !important;
@@ -930,5 +985,13 @@ tbody {
 }
 .el-backtop, .el-calendar-table td.is-today{
   color: none !important;
+}
+.el-tree-node__content .el-tree-node__label{
+  font-size: 26px;
+  font-weight: bold;
+}
+.el-tree-node__children .el-tree-node__label{
+  font-size: 24px;
+  font-weight: normal;
 }
 </style>

@@ -64,7 +64,7 @@ function tryHideLoading() {
 //http response 拦截器
 axios.interceptors.response.use(
   response => {
-      console.log(response)
+      // console.log(response)
       let {config}=response
       tryHideLoading()
       if(response.data.response_code==-1){
@@ -94,7 +94,7 @@ axios.interceptors.response.use(
     return response;
   },
   error => {
-    console.log(error)
+    // console.log(error)
     // const msg = error.Message !== undefined ? error.Message : ''
     tryHideLoading()
     return Promise.reject(error)
@@ -128,7 +128,7 @@ function get_new_token(url,params){
   } 
 }
 ).then((response) => {
-  console.log(response)
+  // console.log(response)
 
   if(response.data.response_code==0){
     Cookies.set("token",response.data.token)
@@ -209,7 +209,7 @@ export function fetch(url,params={}){
     axios.post(url, data, { headers: {
     "action":apiaction, } }
 ).then((response) => {
-  console.log(response)
+  // console.log(response)
     resolve(response.data);
 
 }).catch(err => {
