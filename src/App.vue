@@ -49,5 +49,8 @@ export default {
   align-items: center;
   justify-content: center;
 }
+.el-button--primary{
+  background: #545DFF !important;
+}
 
 </style>

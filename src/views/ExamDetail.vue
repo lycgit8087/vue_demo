@@ -162,6 +162,7 @@ export default {
         let plist = res.data[0];
         let count = 0;
         let num=1
+        
         let { content } = plist;
         if (plist.content.length) {
           for (let i in plist.content) {

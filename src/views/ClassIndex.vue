@@ -98,7 +98,7 @@
       <!-- 章节选择 -->
       <!-- 题目弹出框 -->
     <el-dialog :visible.sync="sub_toggle">
-      
+      <div class="sub_list_title" >备课列表查看</div>
       <div class="picker_view">
       
         <!-- 年级班级选择器 -->
@@ -128,6 +128,7 @@
           node-key="id"
           ref="tree"
           highlight-current
+          check-on-click-node
           :props="defaultProps"
           >
         </el-tree>
@@ -606,7 +607,7 @@ export default {
   font-size: 36px;
   font-weight: 600;
   color: rgba(32, 32, 32, 1);
-  margin-bottom: 9px;
+  margin-bottom: 20px;
 }
 /* .CLassIndex_Right_Top_Msg p:nth-child(2) {
   font-size: 24px;
@@ -644,6 +645,7 @@ export default {
   margin-bottom: 20px;
   box-sizing: border-box;
   display: flex;
+  border:1px solid #F0F0F0
 }
 .ListView {
   width: 100%;
@@ -700,8 +702,8 @@ export default {
   color: rgba(32, 32, 32, 1);
 }
 .el-checkbox__inner {
-  width: 40px;
-  height:40px;
+  width: 40px !important;
+  height:40px !important;
 }
 .ListParentChildViewTop p:nth-child(2) {
   font-size: 24px;
@@ -768,6 +770,12 @@ export default {
   top: 50% !important;
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
+}
+.sub_list_title{
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  margin-left: 30px;
 }
 /* .el-tag .el-icon-close{
   width: 10px;

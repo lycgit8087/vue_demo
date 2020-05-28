@@ -110,6 +110,7 @@ export default {
               offset: 380,
               duration: 1000
             });
+            
             this.closeFace()
             setTimeout(()=>{
             this.$router.replace({ name: "ClassIndex" });

@@ -3,6 +3,7 @@
   <div class="ExamList">
     <div class="exam_list_left">
       <back></back>
+      <p  class="exam_title"  >{{sub_title}}</p>
       <div class="left_view" v-infinite-scroll="left_scroll" style="overflow:auto">
         <div v-for="item in tcontents" :key="item.tcid">
           <p class="exam_list_left_title">{{item.tctitle}}</p>
@@ -184,6 +185,7 @@ export default {
       checked: true,
       send_loading: false,
       plid: 0,
+      sub_title:""
     };
   },
   //监听属性 类似于data概念
@@ -234,6 +236,7 @@ export default {
         let plist=res.data
         if(plist.length){
           plist=plist[0]
+         
           let count=0
           if(plist.content.length){
             for(let i in plist.content){
@@ -277,7 +280,7 @@ export default {
         plid: plid
       }).then(res => {
         let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
-        
+        console.log(prepare_lesson_data)
         for (let i in tcontents) {
           tcontents[i].tccontent = this.htmlspecialchars_decode(
             tcontents[i].tccontent
@@ -301,7 +304,7 @@ export default {
 
         }
         this.tcontents = tcontents;
-        console.log(files)
+        this.sub_title=prepare_lesson_data[0].acname
         this.files=files
         this.paper_list=paper_list
       });
@@ -642,6 +645,15 @@ export default {
   flex-direction: column;
   padding: 0 30px;
   box-sizing: border-box;
+}
+.exam_title{
+  display: flex;
+  width: 100%;
+  font-size: 32px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+  font-weight: bold;
 }
 .send_dialog_center_check {
   width: 100%;
