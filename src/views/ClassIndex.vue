@@ -84,10 +84,10 @@
           <div>
             <div class="ListParentChildViewTop">
               <p>{{item.acname}}</p>
-              <p>{{item.time}}</p>
+              <p>{{item.day_time}}</p>
             </div>
             <div class="ListParentChildViewBot">
-              <p>{{item.spctitle}} [课时{{item.classhour}}]</p>
+              <p>{{item.spctitle}}</p>
               <p>{{item.gname+item.cname}}</p>
             </div>
           </div>
@@ -129,7 +129,6 @@
           ref="tree"
           highlight-current
           :props="defaultProps"
-          @check-change="check_sub"
           >
         </el-tree>
 
@@ -139,6 +138,8 @@
       <div slot="footer">
         <el-button
           type="danger"
+          @click="cancle_data"
+
           class="send_cancle"
         >取消</el-button>
 
@@ -277,16 +278,10 @@ export default {
     sub_value(val) {
       let {subList}=this
       let num=subList.findIndex(item=>item.id==val)
-     
       let arr=subList[num]
-      console.log(arr)
       this.subject_tree=this.ChangeSubject_arr(arr.subject_data)
-      console.log(val)
-        // this.sub_value=val
     },
     class_value(val){
-      console.log(val)
-
       let { class_value,class_arr,sub_arr } = this;
       let value=val,subject_data=[]
       sub_arr=[]
@@ -304,7 +299,16 @@ export default {
       this.class_value = value;
       // this.push_sub_value=-1
       this.GetSubject()
-    }
+    },
+    push_sub_value(val){
+       let {subList}=this
+       if(subList.length==0||val==-1)return
+      let num=subList.findIndex(item=>item.id==val)
+      let arr=subList[num]
+      this.subject_tree=this.ChangeSubject_arr(arr.subject_data)
+      this.sub_value=  val.toString()
+
+    },
   },
   //方法集合
   methods: {
@@ -318,11 +322,14 @@ export default {
       let ids_arr=this.$refs.tree.getCheckedKeys()
       this.ids=ids_arr
       this.sub_toggle=false
+      this.list_data=[]
       this.GetPrepareLessonList()
     },
 
-    check_sub(data){
-      console.log(data)
+    // 取消
+    cancle_data(){
+      this.sub_toggle=false
+      this.push_sub_value=-1
     },
     // 设置默认选择项
     init_sub_data(){
@@ -333,6 +340,7 @@ export default {
       this.grade=list_data.gid
       this.class_value=list_data.class_id
       this.push_sub_value=list_data.subject_id
+      console.log(list_data.subject_id)
       
     },
     // 查看备课记录
@@ -479,6 +487,10 @@ export default {
             listarr[i].time = this.$till.get_time(
               listarr[i].ptime * 1000,
               "Y/M/D"
+            );
+            listarr[i].day_time = this.$till.get_time(
+              listarr[i].ptime * 1000,
+              "h:s"
             );
           }
           list_data = listarr.filter(item => item.time == value);
@@ -661,16 +673,19 @@ export default {
   justify-content: space-between;
 }
 .sub_center{
-  width: 70vw;
-  height: 60vh;
+  max-height: 60vh;
 }
 .sub_center .el-tree-node__content{
   height: auto;
   margin-bottom: 15px;
 }
  .el-dialog{
-  width: 80vw;
-  margin-top: 2vh !important;
+  margin-top: 0vh !important;
+}
+.el-dialog__wrapper{
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .ListParentChildViewTop,
 .ListParentChildViewBot {

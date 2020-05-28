@@ -44,5 +44,10 @@ export default {
   font-size: 36px !important;
 }
 
+.el-dialog__wrapper{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 </style>

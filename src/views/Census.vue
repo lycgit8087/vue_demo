@@ -205,6 +205,7 @@ export default {
   created() {
     this.pid = this.$route.query.pid;
     this.GetRightList()
+    this.GetPaperOverview()
   },
   mounted() {},
   methods: {
@@ -223,6 +224,17 @@ export default {
     CheckQas(){
     let {answer_toggle}=this
     this.answer_toggle=!answer_toggle
+    },
+
+    // 获取统计
+    async  GetPaperOverview(){
+       let {pid}=this
+
+        await this.$post("paper_overview", "/?c=api", {
+        pid:pid
+      }).then(res=>{
+        console.log(res)
+      })
     },
 
      async GetRightList(){
