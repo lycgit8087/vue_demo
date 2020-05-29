@@ -359,7 +359,7 @@ export default {
 
       // if (fistindex == "https://api-sf.imofang.cn/app.aspx?") {
       if (str.indexOf("src='/files") != -1) {
-          str = str.replace(/src='/, `src='http://sc.imofang.cn`)
+          str = str.replace(/src='/, `src='https://sc.imofang.cn`)
       } else {
         // str = str.replace(/src='/g, `src='${uploadurl}`);
         // str = str.replace(/src='/g, `src='https://files.imofang.cn/`);

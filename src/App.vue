@@ -1,9 +1,12 @@
 <template>
   <div id="app">
+    <!-- <transition name="fade" mode="out-in"> -->
     <keep-alive>
     <router-view v-if="$route.meta.keepAlive" ></router-view>
     </keep-alive>
       <router-view v-if="!$route.meta.keepAlive"></router-view>
+
+      <!-- </transition> -->
   </div>
 </template>
 
@@ -57,6 +60,14 @@ export default {
 }
 .el-tree__empty-text{
   font-size: 28px !important;
+}
+.el-image-viewer__close{
+ font-size: 80px;
+ width: 100px;
+ height: 100px;
+}
+.el-image-viewer__btn .el-icon-circle-close{
+  font-size: 120px;
 }
 
 </style>

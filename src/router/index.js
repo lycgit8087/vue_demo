@@ -13,7 +13,8 @@ export default new Router({
     {
       path: '/login',
       name: 'Login',
-      component: () => import('@/views/Login')
+      component: () => import('@/views/Login'),
+      meta:{keepAlive: false} 
     },
     {
       path: '/exam_list',

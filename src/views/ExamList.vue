@@ -19,8 +19,8 @@
       <div class="file_list">
         <p>附件</p>
         <div class="file_list_view"  >
-          <div v-for="item in files" :key="item.name"  >
-            <el-image :src="item.url" fit="cover">
+          <div v-for="(item,index) in files" :key="item.name"   >
+            <el-image :src="item.url" fit="cover" :preview-src-list="getSrcList(index)" @click="see_file(item.fpath,item.ftype)" >
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
@@ -28,7 +28,7 @@
             </el-image>
          
             <p>{{item.fcname}}</p>
-            <a :href="item.fpath" :download="item.fcname" target="_self"  ></a>
+            <a v-if="item.ftype!=0&&item.ftype!=1" :href="item.fpath" :download="item.fcname" target="_self"  ></a>
           </div>
         </div>
       </div>
@@ -79,9 +79,6 @@
 
       <el-dialog
         :visible.sync="send_toggle"
-        :show-close="false"
-        v-loading="send_loading"
-        element-loading-text="发送中"
       >
         <div class="send_dialog_center">
           <div class="send_dialog_center_check">
@@ -161,6 +158,7 @@ export default {
         {text:"doc,docx",url:WordIcon},
         {text:"pptx,ppt",url:PPtIcon},
       ],
+      srcList:[],
       aa:123,
       centerDialogVisible: false,
       CheckedImage: require("../assets/check_it.png"),
@@ -210,6 +208,25 @@ export default {
   //方法集合
   methods: {
 
+    see_file(url,type){
+      let {files}=this
+      let srcList=[]
+      
+      // if(type==0){
+      //   let Image_arr=files.filter(item=>item.ftype==type)
+      //   console.log(Image_arr)
+      //   for(let i in Image_arr){
+      //     srcList.push(Image_arr[i].fpath)
+      //   }
+      //   this.srcList=srcList
+
+      // }
+    },
+
+    getSrcList(index){
+      return this.srcList.slice(index).concat(this.srcList.slice(0,index))
+    },
+
    async GetStudent(){
      let {class_id}=this
      let {org_id,url}=this.$store.state
@@ -252,7 +269,8 @@ export default {
       })
       this.centerDialogVisible = true;
     },
-    SendIt(pid) {
+   async SendIt(pid) {
+     await this.GetStudent()//获取学生列表
       this.pid=pid
       this.send_toggle = true;
     },
@@ -271,7 +289,11 @@ export default {
       this.$router.push({ name: "ExamDetail",query:{pid:pid} });
 
     },
-    to_see_data() {},
+    to_see_data() {
+        let {pid,people_arr}=this
+      this.$router.push({ name: "Census",query:{pid:pid} });
+
+    },
     async GetInfo() {
       let { plid,file_arr } = this;
       await this.$post("module_api", "/?c=api", {
@@ -280,7 +302,7 @@ export default {
         plid: plid
       }).then(res => {
         let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
-        console.log(prepare_lesson_data)
+        
         for (let i in tcontents) {
           tcontents[i].tccontent = this.htmlspecialchars_decode(
             tcontents[i].tccontent
@@ -292,20 +314,27 @@ export default {
         let type_zore=tcontents.filter(item=>item.tctype==0)
         let type_one=tcontents.filter(item=>item.tctype==1)
         let type_two=tcontents.filter(item=>item.tctype==2)
-       
-        
+        let Image_arr=files.filter(item=>item.ftype==0)
+
+        let srcList=[]
         tcontents=[...type_two,...type_zore,...type_one]
         for(let i in files){
           files[i].fpath=this.$till.change_file_url(files[i].fpath)
 
           let fname=files[i].fpath.substring(files[i].fpath.lastIndexOf(".")+1,files[i].fpath.length)
           let num =file_arr.findIndex(item=>item.text.indexOf(fname)!=-1)
-          console.log(num)
+          
           files[i].url=file_arr[num].url
 
         }
         this.tcontents = tcontents;
         this.sub_title=prepare_lesson_data[0].acname
+
+        console.log(Image_arr)
+        for(let i in Image_arr){
+          srcList.push(Image_arr[i].fpath)
+        }
+        this.srcList=srcList
         this.files=files
         this.paper_list=paper_list
       });
@@ -316,17 +345,22 @@ export default {
       str = str.replace(/&amp;/g, "&");
       str = str.replace(/&lt;/g, "<");
       str = str.replace(/&gt;/g, ">");
+
       str = str.replace(/&quot;/g, "'");
       str = str.replace(/&#039;/g, "'");
       str = str.replace(/{br}/g, "<br>");
+      
+      str=str.replace(/font-size: \w+;?/g,' ')
 
 
       str = str.replace(/\<p/gi, '<p class="p_class" style="margin-bottom:10px" ');
       str = str.replace(/\<span/gi, '<span class="span_class" ')
+      // str = str.replace(/\(?<=font-size:).*?(?=px;)/gi, `fons-size:${}px`)
+
 
       // if (fistindex == "https://api-sf.imofang.cn/app.aspx?") {
         if (str.indexOf("src='/files") != -1) {
-          str = str.replace(/src='/g, `src='http://sc.imofang.cn`);
+          str = str.replace(/src='/g, `src='https://sc.imofang.cn`);
         } else {
           // str = str.replace(/src='/g, `src='${uploadurl}`);
         str = str.replace(/src='/g, `src='https://files.imofang.cn`);
@@ -338,9 +372,7 @@ export default {
       return str;
     },
 
-    seeimage(){
-      console.log(123)
-    },
+
 
     // 推送试题
     check_now(index) {
@@ -358,7 +390,7 @@ export default {
         }
       }
       this.$post("paper_push", "/?c=api", {
-        tag: pid,
+        pid: pid,
         students: people_ids.join(","),
       }).then(res => {
          this.send_loading = false;
@@ -383,7 +415,7 @@ export default {
   mounted() {
     
     this.GetInfo();//获取备课详情
-    this.GetStudent()//获取学生列表
+    
   },
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前

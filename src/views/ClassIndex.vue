@@ -42,7 +42,7 @@
           </div>
         </div>
 
-        <el-button type="primary" @click="SeeSubject" >备课记录</el-button>
+        <el-button type="primary" @click="SeeSubject" >教材目录</el-button>
 
       </div>
        <!-- 时间筛选 -->
@@ -61,7 +61,7 @@
     
 
       <!-- 标题 -->
-      <div class="ListTitle">备课列表</div>
+      <div class="ListTitle">我的备课</div>
 
       <!-- 列表内容 -->
 
@@ -69,10 +69,6 @@
         class="ListView"
         v-infinite-scroll="load"
         style="overflow:auto"
-        v-loading="isloading"
-        element-loading-text="加载中"
-        element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(255, 255, 255, 0.1)"
       >
         <!-- <el-scrollbar  class="scroll_view"> -->
         <div
@@ -98,7 +94,7 @@
       <!-- 章节选择 -->
       <!-- 题目弹出框 -->
     <el-dialog :visible.sync="sub_toggle">
-      <div class="sub_list_title" >备课列表查看</div>
+      <div class="sub_list_title" >按教材目录筛选</div>
       <div class="picker_view">
       
         <!-- 年级班级选择器 -->
@@ -172,6 +168,7 @@ export default {
           children: 'children',
           label: 'label'
         },
+      is_search:false,
       value: "",
       grade:0,
       sub_arr:[],
@@ -252,6 +249,7 @@ export default {
       this.end_time = this.getMonthDay(val);
       this.value = this.$till.get_time(Date.parse(val), "Y/M/D");
       this.now_mouth=this.$till.get_time(Date.parse(val), "M")
+      this.is_search=true
       if (
         this.$till.get_time(Date.parse(val), "Y/M") !=
         this.$till.get_time(Date.parse(oldval), "Y/M")
@@ -266,13 +264,13 @@ export default {
     },
     time_value(val) {
       if(val){
-        this.is_clear=true
-        this.star_time = val[0];
+      this.is_clear=true
+      this.star_time = val[0];
       this.end_time = val[1];
       this.GetPrepareLessonList();
       }else{
-        this.is_clear=false
-        this.GetPrepareLessonList()
+      this.is_clear=false
+      this.GetPrepareLessonList()
       }
       
     },
@@ -304,7 +302,6 @@ export default {
     },
     push_sub_value(val){
        let {subList}=this
-       console.log(subList)
        if(subList.length==0||val==-1)return
       let num=subList.findIndex(item=>item.id==val)
       let arr=subList[num]
@@ -321,8 +318,18 @@ export default {
 
     // 获取选中数据
     confrm_data(){
-      console.log(this.$refs.tree.getCheckedKeys())
       let ids_arr=this.$refs.tree.getCheckedKeys()
+      if(ids_arr.length==0){
+        let value=this.$till.get_time(Date.parse(new Date()), "Y/M/01")
+       this.star_time = value;
+        this.end_time = this.getMonthDay(value);
+        this.is_search=false
+      }else{
+        this.star_time=""
+        this.end_time=""
+        this.is_search=true
+
+      }
       this.ids=ids_arr
       this.sub_toggle=false
       this.list_data=[]
@@ -338,12 +345,10 @@ export default {
     init_sub_data(){
       let {list_data,class_arr}=this
       if(list_data.length==0)return
-       console.log(list_data)
       list_data=list_data[0]
       this.grade=list_data.gid
       this.class_value=list_data.class_id
       this.push_sub_value=list_data.subject_id
-      console.log(list_data.subject_id)
       
     },
     // 查看备课记录
@@ -413,7 +418,7 @@ export default {
         let { belong_data, subject_data } = res;
         this.$store.dispatch("change_sid", res.sid);
         this.$store.dispatch("change_org_id", res.org_id);
-        this.HeadImage = "https://files.imofang.cn" + res.avatar;
+        this.HeadImage = this.$till.change_file_url(res.avatar);
         for (let i in belong_data) {
           class_arr.push({
             value: belong_data[i].id,
@@ -470,7 +475,8 @@ export default {
         value,
         list_data,
         time_arr,
-        is_clear
+        is_clear,
+        is_search
       } = this;
       
     
@@ -485,16 +491,28 @@ export default {
         end_date: end_time
       }).then(res => {
         let listarr = res.data;
+        
         if (listarr.length) {
           for (let i in listarr) {
             listarr[i].time = this.$till.get_time(
               listarr[i].ptime * 1000,
               "Y/M/D"
             );
-            listarr[i].day_time = this.$till.get_time(
+            listarr[i].day_time =ids.length!=0?this.$till.get_time(
+              listarr[i].ptime * 1000,
+              "M/D h:s"
+            ): this.$till.get_time(
               listarr[i].ptime * 1000,
               "h:s"
             );
+          }
+          if(is_search){
+            if(ids.length!=0){
+              value=listarr[0].time
+            }
+          }else{
+              value=this.$till.get_time(Date.parse(new Date()), "Y/M/D")
+
           }
           list_data = listarr.filter(item => item.time == value);
         }
@@ -503,7 +521,13 @@ export default {
         }
         this.time_arr=time_arr
         this.listarr = listarr;
-        this.list_data =is_clear? listarr:list_data;
+        this.list_data =ids.length!=0? listarr:list_data;
+        if(ids.length!=0&&this.list_data.length!=0){
+          this.value=list_data[0].time
+        }else{
+          this.value=value
+
+        }
         this.isloading = false;
       });
     }
@@ -511,12 +535,10 @@ export default {
   //生命周期 - 创建完成（可以访问当前this实例）
   async created() {
     let {class_arr}=this
-    console.log(class_arr)
     if(class_arr.length!=0)return
     await this.GetUserInfo();
     let { value, star_time, end_time } = this;
     if (value == "") {
-
     this.now_mouth=this.$till.get_time(Date.parse(new Date()), "M")
       value = this.$till.get_time(Date.parse(new Date()), "Y/M/D");
       star_time = this.$till.get_time(Date.parse(new Date()), "Y/M/01");
@@ -534,10 +556,17 @@ export default {
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
-  updated() {}, //生命周期 - 更新之后
+  updated() {}, //生命周期 - 更新之后\
+  beforeRouteLeave(to, from, next) {
+        // 设置下一个路由的 meta
+        if(to.name=="Login"){
+        from.meta.keepAlive = false; 
+
+        }
+        next();
+    },
   beforeDestroy() {}, //生命周期 - 销毁之前
   destroyed() {
-    console.log(this.class_arr)
   }, //生命周期 - 销毁完成
   activated() {} //如果页面有keep-alive缓存功能，这个函数会触发
 };
@@ -665,7 +694,7 @@ export default {
   padding-right: 10px;
   box-sizing: border-box;
   width: 100%;
-  height: 450px;
+  min-height: 50vh;
 }
 .ListView::-webkit-scrollbar,.sub_center::-webkit-scrollbar {
   /*滚动条整体样式*/
@@ -713,7 +742,7 @@ export default {
   height:40px !important;
 }
 .ListParentChildViewTop p:nth-child(2) {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
 }

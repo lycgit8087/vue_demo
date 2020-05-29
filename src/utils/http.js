@@ -7,12 +7,12 @@ let loadingInstance = null
 let timer;
 const hash = require("./hmac-sha256")
 const root = process.env.API_ROOT;
-axios.defaults.retry = 4;
-axios.defaults.retryDelay = 1000;
+// axios.defaults.retry = 4;
+// axios.defaults.retryDelay = 1000;
 //http request 拦截器
 axios.interceptors.request.use(
   config => {
-    if(config.headers.action!="token_get"&&requestCount === 0){
+    if(config.headers.action!="token_get"&&requestCount === 0&&config.headers.action!="qrcode_get"){
       loadingInstance = Loading.service({
         text: 'loading...',
         background:"rgba(255, 255, 255, 0.1)"
@@ -24,7 +24,7 @@ axios.interceptors.request.use(
     config.baseURL = ''
     config.url = root + config.url;
     config.withCredentials = true // 允许携带token ,这个是解决跨域产生的相关问题
-    config.timeout = 10000  //超时时间
+    config.timeout = 15000  //超时时间
     config.data = qs.stringify(config.data);
     if(config.headers.action.indexOf("token")==-1){
       //设置请求头
@@ -52,8 +52,11 @@ function tryHideLoading() {
   //采用setTimeout是为了解决一个请求结束后紧接着有另一请求发起导致loading闪烁的问题
   timer = setTimeout(() => {    
     if (requestCount === 0) {
-      loadingInstance.close()
-      clearTimeout(timer)
+      if(loadingInstance){
+        loadingInstance.close()
+        clearTimeout(timer)
+      }
+     
     }
   })
 }
@@ -127,7 +130,10 @@ function get_msg(apiaction){
 ).then((response) => {
   if(response.data.response_code==0){
     // axios(config);
+    if(response.data.token){
     Cookies.set("token",response.data.token)
+
+    }
     resolve(response.data);  
 
   }else{
@@ -151,7 +157,10 @@ export function get_token(url,params={}){
   }
   ).then((response) => {
     if(response.data.response_code==0){
+      if(response.data.token){
       Cookies.set("token",response.data.token)
+
+      }
       resolve(response.data);
 
     }else{

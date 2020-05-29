@@ -33,6 +33,7 @@ export default {
     };
   },
   created(){
+    // this.start()
   },
   methods: {
 
@@ -132,15 +133,17 @@ export default {
       cxt1.clearRect(0, 0, 581, 436);
     },
     closeFace() {
+      if(this.trackerTask){
       console.log("关闭人脸识别窗口");
-      this.imgView = false;
+        this.imgView = false;
       this.clearCanvas();
       // 停止侦测
       this.trackerTask.stop();
-      console.log(this.trackerTask);
       // 关闭摄像头
       var video = document.getElementById("video");
       video.srcObject.getTracks()[0].stop();
+      }
+      
     }
   },
   watch: {
@@ -148,6 +151,8 @@ export default {
       if (v == false) {
 
         this.closeFace();
+      }else{
+        this.start()
       }
     },
     imgView(v) {

@@ -56,7 +56,7 @@ export default {
       fileList: [],
       LoginTime:'',
       face: "",
-      checkFaceView: true,
+      checkFaceView: false,
       QrcodeUrl: "",
       oc_id: ""
     };
