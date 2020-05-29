@@ -26,7 +26,7 @@ axios.interceptors.request.use(
     config.withCredentials = true // 允许携带token ,这个是解决跨域产生的相关问题
     config.timeout = 15000  //超时时间
     config.data = qs.stringify(config.data);
-    
+
     if(config.headers.action.indexOf("token")==-1){
       //设置请求头
     config.headers = {
@@ -81,7 +81,6 @@ axios.interceptors.response.use(
       if(response.data.response_code==-1){
         let errmessage = response.data.response_msg.toLowerCase()
         if(errmessage.indexOf("token")!=-1){
-          Cookies.set("token","")
           get_new_token(config);
           return
         }else{
