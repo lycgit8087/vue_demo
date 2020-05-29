@@ -11,7 +11,7 @@ import Cookies from 'js-cookie'
  const till= require('./utils/till')
 import ElementUI  from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import {post,fetch,patch,put,get_token} from './utils/http'
+import {post,fetch,patch,put,get_token,get_new_token} from './utils/http'
 import store from "./store"
 import Back from './components/Back'
 import AlertView from './components/AlertView'
@@ -28,7 +28,7 @@ Vue.use(ElementUI);
 
 //定义全局变量
 Vue.prototype.$till=till;
-
+Vue.prototype.$get_new_token=get_new_token
 Vue.prototype.$post=post;
 Vue.prototype.$fetch=fetch;
 Vue.prototype.$patch=patch;

@@ -26,6 +26,7 @@ axios.interceptors.request.use(
     config.withCredentials = true // 允许携带token ,这个是解决跨域产生的相关问题
     config.timeout = 15000  //超时时间
     config.data = qs.stringify(config.data);
+    
     if(config.headers.action.indexOf("token")==-1){
       //设置请求头
     config.headers = {
@@ -34,11 +35,21 @@ axios.interceptors.request.use(
         "token":token
       }
     }else{
+      if(config.headers.action =="token_update"){
+        config.headers = {
+          'Content-Type':'application/x-www-form-urlencoded',
+          "action":"token_update",
+        "token":token
 
-      config.headers = {
-        'Content-Type':'application/x-www-form-urlencoded',
-        "action":config.headers.action,
+        }
+      }else{
+        config.headers = {
+          'Content-Type':'application/x-www-form-urlencoded',
+          "action":config.headers.action,
+        }
       }
+
+     
     }
     return config;
   },
@@ -65,13 +76,12 @@ function tryHideLoading() {
 //http response 拦截器
 axios.interceptors.response.use(
   response => {
-      // console.log(response)
       let {config}=response
       tryHideLoading()
       if(response.data.response_code==-1){
         let errmessage = response.data.response_msg.toLowerCase()
         if(errmessage.indexOf("token")!=-1){
-          // Cookies.set("token","")
+          Cookies.set("token","")
           get_new_token(config);
           return
         }else{
@@ -120,27 +130,26 @@ function get_msg(apiaction){
 }
 
 // 获取新token
- async function get_new_token(config){
+export async function get_new_token(config){
+  const token = Cookies.get("token");
   return new Promise((resolve,reject) => {
-    axios.post(config.url, config.data, { 
+    axios.post("/?c=api", {}, { 
     headers: { 
     "action" : "token_update",
+    token:token
+
   } 
 }
 ).then((response) => {
   if(response.data.response_code==0){
-    // axios(config);
+    axios(config);
     if(response.data.token){
     Cookies.set("token",response.data.token)
-
     }
     resolve(response.data);  
-
   }else{
     reject(response)
-
   }
-
 }).catch(err => {
     reject(err)
   });  

@@ -461,6 +461,13 @@ export default {
         this.sub_value= push_sub_value.toString() 
       }
     },
+    isNowYear(){
+      let {value}=this
+      let now_year=this.$till.get_time(Date.parse(new Date()), "Y")
+      let value_year=this.$till.get_time(value, "Y")
+      return now_year==value_year
+      
+    },
     
 
     // 获取备课列表
@@ -491,20 +498,27 @@ export default {
         end_date: end_time
       }).then(res => {
         let listarr = res.data;
-        
+        let is_now_year=this.isNowYear()
         if (listarr.length) {
           for (let i in listarr) {
             listarr[i].time = this.$till.get_time(
               listarr[i].ptime * 1000,
               "Y/M/D"
             );
-            listarr[i].day_time =ids.length!=0?this.$till.get_time(
+            if(is_now_year){
+                listarr[i].day_time =ids.length!=0?this.$till.get_time(
               listarr[i].ptime * 1000,
               "M/D h:s"
             ): this.$till.get_time(
               listarr[i].ptime * 1000,
               "h:s"
             );
+            }else{
+              listarr[i].day_time =this.$till.get_time(
+              listarr[i].ptime * 1000,
+              "Y/M/D h:s"
+            )
+            }
           }
           if(is_search){
             if(ids.length!=0){
