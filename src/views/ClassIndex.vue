@@ -278,6 +278,7 @@ export default {
     },
     sub_value(val) {
       let {subList}=this
+      if(subList.length==0)return  
       let num=subList.findIndex(item=>item.id==val)
       let arr=subList[num]
       this.subject_tree=this.ChangeSubject_arr(arr.subject_data)
@@ -303,6 +304,7 @@ export default {
     },
     push_sub_value(val){
        let {subList}=this
+       console.log(subList)
        if(subList.length==0||val==-1)return
       let num=subList.findIndex(item=>item.id==val)
       let arr=subList[num]
@@ -508,6 +510,9 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   async created() {
+    let {class_arr}=this
+    console.log(class_arr)
+    if(class_arr.length!=0)return
     await this.GetUserInfo();
     let { value, star_time, end_time } = this;
     if (value == "") {
@@ -531,7 +536,9 @@ export default {
   beforeUpdate() {}, //生命周期 - 更新之前
   updated() {}, //生命周期 - 更新之后
   beforeDestroy() {}, //生命周期 - 销毁之前
-  destroyed() {}, //生命周期 - 销毁完成
+  destroyed() {
+    console.log(this.class_arr)
+  }, //生命周期 - 销毁完成
   activated() {} //如果页面有keep-alive缓存功能，这个函数会触发
 };
 </script>

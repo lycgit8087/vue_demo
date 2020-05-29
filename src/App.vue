@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <keep-alive>
+    <router-view v-if="$route.meta.keepAlive" ></router-view>
+    </keep-alive>
+      <router-view v-if="!$route.meta.keepAlive"></router-view>
   </div>
 </template>
 
@@ -51,6 +54,9 @@ export default {
 }
 .el-button--primary{
   background: #545DFF !important;
+}
+.el-tree__empty-text{
+  font-size: 28px !important;
 }
 
 </style>

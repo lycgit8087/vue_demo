@@ -300,6 +300,7 @@ export default {
 
           let fname=files[i].fpath.substring(files[i].fpath.lastIndexOf(".")+1,files[i].fpath.length)
           let num =file_arr.findIndex(item=>item.text.indexOf(fname)!=-1)
+          console.log(num)
           files[i].url=file_arr[num].url
 
         }

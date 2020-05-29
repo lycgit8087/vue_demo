@@ -12,8 +12,8 @@
           <div class="progress_view">
             <el-progress type="circle" :percentage="23" :show-text="false"></el-progress>
             <p>
-              <span>12</span>
-              <span>/25</span>
+              <span>{{over_view.s_count}}</span>
+              <span>/{{over_view.m_count}}</span>
             </p>
           </div>
 
@@ -25,8 +25,8 @@
 
           <!-- 平均分 -->
           <div class="average_time">
-            <p>23′12″</p>
-            <p>平均用时</p>
+            <p>{{over_view.avg_score}}</p>
+            <p>平均分</p>
           </div>
         </div>
         <!-- 学生排名情况 -->
@@ -39,37 +39,75 @@
               <span>用时</span>
               <span>分数</span>
             </div>
-            <div class="student_view_left_scroll" v-infinite-scroll="student_left_scroll" style="overflow:auto">
-              <div v-for="i in 9" :key="i" @click="ToStudentView" >
-                <div class="stunde_number">
-                  01
-                </div>
-                <div class="stunde_name">
-                  <el-image :src="BookImage" fit="cover">
+            <div
+              class="student_view_left_scroll"
+              v-infinite-scroll="student_left_scroll"
+              style="overflow:auto"
+            >
+              <div v-if="over_view.ys_results.length!=0">
+                <div
+                  v-for="(item,index) in over_view.ys_results"
+                  :key="item.id"
+                  @click="ToStudentView"
+                >
+                  <div class="stunde_number">{{index}}</div>
+                  <div class="stunde_name">
+                    <el-image :src="item.avatar" fit="cover">
                       <div slot="error" class="image-slot">
                         <i class="el-icon-picture-outline"></i>
                       </div>
-                  </el-image>
-                  <span>司马昭</span>
+                    </el-image>
+                    <span>{{item.name}}</span>
+                  </div>
+                  <div class="stunde_time">23′12″</div>
+                  <div class="stunde_mark">100分</div>
                 </div>
-                <div class="stunde_time">23′12″</div>
-                <div class="stunde_mark">100分</div>
+              </div>
+
+              <!-- 无数据展示 -->
+              <div v-else class="no_data_view">
+                <el-image :src="NoNumImage" fit="cover">
+                  <div slot="error" class="image-slot">
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
+                </el-image>
+                <p>暂无任何排名</p>
               </div>
             </div>
           </div>
 
           <div class="student_view_right">
-            <p>未交题学生 (23)</p>
-            <div class="student_view_right_scroll" v-infinite-scroll="student_right_scroll" style="overflow:auto">
-              <div v-for="i in 9" :key="i">
-                <el-image :src="BookImage" fit="cover">
+            <template v-if="over_view.ns_results.length!=0">
+              
+            
+            <p>未交题学生 ({{over_view.ns_results.length}})</p>
+            <div
+              class="student_view_right_scroll"
+              v-infinite-scroll="student_right_scroll"
+              style="overflow:auto"
+            >
+              <div v-for="item in over_view.ns_results" :key="item.id">
+                <el-image :src="item.avatar" fit="cover">
                   <div slot="error" class="image-slot">
-                        <i class="el-icon-picture-outline"></i>
-                      </div>
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
                 </el-image>
-                <span>司马昭</span>
+                <span>{{item.name}}</span>
               </div>
             </div>
+
+            </template>
+            <template v-else>
+              <!-- 无数据展示 -->
+              <div  class="no_data_view">
+                <el-image :src="NoNumImage" fit="cover">
+                  <div slot="error" class="image-slot">
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
+                </el-image>
+                <p>暂无任何排名</p>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -77,14 +115,26 @@
     <div class="Census_right">
       <span>题目排行</span>
       <div class="Census_right_tab">
-        <div v-for="(item,index) in TabArr" :class="TabIndex==index?'tab_action':''" :key="item.text" @click="TabCheck(index)" >{{item.text}}</div>
+        <div
+          v-for="(item,index) in TabArr"
+          :class="TabIndex==index?'tab_action':''"
+          :key="item.text"
+          @click="TabCheck(index)"
+        >{{item.text}}</div>
       </div>
       <!-- 题目 -->
-      <div class="list_view_scroll" v-infinite-scroll="load" style="overflow:auto" v-show="TabIndex==0" >
-        <div v-for="(item,index) in topic_list" :key="item.code" @click="CheckQas(item.code)" >
+      <div
+        class="list_view_scroll"
+        v-infinite-scroll="load"
+        style="overflow:auto"
+        v-show="TabIndex==0"
+      >
+        <div v-for="(item,index) in topic_list" :key="item.code" @click="CheckQas(item.code)">
           <p class="list_view_scroll_number">{{index+1}}</p>
-          <p class="list_view_scroll_title" >{{item.title}}</p>
-          <div class="all_cout" v-if="item.points.length" > <p v-for=" pitem in  item.points" :key="pitem.id" >{{pitem.name}}</p> </div>
+          <p class="list_view_scroll_title">{{item.title}}</p>
+          <div class="all_cout" v-if="item.points.length">
+            <p v-for=" pitem in  item.points" :key="pitem.id">{{pitem.name}}</p>
+          </div>
           <div class="list_view_scroll_bot">
             <div class="list_view_scroll_bot_left">
               <div class="right_number">
@@ -95,16 +145,16 @@
               <div class="poeple_right">
                 <el-image :src="RightIcon" fit="cover">
                   <div slot="error" class="image-slot">
-                        <i class="el-icon-picture-outline"></i>
-                      </div>
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
                 </el-image>
                 <span>{{item.ycount}}人</span>
               </div>
               <div class="poeple_right">
                 <el-image :src="ErrorIcon" fit="cover">
                   <div slot="error" class="image-slot">
-                        <i class="el-icon-picture-outline"></i>
-                      </div>
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
                 </el-image>
                 <span>{{item.ncount}}人</span>
               </div>
@@ -117,23 +167,24 @@
       </div>
 
       <!-- 知识点 -->
-      <div class="list_view_scroll_other" v-infinite-scroll="load" style="overflow:auto" v-show="TabIndex==1">
-          <div  v-for="item in 10" :key="item" >
-            <p class="list_view_scroll_number" >{{item}}</p>
-            <div class="list_view_scroll_other_title" >
-              <p>整十数加、减整十数</p>
-              <p class="list_view_scroll_other_text" >
-                <span>正确率：</span>
-                <span>28%</span>
-
-              </p>
-
-            </div>
-            <el-progress :text-inside="true" :stroke-width="26" :percentage="70"></el-progress>
+      <div
+        class="list_view_scroll_other"
+        v-infinite-scroll="load"
+        style="overflow:auto"
+        v-show="TabIndex==1"
+      >
+        <div v-for="item in 10" :key="item">
+          <p class="list_view_scroll_number">{{item}}</p>
+          <div class="list_view_scroll_other_title">
+            <p>整十数加、减整十数</p>
+            <p class="list_view_scroll_other_text">
+              <span>正确率：</span>
+              <span>28%</span>
+            </p>
           </div>
-    </div>
-
-
+          <el-progress :text-inside="true" :stroke-width="26" :percentage="70"></el-progress>
+        </div>
+      </div>
     </div>
 
     <!-- 题目弹出框 -->
@@ -151,8 +202,8 @@
         <div class="answer_konw">
           <el-image :src="BookImage">
             <div slot="error" class="image-slot">
-                        <i class="el-icon-picture-outline"></i>
-                      </div>
+              <i class="el-icon-picture-outline"></i>
+            </div>
           </el-image>
           <span>答案解析</span>
         </div>
@@ -164,8 +215,8 @@
             <div v-for="i in 10" :key="i">
               <el-image :src="BookImage">
                 <div slot="error" class="image-slot">
-                        <i class="el-icon-picture-outline"></i>
-                      </div>
+                  <i class="el-icon-picture-outline"></i>
+                </div>
               </el-image>
               <span>张郃</span>
             </div>
@@ -190,67 +241,93 @@ export default {
       BookImage: require("../assets/open_book.png"),
       RightIcon: require("../assets/right_icon.png"),
       ErrorIcon: require("../assets/eorr.png"),
-      pid:0,
-      topic_list:[],
-      TabArr:[
-        {text:"题目",type:0},
-        {text:"知识点",type:0},
+      NoNumImage: require("../assets/no_num.png"),
+      NoStundetImage: require("../assets/no_student.png"),
+      NoDataImage: require("../assets/no_data.png"),
 
+      pid: 0,
+      over_view: {
+        ns_results: [],
+        ys_results: []
+      },
+      topic_list: [],
+      TabArr: [
+        { text: "题目", type: 0 },
+        { text: "知识点", type: 0 }
       ],
-      TabIndex:0,
+      TabIndex: 0,
       p_html: '<span style="font-size:30px" >张郃</span>'
     };
   },
   components: {},
   created() {
     this.pid = this.$route.query.pid;
-    this.GetRightList()
-    this.GetPaperOverview()
+    this.GetRightList();
+    this.GetPaperOverview();
   },
   mounted() {},
   methods: {
-    TabCheck(index){
-      this.TabIndex=index
+    TabCheck(index) {
+      this.TabIndex = index;
     },
-    student_left_scroll(){
-
+    student_left_scroll() {},
+    student_right_scroll() {},
+    load() {},
+    formatSeconds(value) {
+      let result = parseInt(value);
+      let h =
+        Math.floor(result / 3600) < 10
+          ? "0" + Math.floor(result / 3600)
+          : Math.floor(result / 3600);
+      let m =
+        Math.floor((result / 60) % 60) < 10
+          ? "0" + Math.floor((result / 60) % 60)
+          : Math.floor((result / 60) % 60);
+      let s =
+        Math.floor(result % 60) < 10
+          ? "0" + Math.floor(result % 60)
+          : Math.floor(result % 60);
+      result = `${h}h${m}m${s}s`;
+      return result;
     },
-    student_right_scroll(){
-
-    },
-    load(){
-
-    },
-    CheckQas(){
-    let {answer_toggle}=this
-    this.answer_toggle=!answer_toggle
+    CheckQas() {
+      let { answer_toggle } = this;
+      this.answer_toggle = !answer_toggle;
     },
 
     // 获取统计
-    async  GetPaperOverview(){
-       let {pid}=this
+    async GetPaperOverview() {
+      let { pid } = this;
 
-        await this.$post("paper_overview", "/?c=api", {
-        pid:pid
-      }).then(res=>{
-        console.log(res)
-      })
+      await this.$post("paper_overview", "/?c=api", {
+        pid: pid
+      }).then(res => {
+        console.log(res);
+        let over_view = res;
+        console.log(over_view);
+        for (let i in over_view.ns_results) {
+          over_view.ns_results[i].avatar = this.$till.change_file_url(
+            over_view.ns_results[i].avatar
+          );
+        }
+
+        this.over_view = over_view;
+      });
     },
 
-     async GetRightList(){
-       let {pid}=this
+    async GetRightList() {
+      let { pid } = this;
       await this.$post("qa_content_list", "/?c=api", {
-        pid:pid
-      })
-      .then(res=>{
-        let topic_list=res.data
-        this.topic_list=topic_list
-        console.log(res)
-      })
+        pid: pid
+      }).then(res => {
+        let topic_list = res.data;
+        this.topic_list = topic_list;
+        console.log(res);
+      });
     },
-    ToStudentView(){
-      this.$router.push({name:"StudentView"})
-    },
+    ToStudentView() {
+      this.$router.push({ name: "StudentView" });
+    }
   }
 };
 </script>
@@ -262,8 +339,8 @@ export default {
   color: #bdbdbd;
   font-size: 22px;
 }
-.tab_action{
-  background: #409EFF !important;
+.tab_action {
+  background: #409eff !important;
   color: #fff !important;
 }
 .list_view_scroll_bot {
@@ -479,17 +556,19 @@ export default {
 .student_view_right_scroll {
   height: 60vh;
 }
-.list_view_scroll,.list_view_scroll_other {
+.list_view_scroll,
+.list_view_scroll_other {
   /* height: 800px; */
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.list_view_scroll{
+.list_view_scroll {
   padding-top: 15px;
   box-sizing: border-box;
 }
-.list_view_scroll > div,.list_view_scroll_other>div {
+.list_view_scroll > div,
+.list_view_scroll_other > div {
   width: 770px;
   background: rgba(255, 255, 255, 1);
   box-shadow: 0px 9px 27px 0px rgba(27, 27, 78, 0.1);
@@ -499,24 +578,23 @@ export default {
   padding: 18px 28px;
   box-sizing: border-box;
 }
-.list_view_scroll_other_title{
+.list_view_scroll_other_title {
   display: flex;
   width: 100%;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 32px;
 }
-.list_view_scroll_other_text{
+.list_view_scroll_other_text {
   display: flex;
   align-items: center;
-  
 }
-.list_view_scroll_other_text span:nth-child(1){
-  color: #878B94;
+.list_view_scroll_other_text span:nth-child(1) {
+  color: #878b94;
   font-size: 24px;
 }
-.list_view_scroll_other_text span:nth-child(2){
-  color: #FA6060;
+.list_view_scroll_other_text span:nth-child(2) {
+  color: #fa6060;
   font-size: 24px;
 }
 .list_view_scroll_number {
@@ -535,7 +613,8 @@ export default {
   transform: translate(0%, -50%);
 }
 .student_view_right_scroll::-webkit-scrollbar,
-.list_view_scroll::-webkit-scrollbar,.list_view_scroll_other::-webkit-scrollbar {
+.list_view_scroll::-webkit-scrollbar,
+.list_view_scroll_other::-webkit-scrollbar {
   /*滚动条整体样式*/
   width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
   height: 1px;
@@ -552,6 +631,7 @@ export default {
   width: 61px;
   height: 61px;
   margin-right: 23px;
+  border-radius: 50%;
 }
 .student_view_right > p {
   font-size: 25px;
@@ -630,11 +710,11 @@ export default {
   align-items: center;
   margin-bottom: 28px;
 }
-.list_view_scroll_title{
-font-size:25px;
-font-weight:500;
-color:rgba(32,32,32,1);
-margin-bottom: 20px;
+.list_view_scroll_title {
+  font-size: 25px;
+  font-weight: 500;
+  color: rgba(32, 32, 32, 1);
+  margin-bottom: 20px;
 }
 .answer_center_top > span {
   font-size: 24px;
@@ -706,13 +786,36 @@ margin-bottom: 20px;
   justify-content: space-between;
   margin-top: 18px;
 }
-.all_cout{
+.all_cout {
   display: flex;
   align-items: center;
   color: #bdbdbd;
   font-size: 26px;
 }
-.all_cout p{
+.all_cout p {
   margin-right: 15px;
+}
+.no_data_view {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100% !important;
+  justify-content: center !important;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 400;
+  color: rgba(189, 189, 189, 1);
+}
+.student_view_left_scroll .no_data_view .el-image {
+  width: 304px;
+  height: 217px;
+}
+student_view_right_scroll .no_data_view .el-image {
+  width: 144px;
+  height: 88px;
+}
+.Census_right .no_data_view .el-image {
+  width: 400px;
+  height: 219px;
 }
 </style>

@@ -7,6 +7,8 @@ let loadingInstance = null
 let timer;
 const hash = require("./hmac-sha256")
 const root = process.env.API_ROOT;
+axios.defaults.retry = 4;
+axios.defaults.retryDelay = 1000;
 //http request 拦截器
 axios.interceptors.request.use(
   config => {
@@ -38,10 +40,6 @@ axios.interceptors.request.use(
         "action":config.headers.action,
       }
     }
-    
-    // if(token){
-    //   config.params = {'token':token}
-    // }
     return config;
   },
   error => {
@@ -70,12 +68,9 @@ axios.interceptors.response.use(
       if(response.data.response_code==-1){
         let errmessage = response.data.response_msg.toLowerCase()
         if(errmessage.indexOf("token")!=-1){
-          Cookies.set("token","")
-          get_new_token("/?c=api", {}).then(res => {
-           
-          post(config.url,config.headers.action,config.data)
-            
-          });
+          // Cookies.set("token","")
+          get_new_token(config);
+          return
         }else{
           Message({
             message: response.data.response_msg,
@@ -120,19 +115,20 @@ function get_msg(apiaction){
   }
   return obj
 }
-function get_new_token(url,params){
+
+// 获取新token
+ async function get_new_token(config){
   return new Promise((resolve,reject) => {
-    axios.post(url, params, { 
+    axios.post(config.url, config.data, { 
     headers: { 
     "action" : "token_update",
   } 
 }
 ).then((response) => {
-  // console.log(response)
-
   if(response.data.response_code==0){
+    // axios(config);
     Cookies.set("token",response.data.token)
-    resolve(response.data);
+    resolve(response.data);  
 
   }else{
     reject(response)
@@ -145,9 +141,8 @@ function get_new_token(url,params){
 })
 }
 
-// 获取token方法
+// 获取token
 export function get_token(url,params={}){
-// let {timestamp,hashInBase64,apiaction,appid}=get_msg("token_get")
   return new Promise((resolve,reject) => {
       axios.post(url, params, { 
       headers: { 
@@ -161,9 +156,7 @@ export function get_token(url,params={}){
 
     }else{
       reject(response)
-
     }
-  
   }).catch(err => {
       reject(err)
     });  

@@ -7,7 +7,8 @@ export default new Router({
     {
       path: '/class_index',
       name: 'ClassIndex',
-      component: () => import('@/views/ClassIndex')
+      component: () => import('@/views/ClassIndex'),
+      meta:{keepAlive: true} 
     },
     {
       path: '/login',
