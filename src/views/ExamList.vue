@@ -67,7 +67,7 @@
 
           <div class="see_item" v-for="item in plist.content" :key="item.partname">
             <span>{{item.partname}}</span>
-            <span>{{item.partscore}}</span>
+            <span>{{item.partscore}}分</span>
           </div>
         </div>
         <span slot="footer" class="dialog-footer">
@@ -141,6 +141,14 @@
   import VideoIcon from '../assets/video_icon.png';
   import PPtIcon from '../assets/ppt_icon.png';
   import ImageIcon from '../assets/image_icon.png';
+  import PdfIcon from '../assets/pdf_icon.png';
+  import AudioIcon from '../assets/audio_icon.png';
+  import XlsIcon from '../assets/xls_icon.png';
+  import RarIcon from '../assets/rar_icon.png';
+
+
+
+
 
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -153,10 +161,18 @@ export default {
       file_image: require("../assets/file.png"),
       loading: true,
       file_arr: [
-        {text:"jpg,png",url:ImageIcon},
-        {text:"mp4",url:VideoIcon},
+        {text:"jpg,jpeg,gif,png,bmp",url:ImageIcon},
+        {text:"3gpp,mp4,rm,rmvb,avi,3gp,mov,mtv",url:VideoIcon},
         {text:"doc,docx",url:WordIcon},
         {text:"pptx,ppt",url:PPtIcon},
+        {text:"xlsx,xls",url:XlsIcon},
+        {text:"zip,rar",url:RarIcon},
+        {text:"pdf",url:PdfIcon},
+        {text:"mp3,aac,wma,ogg,m4a,flac,ape,wav,amr",url:AudioIcon},
+
+
+
+
       ],
       srcList:[],
       aa:123,
@@ -270,7 +286,11 @@ export default {
       this.centerDialogVisible = true;
     },
    async SendIt(pid) {
+     let {people_arr}=this
+     if(people_arr.length==0){
      await this.GetStudent()//获取学生列表
+
+     }
       this.pid=pid
       this.send_toggle = true;
     },
@@ -500,18 +520,26 @@ export default {
 .file_list_view > div {
   display: flex;
   flex-direction: column;
-  margin-right: 70px;
+  /* margin-right: 70px; */
   justify-content: center;
   align-items: center;
   margin-bottom: 40px;
-  width: 100px;
+  width: 25%;
   position: relative;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 .file_list_view > div p{
   width: 100%;
-  white-space:nowrap;/* 规定文本是否折行 */  
-  overflow: hidden;/* 规定超出内容宽度的元素隐藏 */
+  text-align: center;
+  white-space: normal;
+  text-overflow: -o-ellipsis-lastline;
+  overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
 
 }
 .file_list_view > div a{

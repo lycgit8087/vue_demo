@@ -11,7 +11,7 @@
               v-for="(qitem,index) in item.qas"
               :key="index"
               @click="CheckQas(qitem.code,qitem.id)"
-            >{{index+1}}</p>
+            >{{qitem.num}}</p>
           </div>
         </div>
       </div>
@@ -173,6 +173,7 @@ export default {
         for (let i in content) {
           for (let j in content[i].qas) {
            content[i].qas[j].title=num+". "+content[i].qas[j].title
+           content[i].qas[j].num=num
            num++
             content[i].qas[j].content = this.htmlspecialchars_decode(
               content[i].qas[j].content

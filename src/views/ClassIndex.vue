@@ -61,7 +61,19 @@
     
 
       <!-- 标题 -->
-      <div class="ListTitle">我的备课</div>
+      <div class="ListTitle">
+        <p class="ListTitle_now_data" v-if="ids.length==0" >我的备课</p>
+          <div class="ListTitle_all_data" v-else >
+              <div class="ListTitle_all_data_left" >
+                <p>筛选结果</p>
+                <p @click="clear_screen" >清空</p>
+
+              </div>
+              <div class="ListTitle_all_data_left" >共{{list_data.length}}条数据</div>
+
+
+          </div>
+        </div>
 
       <!-- 列表内容 -->
 
@@ -220,6 +232,7 @@ export default {
           }
         ]
       },
+      is_post:false,
       is_clear:false,
       now_mouth:'',
       list_data: [],
@@ -244,7 +257,8 @@ export default {
   //监控data中的数据变化
   watch: {
     value(val, oldval) {
-      let { list_data, listarr } = this;
+      let { list_data, listarr,ids,is_post } = this;
+      
       this.star_time = this.$till.get_time(Date.parse(val), "Y/M/01");
       this.end_time = this.getMonthDay(val);
       this.value = this.$till.get_time(Date.parse(val), "Y/M/D");
@@ -254,11 +268,20 @@ export default {
         this.$till.get_time(Date.parse(val), "Y/M") !=
         this.$till.get_time(Date.parse(oldval), "Y/M")
       ) {
+        if(is_post){
+          this.is_post=false
+        let time_arr=this.GetAllMouth(val)
+        for(let i in time_arr){
+          time_arr[i].data=list_data.filter(item => item.time == time_arr[i].day)
+        }
+        this.time_arr=time_arr
+          return
+        }
         this.list_data = [];
         this.time_arr=this.GetAllMouth(val)
         this.GetPrepareLessonList();
       } else {
-        list_data = listarr.filter(item => item.time == this.value);
+        list_data =ids.length!=0?listarr: listarr.filter(item => item.time == this.value);
         this.list_data = list_data;
       }
     },
@@ -272,10 +295,9 @@ export default {
       this.is_clear=false
       this.GetPrepareLessonList()
       }
-      
     },
     sub_value(val) {
-      let {subList}=this
+      let {subList,list_data}=this
       if(subList.length==0)return  
       let num=subList.findIndex(item=>item.id==val)
       let arr=subList[num]
@@ -296,6 +318,8 @@ export default {
           })
       }
       this.sub_arr=sub_arr
+      this.subject_tree=[]
+      this.sub_value=""
       this.class_value = value;
       // this.push_sub_value=-1
       this.GetSubject()
@@ -306,7 +330,7 @@ export default {
       let num=subList.findIndex(item=>item.id==val)
       let arr=subList[num]
       this.subject_tree=this.ChangeSubject_arr(arr.subject_data)
-      this.sub_value=  val.toString()
+      this.sub_value=val.toString()
 
     },
   },
@@ -314,6 +338,13 @@ export default {
   methods: {
     sub_scroll(){
 
+    },
+
+    clear_screen(){
+      
+      this.$refs.tree.setCheckedKeys([]);
+      
+      this.confrm_data()
     },
 
     // 获取选中数据
@@ -324,12 +355,14 @@ export default {
        this.star_time = value;
         this.end_time = this.getMonthDay(value);
         this.is_search=false
+        this.is_post=false
       }else{
         this.star_time=""
         this.end_time=""
         this.is_search=true
-
+        this.is_post=true
       }
+      
       this.ids=ids_arr
       this.sub_toggle=false
       this.list_data=[]
@@ -344,11 +377,20 @@ export default {
     // 设置默认选择项
     init_sub_data(){
       let {list_data,class_arr}=this
-      if(list_data.length==0)return
-      list_data=list_data[0]
+      if(list_data.length==0){
+      this.grade=class_arr[0].gid
+      this.class_value=class_arr[0].value
+      this.sub_value=""
+      this.subject_tree=[]
+
+      }else{
+        list_data=list_data[0]
       this.grade=list_data.gid
       this.class_value=list_data.class_id
       this.push_sub_value=list_data.subject_id
+      }
+      
+      
       
     },
     // 查看备课记录
@@ -574,7 +616,10 @@ export default {
   beforeRouteLeave(to, from, next) {
         // 设置下一个路由的 meta
         if(to.name=="Login"){
-        from.meta.keepAlive = false; 
+          from.meta.keepAlive = false; 
+
+        }else{
+          from.meta.keepAlive = true; 
 
         }
         next();
@@ -588,8 +633,8 @@ export default {
 <style >
 /* //@import url(); 引入公共css类 */
 /* @import url('../style/style.css'); */
-.is-selected {
-  color: #1989fa;
+ .is-selected {
+  color: #1989fa !important;
 }
 .el-tag {
   font-size: 26px;
@@ -679,12 +724,28 @@ export default {
   align-items: center;
   border-left: 15px solid #545dff;
   box-sizing: border-box;
+  justify-content: space-between;
   padding-left: 14px;
   font-size: 30px;
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 30px;
   margin-left: 86px;
+}
+.ListTitle_all_data{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ListTitle_all_data>div p:nth-child(2){
+  color: #545dff;
+  margin-left: 30px;
+}
+.ListTitle_all_data_left{
+  display: flex;
+  align-items: center;
 }
 .ListItem {
   width: 100%;
@@ -1057,7 +1118,7 @@ tbody {
   background: none !important;
 }
 .el-backtop, .el-calendar-table td.is-today{
-  color: none !important;
+  /* color: #333 !important; */
 }
 .el-tree-node__content .el-tree-node__label{
   font-size: 26px;
