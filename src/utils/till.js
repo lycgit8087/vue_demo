@@ -31,11 +31,60 @@
     }
 
   }
+  function htmlspecialchars_decode(str) {
+    if (str.length == 0) return str;
+    str = str.replace(/&amp;/g, "&");
+    str = str.replace(/&lt;/g, "<");
+    str = str.replace(/&gt;/g, ">");
+    str = str.replace(/&quot;/g, "'");
+    str = str.replace(/&#039;/g, "'");
+    str=str.replace(/\<p>&nbsp;<\/p>/gi,"") 
+    str = str.replace(/{br}/g, "<br>");
+      str=str.replace(/font-size: \w+;?/g,' ')
+    str = str.replace(
+      /\<p/gi,
+      '<p class="p_class" style="margin-bottom:10px" '
+    );
+    str = str.replace(/\<span/gi, '<span class="span_class" ');
+
+    
+    if (str.indexOf("src='/files") != -1) {
+        str = str.replace(/src='/g, `src='https://sc.imofang.cn`)
+    } else {
+      str = str.replace(/src='/g, `src='https://files.imofang.cn`);
+    }
+    str = str.replace(/\<img/gi, '<img style="max-width:100%;height:auto" ');
+    return str;
+  }
+
+
+  function formatSeconds(value) {
+    let result = parseInt(value);
+    let h =
+      Math.floor(result / 3600) < 10
+        ? "0" + Math.floor(result / 3600)
+        : Math.floor(result / 3600);
+    let m =
+      Math.floor((result / 60) % 60) < 10
+        ? "0" + Math.floor((result / 60) % 60)
+        : Math.floor((result / 60) % 60);
+    let s =
+      Math.floor(result % 60) < 10
+        ? "0" + Math.floor(result % 60)
+        : Math.floor(result % 60);
+        h=h=="00"?"":h+"时"
+        m=m=="00"?"":m+"分"
+
+    result = `${h}${m}${s}秒`;
+    return result;
+  }
 
 
 
 
 module.exports = {
     get_time,
-    change_file_url
+    change_file_url,
+    htmlspecialchars_decode,
+    formatSeconds
   }

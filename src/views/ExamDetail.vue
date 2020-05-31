@@ -175,7 +175,7 @@ export default {
            content[i].qas[j].title=num+". "+content[i].qas[j].title
            content[i].qas[j].num=num
            num++
-            content[i].qas[j].content = this.htmlspecialchars_decode(
+            content[i].qas[j].content =  this.$till.htmlspecialchars_decode(
               content[i].qas[j].content
             );
           }
@@ -201,14 +201,14 @@ export default {
         code: code,
         pid: pid
       }).then(res => {
-        res.qas_content = this.htmlspecialchars_decode(res.content);
+        res.qas_content =  this.$till.htmlspecialchars_decode(res.content);
         this.qas_content = res.qas_content;
         this.ns_data = res.ns_data;
         this.ys_data = res.ys_data;
         this.rq_rate = res.rq_rate;
         this.rq_title = res.title;
         if(res.qri){
-          res.qri = this.htmlspecialchars_decode(res.qri);
+          res.qri =  this.$till.htmlspecialchars_decode(res.qri);
         }
         this.answer_data=res.answer_data
         this.qri=res.qri
@@ -339,37 +339,6 @@ export default {
       }
       return re;
     },
-
-    htmlspecialchars_decode(str) {
-      if (str.length == 0) return str;
-      str = str.replace(/&amp;/g, "&");
-      str = str.replace(/&lt;/g, "<");
-      str = str.replace(/&gt;/g, ">");
-      str = str.replace(/&quot;/g, "'");
-      str = str.replace(/&#039;/g, "'");
-
-      str = str.replace(
-        /\<p/gi,
-        '<p class="p_class" style="margin-bottom:10px" '
-      );
-      //  str = str.replace(
-      //   /\<p\/>/gi,
-      //   '</div> '
-      // );
-      str = str.replace(/\<span/gi, '<span class="span_class" ');
-
-      // if (fistindex == "https://api-sf.imofang.cn/app.aspx?") {
-      if (str.indexOf("src='/files") != -1) {
-          str = str.replace(/src='/, `src='https://sc.imofang.cn`)
-      } else {
-        // str = str.replace(/src='/g, `src='${uploadurl}`);
-        // str = str.replace(/src='/g, `src='https://files.imofang.cn/`);
-      }
-      // } else {
-      // }
-      str = str.replace(/\<img/gi, '<img style="max-width:100%;height:auto" ');
-      return str;
-    },
     left_load() {},
     right_load() {}
   }
@@ -496,7 +465,7 @@ export default {
   /* padding-left: 30px; */
   box-sizing: border-box;
   width: 100%;
-  margin-bottom: 26px;
+  margin-bottom: 15px;
 }
 .answer_center {
   display: flex;

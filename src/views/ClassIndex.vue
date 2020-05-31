@@ -304,6 +304,7 @@ export default {
       this.subject_tree=this.ChangeSubject_arr(arr.subject_data)
     },
     class_value(val){
+      if(val.length==0) return
       let { class_value,class_arr,sub_arr } = this;
       let value=val,subject_data=[]
       sub_arr=[]
@@ -356,6 +357,7 @@ export default {
         this.end_time = this.getMonthDay(value);
         this.is_search=false
         this.is_post=false
+        this.class_value=[]
       }else{
         this.star_time=""
         this.end_time=""
@@ -419,6 +421,8 @@ export default {
     },
     // 
     TOExamList(plid, class_id) {
+     this.$store.dispatch('change_class_id',class_id)
+
       this.$router.push({
         name: "ExamList",
         query: { plid: plid, class_id: class_id }

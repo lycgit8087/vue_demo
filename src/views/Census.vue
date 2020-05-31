@@ -10,7 +10,7 @@
         <div class="all_data_view">
           <!-- 进度条 -->
           <div class="progress_view">
-            <el-progress type="circle" :percentage="23" :show-text="false"></el-progress>
+            <el-progress type="circle" :percentage="(over_view.s_count/over_view.m_count)*100" :show-text="false"></el-progress>
             <p>
               <span>{{over_view.s_count}}</span>
               <span>/{{over_view.m_count}}</span>
@@ -19,7 +19,7 @@
 
           <!-- 平均用时 -->
           <div class="average_time">
-            <p>23′12″</p>
+            <p>{{over_view.avg_time}}</p>
             <p>平均用时</p>
           </div>
 
@@ -47,10 +47,21 @@
               <div v-if="over_view.ys_results.length!=0">
                 <div
                   v-for="(item,index) in over_view.ys_results"
-                  :key="item.id"
-                  @click="ToStudentView"
+                  :key="item.sid"
+                  @click="ToStudentView(item.sid)"
                 >
-                  <div class="stunde_number">{{index}}</div>
+                  <div class="stunde_number">
+                    <p v-if="index+1>3" > {{index+1}} </p>
+                    <div v-else >
+                      <el-image :src="index==0?FirstIcon:index==2?SecondIcon:ThreeIcon" fit="cover">
+                      <div slot="error" class="image-slot">
+                        <i class="el-icon-picture-outline"></i>
+                      </div>
+                    </el-image>
+                      
+
+                    </div>
+                    </div>
                   <div class="stunde_name">
                     <el-image :src="item.avatar" fit="cover">
                       <div slot="error" class="image-slot">
@@ -59,8 +70,8 @@
                     </el-image>
                     <span>{{item.name}}</span>
                   </div>
-                  <div class="stunde_time">23′12″</div>
-                  <div class="stunde_mark">100分</div>
+                  <div class="stunde_time">{{item.use_time}}</div>
+                  <div class="stunde_mark">{{item.score}}分</div>
                 </div>
               </div>
 
@@ -86,7 +97,7 @@
               v-infinite-scroll="student_right_scroll"
               style="overflow:auto"
             >
-              <div v-for="item in over_view.ns_results" :key="item.id">
+              <div v-for="item in over_view.ns_results" :key="item.sid" @click="ToStudentView(item.sid)" >
                 <el-image :src="item.avatar" fit="cover">
                   <div slot="error" class="image-slot">
                     <i class="el-icon-picture-outline"></i>
@@ -129,6 +140,7 @@
         style="overflow:auto"
         v-show="TabIndex==0"
       >
+      <template v-if="topic_list.length!=0" >
         <div v-for="(item,index) in topic_list" :key="item.code" @click="CheckQas(item.code)">
           <p class="list_view_scroll_number">{{index+1}}</p>
           <p class="list_view_scroll_title">{{item.title}}</p>
@@ -164,6 +176,19 @@
             <div class="list_view_scroll_bot_right"></div>
           </div>
         </div>
+        </template>
+          <template v-else>
+              <!-- 无数据展示 -->
+              <div  class="no_data_view">
+                <el-image :src="NoNumImage" fit="cover">
+                  <div slot="error" class="image-slot">
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
+                </el-image>
+                <p>暂无任何排名</p>
+              </div>
+            </template>
+
       </div>
 
       <!-- 知识点 -->
@@ -173,60 +198,88 @@
         style="overflow:auto"
         v-show="TabIndex==1"
       >
-        <div v-for="item in 10" :key="item">
-          <p class="list_view_scroll_number">{{item}}</p>
+        <div v-for="(item,index) in other_list" :key="item.name">
+          <p class="list_view_scroll_number">{{index+1}}</p>
           <div class="list_view_scroll_other_title">
-            <p>整十数加、减整十数</p>
+            <p>{{item.name}}</p>
             <p class="list_view_scroll_other_text">
               <span>正确率：</span>
-              <span>28%</span>
+              <span>{{item.rp_rate}}%</span>
             </p>
           </div>
-          <el-progress :text-inside="true" :stroke-width="26" :percentage="70"></el-progress>
+          <el-progress :text-inside="false" :stroke-width="26" :percentage="item.rp_rate"></el-progress>
         </div>
       </div>
     </div>
 
     <!-- 题目弹出框 -->
+    <!-- 题目弹出框 -->
     <el-dialog :visible.sync="answer_toggle">
       <div class="answer_center">
         <div class="answer_center_top">
-          <span>题目</span>
+          <span>{{rq_title}}</span>
           <p>
             <span>正确率：</span>
-            <span>87%</span>
+            <span>{{rq_rate}}%</span>
           </p>
         </div>
-        <p v-html="p_html"></p>
+        <div class="html_div" v-html="qas_content"></div>
+         <!-- 选择题答案项显示 -->
+          <div v-if="qtype==1||qtype==2" class="check_qas_view_parent" >
+          <div class="check_qas_view" v-for=" aitem in  answer_data" :key="aitem.id" >
+            <!-- <p>{{aitem.name}}</p> -->
+            <div v-for="oitem in aitem.content.options " class="oitem_item" :key="oitem.value" >
+             <span  >{{oitem.value}}</span>  <span>{{oitem.text}}</span>  
+            </div>
+          </div>
+          </div>
+
         <!-- 答案解析 -->
-        <div class="answer_konw">
+        <div class="answer_konw" @click="change_right_toggle" >
           <el-image :src="BookImage">
-            <div slot="error" class="image-slot">
+             <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
+
           </el-image>
           <span>答案解析</span>
         </div>
 
+        <div class="answer_qri" v-show="right_toggle" v-html="qri" ></div>
+       
+
         <!-- 人员显示 -->
         <div class="poeple_view">
-          <span>答错学生 12</span>
+          <span>答错学生 {{ns_data.length}}</span>
           <div class="poeple_view_item">
-            <div v-for="i in 10" :key="i">
-              <el-image :src="BookImage">
-                <div slot="error" class="image-slot">
-                  <i class="el-icon-picture-outline"></i>
-                </div>
+            <div v-for="item in ns_data" :key="item.name">
+              <el-image :src="item.avatar" fit="cover">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
               </el-image>
-              <span>张郃</span>
+              <span>{{item.name}}</span>
             </div>
           </div>
         </div>
       </div>
       <div slot="footer">
-        <el-button type="danger" class="send_cancle">上一题</el-button>
+        <el-button
+          type="danger"
+          :loading="is_change_before"
+          :disabled="is_change"
+          class="send_cancle"
+          @click="before"
+        >上一题</el-button>
 
-        <el-button type="primary" class="send_confrm">下一题</el-button>
+        <el-button
+          type="primary"
+          :loading="is_change_next"
+          :disabled="is_change"
+          class="send_confrm"
+          @click="next"
+        >下一题</el-button>
       </div>
     </el-dialog>
   </div>
@@ -244,11 +297,17 @@ export default {
       NoNumImage: require("../assets/no_num.png"),
       NoStundetImage: require("../assets/no_student.png"),
       NoDataImage: require("../assets/no_data.png"),
-
+      FirstIcon: require("../assets/first_icon.png"),
+      SecondIcon: require("../assets/second_icon.png"),
+      ThreeIcon: require("../assets/there_icon.png"),
+      other_list:[],
       pid: 0,
       over_view: {
         ns_results: [],
-        ys_results: []
+        ys_results: [],
+        s_count:0,
+        m_count:0,
+
       },
       topic_list: [],
       TabArr: [
@@ -256,7 +315,20 @@ export default {
         { text: "知识点", type: 0 }
       ],
       TabIndex: 0,
-      p_html: '<span style="font-size:30px" >张郃</span>'
+      is_change_before: false,
+      is_change_next: false,
+      qri:"",
+      is_change: false,
+      qas_code: "",
+      code: "",
+      ns_data: [],
+      ys_data: [],
+      rq_rate: 0,
+      rq_title: "",
+      qtype:-1,
+      qas_content: "",
+      right_toggle: false,
+
     };
   },
   components: {},
@@ -265,34 +337,36 @@ export default {
     this.GetRightList();
     this.GetPaperOverview();
   },
+  beforeRouteLeave(to, from, next) {
+        // 设置下一个路由的 meta
+        if(to.name=="StudentView"){
+          from.meta.keepAlive = true; 
+
+        }else{
+          from.meta.keepAlive = false; 
+
+        }
+        next();
+    },
   mounted() {},
   methods: {
     TabCheck(index) {
+      let {other_list}=this
       this.TabIndex = index;
+      if(index==1&&other_list.length==0){
+        this.GetRightOther()
+      }
     },
     student_left_scroll() {},
     student_right_scroll() {},
     load() {},
-    formatSeconds(value) {
-      let result = parseInt(value);
-      let h =
-        Math.floor(result / 3600) < 10
-          ? "0" + Math.floor(result / 3600)
-          : Math.floor(result / 3600);
-      let m =
-        Math.floor((result / 60) % 60) < 10
-          ? "0" + Math.floor((result / 60) % 60)
-          : Math.floor((result / 60) % 60);
-      let s =
-        Math.floor(result % 60) < 10
-          ? "0" + Math.floor(result % 60)
-          : Math.floor(result % 60);
-      result = `${h}h${m}m${s}s`;
-      return result;
-    },
-    CheckQas() {
-      let { answer_toggle } = this;
-      this.answer_toggle = !answer_toggle;
+    
+
+    ToSetunde(sid){
+      let { pid } = this;
+
+      this.$router.push({ name: "StudentView",query:{pid:id,sid:sid} });
+
     },
 
     // 获取统计
@@ -300,33 +374,122 @@ export default {
       let { pid } = this;
 
       await this.$post("paper_overview", "/?c=api", {
-        pid: pid
+        pid: pid,
+        class_id:this.$store.state.class_id
       }).then(res => {
-        console.log(res);
         let over_view = res;
-        console.log(over_view);
         for (let i in over_view.ns_results) {
           over_view.ns_results[i].avatar = this.$till.change_file_url(
             over_view.ns_results[i].avatar
           );
         }
 
+          for (let i in over_view.ys_results) {
+          over_view.ys_results[i].avatar = this.$till.change_file_url(
+            over_view.ys_results[i].avatar
+          );
+           over_view.ys_results[i].use_time=this.$till.formatSeconds(over_view.ys_results[i].use_time)
+
+        }
+        over_view.avg_time=this.$till.formatSeconds(over_view.avg_time)
         this.over_view = over_view;
+      });
+    },
+   async GetRightOther(){
+        let { pid } = this;
+      await this.$post("etag_grasp", "/?c=api", {
+        pid: pid,
+        class_id:this.$store.state.class_id
+
+      }).then(res => {
+        let other_list=res.data
+        this.other_list=other_list
       });
     },
 
     async GetRightList() {
       let { pid } = this;
       await this.$post("qa_content_list", "/?c=api", {
-        pid: pid
+        pid: pid,
+        class_id:this.$store.state.class_id
+
       }).then(res => {
         let topic_list = res.data;
         this.topic_list = topic_list;
-        console.log(res);
       });
     },
-    ToStudentView() {
-      this.$router.push({ name: "StudentView" });
+
+    //查看题目
+    async CheckQas(code) {
+      let { pid } = this;
+      this.qas_code = code;
+      await this.$post("qa_content", "/?c=api", {
+        code: code,
+        pid: pid
+      }).then(res => {
+        res.qas_content = this.$till.htmlspecialchars_decode(res.content);
+        this.qas_content = res.qas_content;
+        this.ns_data = res.ns_data;
+        this.ys_data = res.ys_data;
+        this.rq_rate = res.rq_rate;
+        this.rq_title = res.title;
+        if(res.qri){
+          res.qri =  this.$till.htmlspecialchars_decode(res.qri);
+        }
+        this.answer_data=res.answer_data
+        this.qri=res.qri
+        this.qtype=res.type
+        this.answer_toggle = true;
+        this.is_change = false;
+        this.is_change_before = false;
+        this.is_change_next = false;
+      });
+    },
+    next() {
+      let { content, qas_code,topic_list } = this;
+      this.is_change = true;
+      this.is_change_next = true;
+      let num=topic_list.findIndex(item=>item.code==qas_code)
+      if(num==topic_list.length-1){
+        this.is_change = false;
+        this.is_change_next = false;
+         this.$message({
+                  message: "已到底部",
+                  type: "warning"
+                });
+      }else{
+        this.CheckQas(topic_list[parseInt(num) + 1].code);
+      }
+    
+    },
+
+   
+    before() {
+      let { content, qas_code,topic_list } = this;
+     
+      this.is_change = true;
+      this.is_change_before = true;
+       let num=topic_list.findIndex(item=>item.code==qas_code)
+      if(num==0){
+        this.is_change = false;
+          this.is_change_before = false;
+         this.$message({
+                  message: "已到顶部",
+                  type: "warning"
+                });
+      }else{
+        this.CheckQas(topic_list[parseInt(num) - 1].code);
+      }
+    },
+      // 答案解析显示隐藏
+    change_right_toggle(){
+      let {right_toggle}=this
+      this.right_toggle=!right_toggle
+    },
+    ToStudentView(sid) {
+      let { pid } = this;
+
+      this.$router.push({ name: "StudentView",query:{pid:pid,sid:sid} });
     }
   }
 };
@@ -413,6 +576,11 @@ export default {
   height: 100vh;
   width: 100vw;
 }
+.answer_qri{
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 .Census_left_view {
   display: flex;
   flex-direction: column;
@@ -458,8 +626,11 @@ export default {
 }
 .el-progress__text {
   font-size: 26px !important;
+  display: none !important;
 }
-
+.el-progress-bar{
+  padding: 0 !important;
+}
 .progress_view {
   width: 104px;
   height: 104px;
@@ -530,14 +701,20 @@ export default {
   width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
   height: 1px;
 }
-.student_view_left_scroll > div {
+.student_view_left_scroll > div{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.student_view_left_scroll > div>div {
   height: 90px;
   border-bottom: 2px solid #ecedf1;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.student_view_left_scroll > div:last-child {
+.student_view_left_scroll >div> div:last-child {
   border-bottom: none;
 }
 

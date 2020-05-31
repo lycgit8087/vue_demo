@@ -19,7 +19,9 @@ export default new Router({
     {
       path: '/exam_list',
       name: 'ExamList',
-      component: () => import('@/views/ExamList')
+      component: () => import('@/views/ExamList'),
+      meta:{keepAlive: true} 
+      
     },
     {
       path: '/student_view',
@@ -29,7 +31,8 @@ export default new Router({
     {
       path: '/census',
       name: 'Census',
-      component: () => import('@/views/Census')
+      component: () => import('@/views/Census'),
+      meta:{keepAlive: true} 
     },
     {
       path: '/exam_detail',

@@ -20,7 +20,13 @@
         <p>附件</p>
         <div class="file_list_view"  >
           <div v-for="(item,index) in files" :key="item.name"   >
-            <el-image :src="item.url" fit="cover" :preview-src-list="getSrcList(index)" @click="see_file(item.fpath,item.ftype)" >
+            <el-image :src="item.url" fit="cover" :preview-src-list="getSrcList(index)" v-if="item.type_num==0">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+            </el-image>
+            <el-image :src="item.url" fit="cover"  v-if="item.type_num!=0" @click="see_file(item.fpath,item.type_num)" >
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
@@ -28,7 +34,7 @@
             </el-image>
          
             <p>{{item.fcname}}</p>
-            <a v-if="item.ftype!=0&&item.ftype!=1" :href="item.fpath" :download="item.fcname" target="_self"  ></a>
+            <a v-if="item.type_num>2" :href="item.fpath" :download="item.fcname" target="_self"  ></a>
           </div>
         </div>
       </div>
@@ -82,7 +88,7 @@
       >
         <div class="send_dialog_center">
           <div class="send_dialog_center_check">
-            <span>一年级107班</span>
+            <span>{{prepare_lesson_data.cname}}</span>
             <el-checkbox v-model="checked" border size="medium">全选</el-checkbox>
           </div>
 
@@ -130,6 +136,20 @@
           <div class="back_index" @click="BackIndex">返回首页</div>
         </div>
       </el-dialog>
+
+
+      <!-- 视频 音频 弹出框 -->
+      <el-dialog :visible.sync="file_toggle"  >
+
+        <div class="video_file_view" >
+              <video :src="file_url" v-if="file_type==1"  controls="controls" ></video>
+              <audio :src="file_url" v-if="file_type==2" controls="controls"  ></audio>
+
+
+        </div>
+
+      </el-dialog>
+
     </div>
   </div>
 </template>
@@ -160,21 +180,19 @@ export default {
       HeadImage: require("../assets/login_img.png"),
       file_image: require("../assets/file.png"),
       loading: true,
+      video_url:"",
       file_arr: [
-        {text:"jpg,jpeg,gif,png,bmp",url:ImageIcon},
-        {text:"3gpp,mp4,rm,rmvb,avi,3gp,mov,mtv",url:VideoIcon},
-        {text:"doc,docx",url:WordIcon},
-        {text:"pptx,ppt",url:PPtIcon},
-        {text:"xlsx,xls",url:XlsIcon},
-        {text:"zip,rar",url:RarIcon},
-        {text:"pdf",url:PdfIcon},
-        {text:"mp3,aac,wma,ogg,m4a,flac,ape,wav,amr",url:AudioIcon},
-
-
-
-
+        {text:"jpg,jpeg,gif,png,bmp",url:ImageIcon,type:0},
+        {text:"3gpp,mp4,rm,rmvb,avi,3gp,mov,mtv",url:VideoIcon,type:1},
+        {text:"doc,docx",url:WordIcon,type:3},
+        {text:"pptx,ppt",url:PPtIcon,type:3},
+        {text:"xlsx,xls",url:XlsIcon,type:3},
+        {text:"zip,rar",url:RarIcon,type:3},
+        {text:"pdf",url:PdfIcon,type:3},
+        {text:"mp3,aac,wma,ogg,m4a,flac,ape,wav,amr",url:AudioIcon,type:2},
       ],
       srcList:[],
+      class_name:"",
       aa:123,
       centerDialogVisible: false,
       CheckedImage: require("../assets/check_it.png"),
@@ -190,8 +208,10 @@ export default {
       files:[],
       paper_list: [],
       pid:0,
+      prepare_lesson_data:{},
       plist:{
       },
+      file_type:0,
       class_id:0,
       send_toggle: false,
       tcontents: [],
@@ -199,7 +219,8 @@ export default {
       checked: true,
       send_loading: false,
       plid: 0,
-      sub_title:""
+      sub_title:"",
+      file_toggle:false
     };
   },
   //监听属性 类似于data概念
@@ -227,16 +248,10 @@ export default {
     see_file(url,type){
       let {files}=this
       let srcList=[]
-      
-      // if(type==0){
-      //   let Image_arr=files.filter(item=>item.ftype==type)
-      //   console.log(Image_arr)
-      //   for(let i in Image_arr){
-      //     srcList.push(Image_arr[i].fpath)
-      //   }
-      //   this.srcList=srcList
+      this.file_type=type
+        this.file_toggle=true
+        this.file_url=url
 
-      // }
     },
 
     getSrcList(index){
@@ -286,8 +301,9 @@ export default {
       this.centerDialogVisible = true;
     },
    async SendIt(pid) {
-     let {people_arr}=this
+     let {people_arr,}=this
      if(people_arr.length==0){
+
      await this.GetStudent()//获取学生列表
 
      }
@@ -324,7 +340,7 @@ export default {
         let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
         
         for (let i in tcontents) {
-          tcontents[i].tccontent = this.htmlspecialchars_decode(
+          tcontents[i].tccontent =  this.$till.htmlspecialchars_decode(
             tcontents[i].tccontent
           );
           if(tcontents[i].fcname){
@@ -345,10 +361,13 @@ export default {
           let num =file_arr.findIndex(item=>item.text.indexOf(fname)!=-1)
           
           files[i].url=file_arr[num].url
+          files[i].type_num=file_arr[num].type
+
 
         }
         this.tcontents = tcontents;
         this.sub_title=prepare_lesson_data[0].acname
+        this.prepare_lesson_data=prepare_lesson_data[0]
 
         console.log(Image_arr)
         for(let i in Image_arr){
@@ -358,38 +377,6 @@ export default {
         this.files=files
         this.paper_list=paper_list
       });
-    },
-
-    htmlspecialchars_decode(str) {
-      if (str.length == 0) return str;
-      str = str.replace(/&amp;/g, "&");
-      str = str.replace(/&lt;/g, "<");
-      str = str.replace(/&gt;/g, ">");
-
-      str = str.replace(/&quot;/g, "'");
-      str = str.replace(/&#039;/g, "'");
-      str = str.replace(/{br}/g, "<br>");
-      
-      str=str.replace(/font-size: \w+;?/g,' ')
-
-
-      str = str.replace(/\<p/gi, '<p class="p_class" style="margin-bottom:10px" ');
-      str = str.replace(/\<span/gi, '<span class="span_class" ')
-      // str = str.replace(/\(?<=font-size:).*?(?=px;)/gi, `fons-size:${}px`)
-
-
-      // if (fistindex == "https://api-sf.imofang.cn/app.aspx?") {
-        if (str.indexOf("src='/files") != -1) {
-          str = str.replace(/src='/g, `src='https://sc.imofang.cn`);
-        } else {
-          // str = str.replace(/src='/g, `src='${uploadurl}`);
-        str = str.replace(/src='/g, `src='https://files.imofang.cn`);
-
-        }
-      // } else {
-      // }
-      str = str.replace(/\<img/gi, '<img @click="seeimage" style="max-width:50%;height:auto" ');
-      return str;
     },
 
 
@@ -427,6 +414,7 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
+    
     this.plid = this.$route.query.plid;
     this.class_id=this.$route.query.class_id;
    
@@ -437,6 +425,18 @@ export default {
     this.GetInfo();//获取备课详情
     
   },
+  beforeRouteLeave(to, from, next) {
+        // 设置下一个路由的 meta
+        
+        if(to.name=="ExamDetail"||to.name=="Census"){
+          from.meta.keepAlive = true; 
+
+        }else{
+          from.meta.keepAlive = false; 
+
+        }
+        next();
+    },
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
@@ -464,6 +464,13 @@ export default {
 }
 .el-message-box {
   width: auto;
+}
+.video_file_view video{
+  width: 100%;
+  height: 50vh;
+}
+.video_file_view audio{
+  width: 100%;
 }
 .p_class{
   font-size: 26px !important;
@@ -814,6 +821,7 @@ export default {
 .video_view video{
   width: 50%;
 }
+
 .span_text {
   color: #878b94;
 }

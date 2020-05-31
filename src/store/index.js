@@ -5,6 +5,7 @@ Vue.use(Vuex);
      num: 1,
      sid:0,
      org_id:0,
+     class_id:0,
      url:"http://files.imofang.cn"
      //要设置的初始属性值
    };
@@ -19,6 +20,10 @@ const mutations = {
    },
    edit_org_id(state,id){
       state.org_id =id
+     },
+     edit_class_id(state,id){
+      state.class_id =id
+
      }
 };
  const actions = {
@@ -27,6 +32,10 @@ const mutations = {
    },
    change_org_id(context,id){
     context.commit('edit_org_id',id);
+
+   },
+   change_class_id(context,id){
+    context.commit('edit_class_id',id);
 
    }
 };
