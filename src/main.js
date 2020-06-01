@@ -16,18 +16,19 @@ import store from "./store"
 import Back from './components/Back'
 import AlertView from './components/AlertView'
 import Face from './components/Face'
-
-
+import Viewer from 'v-viewer'
+import 'viewerjs/dist/viewer.css'
+Vue.use(Viewer)
+Viewer.setDefaults({
+  Options: { 'inline': true, 'button': true, 'navbar': false, 'title': true, 'toolbar': true, 'tooltip': true, 'movable': true, 'zoomable': true, 'rotatable': true, 'scalable': true, 'transition': true, 'fullscreen': true, 'keyboard': true, 'url': 'data-source' }
+})
 Vue.component("back",Back);
 Vue.component("alert-view",AlertView);
 Vue.component("face",Face);
-
-
-
 Vue.use(ElementUI);
-
 //定义全局变量
 Vue.prototype.$till=till;
+
 Vue.prototype.$get_new_token=get_new_token
 Vue.prototype.$post=post;
 Vue.prototype.$fetch=fetch;

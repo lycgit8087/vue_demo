@@ -61,23 +61,38 @@
 
         <!-- 答案解析 -->
         <div class="answer_konw" @click="change_right_toggle" >
-          <el-image :src="BookImage">
+          <el-image :src="answericon">
              <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
 
           </el-image>
           <span>答案解析</span>
+
+           <el-image :src="right_toggle?bluetop:bluebot">
+             <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+          </el-image>
+
+
         </div>
 
         <div class="answer_qri" v-show="right_toggle" v-html="qri" ></div>
        
 
         <!-- 人员显示 -->
-        <div class="poeple_view">
-          <span>答错学生 {{ns_data.length}}</span>
-          <div class="poeple_view_item">
-            <div v-for="item in ns_data" :key="item.name">
+        <!-- 答错 -->
+        <div class="poeple_view" v-if='ns_data.lengt!=0' >
+          <p @click="change_error" > <span>答错学生</span> <span>{{ns_data.length}}</span>   <el-image :src="error_toggle?blacktop:blackbot" fit="cover">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+              </el-image> </p>
+          <div class="poeple_view_item" v-if="error_toggle" >
+            <div v-for="item in ns_data" :key="item.sid">
               <el-image :src="item.avatar" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
@@ -88,6 +103,9 @@
             </div>
           </div>
         </div>
+
+        <!-- 答对 -->
+
       </div>
       <div slot="footer">
         <el-button
@@ -111,10 +129,21 @@
 </template>
 
 <script>
+import bluetop from '../assets/blue_top.png';
+import bluebot from '../assets/blue_bot.png';
+import blackbot from '../assets/black_bot.png';
+import blacktop from '../assets/black_top.png';
+import answericon from '../assets/answer_icon.png';
+
 export default {
   name: "ExamDetail",
   data() {
     return {
+      bluetop,
+      answericon,
+      blackbot,
+      bluebot,
+      blacktop,
       centerDialogVisible: false,
       BookImage: require("../assets/open_book.png"),
       pid: 0,
@@ -134,7 +163,9 @@ export default {
       rq_rate: 0,
       rq_title: "",
       qtype:-1,
-      answer_data:[]
+      answer_data:[],
+      error_toggle:true,
+      success_toggle:false
     };
   },
   components: {},
@@ -144,6 +175,14 @@ export default {
   },
   mounted() {},
   methods: {
+    change_error(){
+      let　{error_toggle}=this
+      this.error_toggle=!error_toggle
+    },
+    change_success(){
+      let　{success_toggle}=this
+      this.success_toggle=!success_toggle
+    },
     async SeeRight() {
       let { qas_code } = this;
       await this.$post("qa_answer", "/?c=api", {
@@ -199,10 +238,24 @@ export default {
       this.qas_code = code;
       await this.$post("qa_content", "/?c=api", {
         code: code,
-        pid: pid
+        pid: pid,
+        is_loadstus:1
+
       }).then(res => {
         res.qas_content =  this.$till.htmlspecialchars_decode(res.content);
         this.qas_content = res.qas_content;
+
+        // 答错
+        for(let i in res.ns_data){
+          res.ns_data[i].avatar=this.$till.change_file_url(res.ns_data[i].avatar)
+        }
+
+       // 答对
+        for(let i in res.ys_data){
+          res.ys_data[i].avatar=this.$till.change_file_url(res.ys_data[i].avatar)
+        }
+
+       
         this.ns_data = res.ns_data;
         this.ys_data = res.ys_data;
         this.rq_rate = res.rq_rate;
@@ -481,8 +534,8 @@ export default {
 }
 .answer_center_top > span {
   font-size: 24px;
-  font-weight: 500;
-  color: rgba(189, 189, 189, 1);
+  font-weight: 700;
+  color:  #202020;
   margin-right: 38px;
 }
 .answer_center_top p {
@@ -500,25 +553,44 @@ export default {
   align-items: center;
   font-size: 28px;
   font-weight: 400;
-  color: rgba(189, 189, 189, 1);
   margin-bottom: 37px;
   width: 100%;
 }
-.answer_konw .el-image {
-  width: 43px;
-  height: 39px;
+.answer_konw span{
+  color: #545DFF;
+  margin-right: 15px;
+
+}
+.answer_konw .el-image:nth-child(1) {
+  width: 31px;
+  height: 31px;
   margin-right: 20px;
+}
+
+.answer_konw .el-image:nth-child(3){
+     width: 17px;
+  height: 19px;
 }
 .poeple_view {
   display: flex;
   flex-direction: column;
   width: 100%;
+
 }
-.poeple_view > span {
+.poeple_view > p {
   font-size: 24px;
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+}
+.poeple_view > p> span{
+  margin-right: 10px;
+}
+.poeple_view > p .el-image{
+  width: 19px;
+  height: 17px;
 }
 .poeple_view > div {
   display: flex;

@@ -39,6 +39,8 @@
     str = str.replace(/&quot;/g, "'");
     str = str.replace(/&#039;/g, "'");
     str=str.replace(/\<p>&nbsp;<\/p>/gi,"") 
+    str = str.replace(/&amp;nbsp;/g, " ");
+
     str = str.replace(/{br}/g, "<br>");
       str=str.replace(/font-size: \w+;?/g,' ')
     str = str.replace(

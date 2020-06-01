@@ -183,6 +183,7 @@ export default {
       is_search:false,
       value: "",
       grade:0,
+      websock:null,
       sub_arr:[],
       sub_value:"",
       HeadImage: "",
@@ -341,6 +342,40 @@ export default {
 
     },
 
+    initWebSocket (token) {
+      let websock=this.$store.state.websocket
+      let self=this
+      if(websock==null){
+         // ws地址 -->这里是你的请求路径
+      var ws=  `wss://wss.imofang.cn:1818/?token=${token}`;
+      websock = new WebSocket(ws)
+      websock.onmessage = function (e) {
+        console.log(JSON.parse(e.data))
+        let data=JSON.parse(e.data)
+        if(data.hasOwnProperty('response_msg')){
+
+        }else{
+           self.$store.dispatch('change_web_type',data.msg.mode)
+
+        }
+
+        
+      }
+      websock.onclose = function (e) {
+      }
+      websock.onopen = function () {
+      }
+
+      // 连接发生错误的回调方法
+      websock.onerror = function () {
+        console.log('WebSocket连接发生错误')
+      }
+      this.$store.dispatch('change_websocket',websock)
+
+      }
+ 
+},
+
     clear_screen(){
       
       this.$refs.tree.setCheckedKeys([]);
@@ -430,7 +465,7 @@ export default {
     },
     BackLogin() {
       this.$Cookies.set("token", "");
-      this.$router.replace({ name: "Login", params: { id: 101 } });
+      this.$router.replace({ name: "Login"});
     },
 
     GetAllMouth(data){
@@ -461,6 +496,7 @@ export default {
         subject_arr = [];
       await this.$post("user_info", "/?c=api", {}).then(res => {
         this.UserInfo = res;
+        this.initWebSocket(res.ws_token)
         let { belong_data, subject_data } = res;
         this.$store.dispatch("change_sid", res.sid);
         this.$store.dispatch("change_org_id", res.org_id);
@@ -554,7 +590,7 @@ export default {
             if(is_now_year){
                 listarr[i].day_time =ids.length!=0?this.$till.get_time(
               listarr[i].ptime * 1000,
-              "M/D h:s"
+              "M-D h:s"
             ): this.$till.get_time(
               listarr[i].ptime * 1000,
               "h:s"
@@ -562,7 +598,7 @@ export default {
             }else{
               listarr[i].day_time =this.$till.get_time(
               listarr[i].ptime * 1000,
-              "Y/M/D h:s"
+              "Y-M-D h:s"
             )
             }
           }

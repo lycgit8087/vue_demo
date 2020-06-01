@@ -78,8 +78,8 @@ export default {
         info.avatar=this.$till.change_file_url(info.avatar)
         left_arr[0].des=info.order
         left_arr[1].des=info.score
-        left_arr[2].des=info.order
-        left_arr[3].des= this.$till.formatSeconds(info.used_time) 
+        left_arr[2].des=this.$till.formatSeconds(info.used_time)
+        left_arr[3].des= info.nq_count 
         left_arr[4].des=info.rq_count
           let num=1
         for(let i in info.qa_results){

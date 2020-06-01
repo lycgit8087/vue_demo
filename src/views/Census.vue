@@ -134,13 +134,16 @@
         >{{item.text}}</div>
       </div>
       <!-- 题目 -->
+
+      <template  v-if="TabIndex==0&&topic_list.length!=0&&over_view.ys_results.length!=0" >
+      
       <div
         class="list_view_scroll"
         v-infinite-scroll="load"
         style="overflow:auto"
-        v-show="TabIndex==0"
+        
       >
-      <template v-if="topic_list.length!=0" >
+      <template >
         <div v-for="(item,index) in topic_list" :key="item.code" @click="CheckQas(item.code)">
           <p class="list_view_scroll_number">{{index+1}}</p>
           <p class="list_view_scroll_title">{{item.title}}</p>
@@ -177,7 +180,11 @@
           </div>
         </div>
         </template>
-          <template v-else>
+         
+
+      </div>
+        </template>
+       <template v-if="TabIndex==0&&over_view.ys_results.length==0">
               <!-- 无数据展示 -->
               <div  class="no_data_view">
                 <el-image :src="NoNumImage" fit="cover">
@@ -189,8 +196,9 @@
               </div>
             </template>
 
-      </div>
-
+      <template v-if="TabIndex==1&&other_list.length!=0&&over_view.ys_results.length!=0" >
+        
+     
       <!-- 知识点 -->
       <div
         class="list_view_scroll_other"
@@ -198,6 +206,7 @@
         style="overflow:auto"
         v-show="TabIndex==1"
       >
+      
         <div v-for="(item,index) in other_list" :key="item.name">
           <p class="list_view_scroll_number">{{index+1}}</p>
           <div class="list_view_scroll_other_title">
@@ -210,6 +219,19 @@
           <el-progress :text-inside="false" :stroke-width="26" :percentage="item.rp_rate"></el-progress>
         </div>
       </div>
+       </template>
+        <template v-if="TabIndex==1&&other_list.length==0&&over_view.ys_results.length==0">
+              <!-- 无数据展示 -->
+              <div  class="no_data_view">
+                <el-image :src="NoNumImage" fit="cover">
+                  <div slot="error" class="image-slot">
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
+                </el-image>
+                <p>暂无任何排名</p>
+              </div>
+            </template>
+
     </div>
 
     <!-- 题目弹出框 -->
@@ -249,7 +271,7 @@
        
 
         <!-- 人员显示 -->
-        <div class="poeple_view">
+        <div class="poeple_view" v-if="ns_data.length!=0" >
           <span>答错学生 {{ns_data.length}}</span>
           <div class="poeple_view_item">
             <div v-for="item in ns_data" :key="item.name">
@@ -331,6 +353,22 @@ export default {
 
     };
   },
+   computed: {
+    web_type() {
+        return this.$store.state.web_type;
+    }
+  },
+  watch:{
+      web_type(val){
+        if(val==2){
+          console.log(val)
+           this.GetRightList();
+          this.GetPaperOverview();
+          this.GetRightOther()
+          this.$store.dispatch('change_web_type',0)
+        }
+      }
+  },
   components: {},
   created() {
     this.pid = this.$route.query.pid;
@@ -351,9 +389,10 @@ export default {
   mounted() {},
   methods: {
     TabCheck(index) {
-      let {other_list}=this
+      let {other_list,over_view}=this
+      
       this.TabIndex = index;
-      if(index==1&&other_list.length==0){
+      if(index==1&&other_list.length==0&&over_view.ys_results.length!=0){
         this.GetRightOther()
       }
     },
@@ -425,7 +464,8 @@ export default {
       this.qas_code = code;
       await this.$post("qa_content", "/?c=api", {
         code: code,
-        pid: pid
+        pid: pid,
+        is_loadstus:1
       }).then(res => {
         res.qas_content = this.$till.htmlspecialchars_decode(res.content);
         this.qas_content = res.qas_content;
@@ -895,8 +935,9 @@ export default {
 }
 .answer_center_top > span {
   font-size: 24px;
-  font-weight: 500;
-  color: rgba(189, 189, 189, 1);
+  font-weight: 700;
+  color: rgba(32, 32, 32, 1);
+
   margin-right: 38px;
 }
 .answer_center_top p {

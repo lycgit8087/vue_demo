@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Message, Loading } from 'element-ui'
 import Cookies from 'js-cookie'
 import qs from 'qs'
+import router from '../router'
 let requestCount = 0;
 let loadingInstance = null
 let timer;
@@ -27,7 +28,6 @@ axios.interceptors.request.use(
     config.withCredentials = true // 允许携带token ,这个是解决跨域产生的相关问题
     config.timeout = 15000  //超时时间
     config.data = qs.stringify(config.data);
-
     if(config.headers.action.indexOf("token")==-1){
       //设置请求头
     config.headers = {
@@ -88,13 +88,19 @@ axios.interceptors.response.use(
       }
       if(response.data.response_code==-1){
         let errmessage = response.data.response_msg.toLowerCase()
-       
+        if(errmessage.indexOf("token")!=-1){
+          Cookies.set("token", "");
+          router.replace({ name: "Login"});
+        }else{
           Message({
             message: errmessage,
             type: 'error',
             offset: 380,
             duration: 3 * 1000
           })
+        }
+       
+        
       
        
       }

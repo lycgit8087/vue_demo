@@ -10,17 +10,23 @@
           <div v-if="item.fcname" class="video_view" >
               <video :src="item.fpath"   controls="controls" ></video>
           </div>
-          <div v-html="item.tccontent"></div>
+          <div v-html="item.tccontent" @click="htm_check($event)" ></div>
         </div>
       </div>
     </div>
     <div class="exam_list_right">
+      <!-- :preview-src-list="getSrcList(index)" -->
+      <viewer :images="srcList"           
+            class="viewer" ref="viewer"
+            @inited="inited" >
+           <img v-for="src in srcList" :src="src" :key="src" class="view_image">
+      </viewer>
       <!-- 附件 -->
       <div class="file_list">
         <p>附件</p>
         <div class="file_list_view"  >
-          <div v-for="(item,index) in files" :key="item.name"   >
-            <el-image :src="item.url" fit="cover" :preview-src-list="getSrcList(index)" v-if="item.type_num==0">
+          <div v-for="(item,index) in files" :key="item.name"    >
+            <el-image :src="item.url" fit="cover" @click="show_image(index)"   v-if="item.type_num==0">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
@@ -244,6 +250,20 @@ export default {
   },
   //方法集合
   methods: {
+    htm_check(e){
+      console.log(e.target.src,e)
+      if(e.target.tagName=="IMG"){
+        let srcList=[e.target.src]
+        this.srcList=srcList
+        this.show_image(0)
+      }
+    },
+    inited (viewer) {
+      this.viewer = viewer
+    },
+    show_image(index){
+      this.viewer.view(index)
+    },
 
     see_file(url,type){
       let {files}=this
@@ -278,10 +298,16 @@ export default {
     },
    async SeeIt(pid) {
       this.pid=pid
+      let {plist}=this
+      if( JSON.stringify(plist)!="{}"){
+      this.centerDialogVisible = true;
+
+        return
+      }
       await this.$post("paper_list", "/?c=api", {
          pids:pid
       }).then(res=>{
-        let plist=res.data
+         plist=res.data
         if(plist.length){
           plist=plist[0]
          
@@ -872,5 +898,8 @@ export default {
 }
 .el-checkbox__input.is-checked .el-checkbox__inner::after {
   transform: rotate(45deg) scaleY(1.5) !important;
+}
+.view_image{
+  display: none;
 }
 </style>
