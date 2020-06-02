@@ -183,6 +183,7 @@ export default {
     },
     ToIndex() {
       this.checkFaceView = false;
+      this.$store.dispatch('change_keep_alive', ['ClassIndex'])
       this.$router.replace({ name: "ClassIndex" });
     },
     

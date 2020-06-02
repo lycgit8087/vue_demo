@@ -246,23 +246,42 @@ export default {
         }
       }
       this.people_arr = people_arr;
+    },
+    file_toggle(val){
+      if(val==false){
+        this.file_url=""
+      }
+
     }
   },
   //方法集合
   methods: {
     htm_check(e){
-      console.log(e.target.src,e)
       if(e.target.tagName=="IMG"){
         let srcList=[e.target.src]
         this.srcList=srcList
-        this.show_image(0)
+      this.viewer.view(0)
+        
       }
     },
     inited (viewer) {
       this.viewer = viewer
     },
     show_image(index){
+      
+      let {files,srcList}=this
+      let image_arr=files.filter(item=>item.ftype==0)
+      if(srcList.length!=image_arr.length){
+        srcList=[]
+       for(let i in image_arr){
+          srcList.push(image_arr[i].fpath)
+        }
+        this.srcList=srcList
+      }
+      
+
       this.viewer.view(index)
+   
     },
 
     see_file(url,type){
@@ -353,6 +372,8 @@ export default {
     },
     to_see_data() {
         let {pid,people_arr}=this
+      this.send_success=false
+
       this.$router.push({ name: "Census",query:{pid:pid} });
 
     },
@@ -364,7 +385,6 @@ export default {
         plid: plid
       }).then(res => {
         let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
-        
         for (let i in tcontents) {
           tcontents[i].tccontent =  this.$till.htmlspecialchars_decode(
             tcontents[i].tccontent
@@ -394,8 +414,6 @@ export default {
         this.tcontents = tcontents;
         this.sub_title=prepare_lesson_data[0].acname
         this.prepare_lesson_data=prepare_lesson_data[0]
-
-        console.log(Image_arr)
         for(let i in Image_arr){
           srcList.push(Image_arr[i].fpath)
         }
@@ -432,6 +450,7 @@ export default {
       });
     },
     BackIndex() {
+      this.send_success=false
       this.$router.replace({ name: "ClassIndex" });
     },
     close_send() {
@@ -440,26 +459,25 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-    
+    this.$till.user_local(this.$route.name,this.$route.query.plid)
     this.plid = this.$route.query.plid;
     this.class_id=this.$route.query.class_id;
+    this.GetInfo();//获取备课详情
    
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
     
-    this.GetInfo();//获取备课详情
+    
     
   },
+
   beforeRouteLeave(to, from, next) {
         // 设置下一个路由的 meta
-        
         if(to.name=="ExamDetail"||to.name=="Census"){
-          from.meta.keepAlive = true; 
-
+          this.$store.dispatch('change_keep_alive', ['ClassIndex',"ExamList"])
         }else{
-          from.meta.keepAlive = false; 
-
+          this.$store.dispatch('change_keep_alive', ['ClassIndex'])
         }
         next();
     },
@@ -468,8 +486,10 @@ export default {
   beforeUpdate() {}, //生命周期 - 更新之前
   updated() {}, //生命周期 - 更新之后
   beforeDestroy() {}, //生命周期 - 销毁之前
-  destroyed() {}, //生命周期 - 销毁完成
-  activated() {} //如果页面有keep-alive缓存功能，这个函数会触发
+  destroyed() {
+  }, //生命周期 - 销毁完成
+  activated() {
+  } //如果页面有keep-alive缓存功能，这个函数会触发
 };
 </script>
 <style >
@@ -659,7 +679,7 @@ export default {
 }
 .exam_list_left_title {
   font-size: 38px;
-  font-weight: 500;
+  font-weight: bold;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 30px;
   margin-top: 20px;

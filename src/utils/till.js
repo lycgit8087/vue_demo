@@ -1,4 +1,4 @@
-
+  // import router from '../router'
 
   function get_time(timestamp, format) {
         const formatNumber = n => {
@@ -82,11 +82,22 @@
   }
 
 
+  function user_local(page,id){
+    console.log(page,id)
+    let user_local_data=localStorage.getItem("user_local")
+    console.log(user_local_data)
+    // console.log(router)
+    
+
+  }
+
+
 
 
 module.exports = {
     get_time,
     change_file_url,
     htmlspecialchars_decode,
-    formatSeconds
+    formatSeconds,
+    user_local
   }

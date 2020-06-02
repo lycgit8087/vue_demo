@@ -84,7 +84,7 @@
 
         <!-- 人员显示 -->
         <!-- 答错 -->
-        <div class="poeple_view" v-if='ns_data.lengt!=0' >
+        <div class="poeple_view" v-if='ns_data.length!=0' >
           <p @click="change_error" > <span>答错学生</span> <span>{{ns_data.length}}</span>   <el-image :src="error_toggle?blacktop:blackbot" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
@@ -105,6 +105,26 @@
         </div>
 
         <!-- 答对 -->
+
+        <div class="poeple_view" v-if='ys_data.length!=0' >
+          <p @click="change_success" > <span>答对学生</span> <span>{{ys_data.length}}</span>   <el-image :src="success_toggle?blacktop:blackbot" fit="cover">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+              </el-image> </p>
+          <div class="poeple_view_item" v-if="success_toggle" >
+            <div v-for="item in ys_data" :key="item.sid">
+              <el-image :src="item.avatar" fit="cover">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+              </el-image>
+              <span>{{item.name}}</span>
+            </div>
+          </div>
+        </div>
 
       </div>
       <div slot="footer">
@@ -170,6 +190,7 @@ export default {
   },
   components: {},
   created() {
+    
     this.pid = this.$route.query.pid;
     this.GetInfo();
   },

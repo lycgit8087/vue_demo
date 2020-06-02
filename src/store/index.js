@@ -8,13 +8,15 @@ Vue.use(Vuex);
      class_id:0,
      url:"http://files.imofang.cn",
      websocket:null,
-     web_type:0
+     web_type:0,
+     keepAlive: []
      //要设置的初始属性值
    };
 const getters = {   //实时监听state值的变化(最新状态)
     total_num(state) {  //承载变化的showFooter的值
        return state.num+3
     },
+    keepAlive: state => state.keepAlive
 };
 const mutations = {
    edit_sid(state,id){
@@ -33,7 +35,10 @@ const mutations = {
      edite_web_type(state,type){
       state.web_type =type
 
-     }
+     },
+     setKeepAlive: (state, keepAlive) => {
+      state.keepAlive = keepAlive;
+  }
 };
  const actions = {
    change_sid(context,id){
@@ -54,6 +59,10 @@ const mutations = {
    change_web_type(context,type){
       context.commit('edite_web_type',type);
   
+     },
+     change_keep_alive(context,keepAlive){
+      context.commit('setKeepAlive',keepAlive);
+
      }
 };
   const store = new Vuex.Store({

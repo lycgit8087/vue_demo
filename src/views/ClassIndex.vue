@@ -171,7 +171,7 @@ import Cookies from "js-cookie";
 
 export default {
   //import引入的组件需要注入到对象中才能使用
-  name: "CLassIndex",
+  name: "ClassIndex",
   components: {},
   data() {
     //这里存放数据
@@ -457,14 +457,13 @@ export default {
     // 
     TOExamList(plid, class_id) {
      this.$store.dispatch('change_class_id',class_id)
-
       this.$router.push({
         name: "ExamList",
         query: { plid: plid, class_id: class_id }
       });
     },
     BackLogin() {
-      this.$Cookies.set("token", "");
+     localStorage.setItem("token", "");
       this.$router.replace({ name: "Login"});
     },
 
@@ -550,7 +549,32 @@ export default {
       return now_year==value_year
       
     },
+    set_user_local(){
+      let {UserInfo}=this
+      let user_local_data=localStorage.getItem("user_local")
+      let now_time=Date.parse(new Date())
+       let udata={
+        sid:UserInfo.sid,
+        page_data:[],
+        local_time: Date.parse(new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1)) 
+      }
+
+      if(user_local_data){
+        user_local_data=JSON.parse(user_local_data)
+        console.log(user_local_data)
+        if(now_time>udata.local_time){
+        localStorage.setItem("user_local","")
+        }
+      }else{
+        console.log(udata)
+        localStorage.setItem("user_local",JSON.stringify(udata))
+
+      }
+      
+     
     
+      
+    },
 
     // 获取备课列表
     async GetPrepareLessonList() {
@@ -628,6 +652,8 @@ export default {
       });
     }
   },
+
+
   //生命周期 - 创建完成（可以访问当前this实例）
   async created() {
     let {class_arr}=this
@@ -646,6 +672,7 @@ export default {
     this.end_time = end_time;
 
     await this.GetPrepareLessonList();
+    await this.set_user_local()
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
@@ -656,11 +683,10 @@ export default {
   beforeRouteLeave(to, from, next) {
         // 设置下一个路由的 meta
         if(to.name=="Login"){
-          from.meta.keepAlive = false; 
-
+           this.$store.dispatch('change_keep_alive', []) 
+          this.$destroy();
         }else{
-          from.meta.keepAlive = true; 
-
+           this.$store.dispatch('change_keep_alive', ['ClassIndex'])
         }
         next();
     },
@@ -902,9 +928,6 @@ export default {
   font-size: 26px !important;
   /* height: auto; */
 }
-/* .el-calendar-table td.is-selected{
-  background: #409EFF;
-} */
 .el-checkbox__input.is-checked .el-checkbox__inner::after {
   transform: rotate(45deg) scaleY(1.5) !important;
 }
@@ -1140,6 +1163,7 @@ tbody {
 }
 .has_data {
   border: 2px solid rgba(253, 104, 125, 1);
+  color: #333;
 }
 .time_view {
   width: 70px;
@@ -1155,7 +1179,7 @@ tbody {
   color: #fff;
 }
 .el-calendar-table td.is-selected{
-  background: none !important;
+  /* background: none !important; */
 }
 .el-backtop, .el-calendar-table td.is-today{
   /* color: #333 !important; */

@@ -134,7 +134,7 @@
         >{{item.text}}</div>
       </div>
       <!-- 题目 -->
-
+      
       <template  v-if="TabIndex==0&&topic_list.length!=0&&over_view.ys_results.length!=0" >
       
       <div
@@ -184,6 +184,7 @@
 
       </div>
         </template>
+        
        <template v-if="TabIndex==0&&over_view.ys_results.length==0">
               <!-- 无数据展示 -->
               <div  class="no_data_view">
@@ -235,7 +236,6 @@
     </div>
 
     <!-- 题目弹出框 -->
-    <!-- 题目弹出框 -->
     <el-dialog :visible.sync="answer_toggle">
       <div class="answer_center">
         <div class="answer_center_top">
@@ -258,23 +258,38 @@
 
         <!-- 答案解析 -->
         <div class="answer_konw" @click="change_right_toggle" >
-          <el-image :src="BookImage">
+          <el-image :src="answericon">
              <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
 
           </el-image>
           <span>答案解析</span>
+
+           <el-image :src="right_toggle?bluetop:bluebot">
+             <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+          </el-image>
+
+
         </div>
 
         <div class="answer_qri" v-show="right_toggle" v-html="qri" ></div>
        
 
         <!-- 人员显示 -->
-        <div class="poeple_view" v-if="ns_data.length!=0" >
-          <span>答错学生 {{ns_data.length}}</span>
-          <div class="poeple_view_item">
-            <div v-for="item in ns_data" :key="item.name">
+        <!-- 答错 -->
+        <div class="poeple_view" v-if='ns_data.length!=0' >
+          <p @click="change_error" > <span>答错学生</span> <span>{{ns_data.length}}</span>   <el-image :src="error_toggle?blacktop:blackbot" fit="cover">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+              </el-image> </p>
+          <div class="poeple_view_item" v-if="error_toggle" >
+            <div v-for="item in ns_data" :key="item.sid">
               <el-image :src="item.avatar" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
@@ -285,6 +300,29 @@
             </div>
           </div>
         </div>
+
+        <!-- 答对 -->
+
+        <div class="poeple_view" v-if='ys_data.length!=0' >
+          <p @click="change_success" > <span>答对学生</span> <span>{{ys_data.length}}</span>   <el-image :src="success_toggle?blacktop:blackbot" fit="cover">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+              </el-image> </p>
+          <div class="poeple_view_item" v-if="success_toggle" >
+            <div v-for="item in ys_data" :key="item.sid">
+              <el-image :src="item.avatar" fit="cover">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+              </el-image>
+              <span>{{item.name}}</span>
+            </div>
+          </div>
+        </div>
+
       </div>
       <div slot="footer">
         <el-button
@@ -308,10 +346,20 @@
 </template>
 
 <script>
+import bluetop from '../assets/blue_top.png';
+import bluebot from '../assets/blue_bot.png';
+import blackbot from '../assets/black_bot.png';
+import blacktop from '../assets/black_top.png';
+import answericon from '../assets/answer_icon.png';
 export default {
   name: "Census",
   data() {
     return {
+      bluetop,
+      answericon,
+      blackbot,
+      bluebot,
+      blacktop,
       answer_toggle: false,
       BookImage: require("../assets/open_book.png"),
       RightIcon: require("../assets/right_icon.png"),
@@ -350,6 +398,9 @@ export default {
       qtype:-1,
       qas_content: "",
       right_toggle: false,
+       answer_data:[],
+      error_toggle:true,
+      success_toggle:false
 
     };
   },
@@ -371,6 +422,7 @@ export default {
   },
   components: {},
   created() {
+   
     this.pid = this.$route.query.pid;
     this.GetRightList();
     this.GetPaperOverview();
@@ -388,6 +440,14 @@ export default {
     },
   mounted() {},
   methods: {
+        change_error(){
+      let　{error_toggle}=this
+      this.error_toggle=!error_toggle
+    },
+    change_success(){
+      let　{success_toggle}=this
+      this.success_toggle=!success_toggle
+    },
     TabCheck(index) {
       let {other_list,over_view}=this
       
@@ -447,13 +507,15 @@ export default {
     },
 
     async GetRightList() {
-      let { pid } = this;
+      let { pid ,topic_list} = this;
       await this.$post("qa_content_list", "/?c=api", {
         pid: pid,
         class_id:this.$store.state.class_id
 
       }).then(res => {
-        let topic_list = res.data;
+        if(res.data){
+       topic_list = res.data;
+        }
         this.topic_list = topic_list;
       });
     },
@@ -468,6 +530,16 @@ export default {
         is_loadstus:1
       }).then(res => {
         res.qas_content = this.$till.htmlspecialchars_decode(res.content);
+
+        // 答错
+        for(let i in res.ns_data){
+          res.ns_data[i].avatar=this.$till.change_file_url(res.ns_data[i].avatar)
+        }
+
+       // 答对
+        for(let i in res.ys_data){
+          res.ys_data[i].avatar=this.$till.change_file_url(res.ys_data[i].avatar)
+        }
         this.qas_content = res.qas_content;
         this.ns_data = res.ns_data;
         this.ys_data = res.ys_data;
@@ -535,10 +607,13 @@ export default {
 };
 </script>
 <style  >
+.el-progress-bar__outer{
+  height: 30px !important;
+}
 .stunde_number {
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   color: #bdbdbd;
   font-size: 22px;
 }
@@ -792,7 +867,7 @@ export default {
   border-radius: 18px;
   margin-bottom: 18px;
   position: relative;
-  padding: 18px 28px;
+  padding:18px 18px 28px 60px ;
   box-sizing: border-box;
 }
 .list_view_scroll_other_title {
@@ -825,9 +900,8 @@ export default {
   justify-content: center;
   font-size: 25px;
   color: #fff;
-  left: -13px;
-  top: 50%;
-  transform: translate(0%, -50%);
+  left: 16px;
+  top: 18px;
 }
 .student_view_right_scroll::-webkit-scrollbar,
 .list_view_scroll::-webkit-scrollbar,
@@ -955,25 +1029,44 @@ export default {
   align-items: center;
   font-size: 28px;
   font-weight: 400;
-  color: rgba(189, 189, 189, 1);
   margin-bottom: 37px;
   width: 100%;
 }
-.answer_konw .el-image {
-  width: 43px;
-  height: 39px;
+.answer_konw span{
+  color: #545DFF;
+  margin-right: 15px;
+
+}
+.answer_konw .el-image:nth-child(1) {
+  width: 31px;
+  height: 31px;
   margin-right: 20px;
+}
+
+.answer_konw .el-image:nth-child(3){
+     width: 17px;
+  height: 19px;
 }
 .poeple_view {
   display: flex;
   flex-direction: column;
   width: 100%;
+
 }
-.poeple_view > span {
+.poeple_view > p {
   font-size: 24px;
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+}
+.poeple_view > p> span{
+  margin-right: 10px;
+}
+.poeple_view > p .el-image{
+  width: 19px;
+  height: 17px;
 }
 .poeple_view > div {
   display: flex;
@@ -989,7 +1082,11 @@ export default {
   margin-right: 45px;
   margin-bottom: 35px;
 }
-
+.answer_qri{
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 .poeple_view_item > div .el-image {
   width: 72px;
   height: 72px;
@@ -1001,8 +1098,35 @@ export default {
   align-items: center;
   font-size: 22px;
   color: #bdbdbd;
-  justify-content: space-between;
   margin-top: 18px;
+}
+.student_high span:nth-child(1){
+  width: 60px;
+}
+.student_view_left_scroll > div>div>div:nth-child(1){
+  width: 60px;
+
+}
+.student_high span:nth-child(2){
+  width: 220px;
+  display: flex;
+  justify-content: center;
+}
+.student_view_left_scroll > div>div>div:nth-child(2){
+  width: 220px;
+  display: flex;
+  justify-content: center;
+}
+.student_high span:nth-child(3),.student_view_left_scroll > div>div>div:nth-child(3){
+  width: 150px;
+   display: flex;
+  justify-content: center;
+}
+.student_high span:nth-child(4),.student_view_left_scroll > div>div>div:nth-child(4){
+  width: 66px;
+   display: flex;
+  justify-content: flex-end;
+
 }
 .all_cout {
   display: flex;

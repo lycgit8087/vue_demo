@@ -8,36 +8,32 @@ export default new Router({
       path: '/class_index',
       name: 'ClassIndex',
       component: () => import('@/views/ClassIndex'),
-      meta:{keepAlive: true} 
     },
     {
       path: '/login',
       name: 'Login',
       component: () => import('@/views/Login'),
-      meta:{keepAlive: false} 
     },
     {
       path: '/exam_list',
       name: 'ExamList',
       component: () => import('@/views/ExamList'),
-      meta:{keepAlive: true} 
       
     },
     {
       path: '/student_view',
       name: 'StudentView',
-      component: () => import('@/views/StudentView')
+      component: () => import('@/views/StudentView'),
     },
     {
       path: '/census',
       name: 'Census',
       component: () => import('@/views/Census'),
-      meta:{keepAlive: true} 
     },
     {
       path: '/exam_detail',
       name: 'ExamDetail',
-      component: () => import('@/views/ExamDetail')
+      component: () => import('@/views/ExamDetail'),
     },
   ]
 })

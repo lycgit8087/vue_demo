@@ -22,7 +22,7 @@ axios.interceptors.request.use(
       })
     }
     requestCount++
-    const token = Cookies.get("token");//注意使用的时候需要引入cookie方法，推荐js-cookie
+    const token = localStorage.getItem("token");
     config.baseURL = ''
     config.url = root + config.url;
     config.withCredentials = true // 允许携带token ,这个是解决跨域产生的相关问题
@@ -79,9 +79,8 @@ axios.interceptors.response.use(
   response => {
       let {config}=response
       tryHideLoading()
-      const token_time = parseInt(Cookies.get("token_time")) ;
+      const token_time = parseInt(localStorage.getItem("token_time")) ;
       let now_time=Date.parse(new Date())
-      console.log(((token_time-now_time)/60000))
       let is_get_token=((token_time-now_time)/60000)>10
       if(!is_get_token&&token_time){
           get_new_token(config);
@@ -89,7 +88,7 @@ axios.interceptors.response.use(
       if(response.data.response_code==-1){
         let errmessage = response.data.response_msg.toLowerCase()
         if(errmessage.indexOf("token")!=-1){
-          Cookies.set("token", "");
+          localStorage.setItem("token", "");
           router.replace({ name: "Login"});
         }else{
           Message({
@@ -98,52 +97,21 @@ axios.interceptors.response.use(
             offset: 380,
             duration: 3 * 1000
           })
-        }
-       
-        
-      
-       
+        }      
       }
-    // if(response.data.errCode ==2){
-    //   router.push({
-    //     path:"/login",
-    //     query:{redirect:router.currentRoute.fullPath}//从哪个页面跳转
-    //   })
-    // }
     return response;
   },
   error => {
-    // console.log(error)
-    // const msg = error.Message !== undefined ? error.Message : ''
     tryHideLoading()
     return Promise.reject(error)
   }
 )
 
 
-// 获取信息
-function get_msg(apiaction){
-  let appid = "7540d5fee7d947b8",
-      ApiKey = "86101569218e47c49b26ae4c9b141b6b",
-      moudle_name = apiaction == "token_get" ? '' : 'smartcube'
-  let timestamp = Date.parse(new Date());
-      timestamp = timestamp/1000;
-  let hashfist = hash.CryptoJS.HmacSHA256(timestamp + appid +moudle_name+ apiaction, ApiKey)
-  let hashInBase64 = hash.CryptoJS.enc.Base64.stringify(hashfist);
-  
-  let obj = {
-    hashInBase64,
-    timestamp,
-    appid,
-    apiaction
-  }
-  return obj
-}
-
 // 获取新token
 export async function get_new_token(config){
   
-  const token = Cookies.get("token");
+  const token = localStorage.setItem("token");
   return new Promise((resolve,reject) => {
     axios.post("/?c=api", {}, { 
     headers: { 
@@ -156,12 +124,11 @@ export async function get_new_token(config){
   if(response.data.response_code==0){
     if(response.data.token){
     let token_time= Date.parse(response.data.token_expires)
-    Cookies.set("token_time",token_time)
-    Cookies.set("token",response.data.token)
+    localStorage.setItem("token_time",token_time)
+    localStorage.setItem("token",response.data.token)
     axios(config);
     }else{
     resolve(response.data);  
-
     }
   }else{
     reject(response)
@@ -185,9 +152,9 @@ export function get_token(url,params={}){
       if(response.data.token){
       let token_time= Date.parse(response.data.token_expires)
       
-      Cookies.set("token_time",token_time)
+      localStorage.setItem("token_time",token_time)
 
-      Cookies.set("token",response.data.token)
+      localStorage.setItem("token",response.data.token)
 
       }
       resolve(response.data);

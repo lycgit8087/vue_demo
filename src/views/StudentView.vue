@@ -24,7 +24,7 @@
             <span
               v-for="qitem in item.qas"
               :key="qitem.id"
-              :class="qitem.result==0?'span_error':qitem.result==1?'span_success':''"
+              :class="qitem.result==0?'span_error':qitem.result==1?'span_success':qitem.result==2?'span_error':''"
             >{{qitem.num}}</span>
           </div>
         </div>
