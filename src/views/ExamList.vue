@@ -6,7 +6,11 @@
       <p  class="exam_title"  >{{sub_title}}</p>
       <div class="left_view" v-infinite-scroll="left_scroll" style="overflow:auto">
         <div v-for="item in tcontents" :key="item.tcid">
-          <p class="exam_list_left_title">{{item.tctitle}}</p>
+          <p v-if="item.tctype==1&&item.tcorder==0" class="exam_list_left_title">教学过程</p>
+          <p v-if="item.tctype==0&&item.tcorder==0" class="exam_list_left_title">教学准备</p>
+
+
+          <p :class="item.tctype==2?'exam_list_left_title':'exam_list_left_des_text'">{{item.tctitle}}</p>
           <div v-if="item.fcname" class="video_view" >
               <video :src="item.fpath"   controls="controls" ></video>
           </div>
@@ -388,7 +392,9 @@ export default {
         plid: plid
       }).then(res => {
         let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
+        let content_arr=[]
         for (let i in tcontents) {
+          
           tcontents[i].tccontent =  this.$till.htmlspecialchars_decode(
             tcontents[i].tccontent
           );
@@ -403,6 +409,9 @@ export default {
 
         let srcList=[]
         tcontents=[...type_two,...type_zore,...type_one]
+        for(let i in tcontents){
+
+        }
         for(let i in files){
           files[i].fpath=this.$till.change_file_url(files[i].fpath)
 
@@ -710,6 +719,11 @@ export default {
   color: rgba(32, 32, 32, 1);
   margin-bottom: 30px;
   margin-top: 20px;
+}
+.exam_list_left_des_text{
+  font-size: 30px;
+  margin-bottom: 20px;
+
 }
 .exam_list_left_text {
   font-size: 32px;

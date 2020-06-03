@@ -618,7 +618,7 @@ export default {
   font-size: 22px;
 }
 .tab_action {
-  background: #409eff !important;
+  background: #545DFF !important;
   color: #fff !important;
 }
 .list_view_scroll_bot {
@@ -1144,9 +1144,12 @@ export default {
   height: 100% !important;
   justify-content: center !important;
   align-items: center;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
+}
+.no_data_view>p{
+  margin-top: 30px;
 }
 .student_view_left_scroll .no_data_view .el-image {
   width: 304px;

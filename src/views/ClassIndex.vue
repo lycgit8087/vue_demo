@@ -377,13 +377,9 @@ export default {
       websock.onmessage = function (e) {
         let data=JSON.parse(e.data)
         if(data.hasOwnProperty('response_msg')){
-
         }else{
            self.$store.dispatch('change_web_type',data.msg.mode)
-
         }
-
-        
       }
       websock.onclose = function (e) {
       }
@@ -395,15 +391,12 @@ export default {
         console.log('WebSocket连接发生错误')
       }
       this.$store.dispatch('change_websocket',websock)
-
       }
  
 },
 
     clear_screen(){
-      
       this.$refs.tree.setCheckedKeys([]);
-      
       this.confrm_data()
     },
 
