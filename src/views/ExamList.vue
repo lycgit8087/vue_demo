@@ -49,7 +49,7 @@
       <div class="exam_list_view">
         <p>试题</p>
         <div class="scroll_view" v-infinite-scroll="right_scroll" style="overflow:auto">
-          <div class="exam_list_view_item" v-for="item in paper_list" :key="item.pid">
+          <div class="exam_list_view_item" v-for="(item,index) in paper_list" :key="item.pid">
             <el-image :src="file_image" fit="cover">
                <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
@@ -59,7 +59,7 @@
               <p class="exam_list_view_item_right_title">{{item.title}}</p>
               <p class="exam_list_view_item_right_num">共{{item.qcount}}题</p>
               <div class="exam_list_view_item_right_edit">
-                <el-button type="primary" @click="SeeIt(item.pid)">查看</el-button>
+                <el-button type="primary" @click="SeeIt(item.pid,index)">查看</el-button>
                 <el-button type="primary" @click="SendIt(item.pid)">发送</el-button>
                 <el-button type="primary" @click="SeeData(item.pid)">数据</el-button>
               </div>
@@ -315,18 +315,19 @@ export default {
         this.people_arr=list
       })
     },
-   async SeeIt(pid) {
-      this.pid=pid
-      let {plist}=this
-      if( JSON.stringify(plist)!="{}"){
-      this.centerDialogVisible = true;
 
-        return
-      }
-      await this.$post("paper_list", "/?c=api", {
+    
+   async SeeIt(pid,index) {
+      this.pid=pid
+      let data=this.$till.get_local(this.$route.name,this.$route.query.plid)
+      if( JSON.stringify(data.paper_list[index].plist)!="{}" ){
+         this.plist=data.paper_list[index].plist
+         this.centerDialogVisible = true;
+      }else{
+        await this.$post("paper_list", "/?c=api", {
          pids:pid
       }).then(res=>{
-         plist=res.data
+        let plist=res.data
         if(plist.length){
           plist=plist[0]
          
@@ -340,10 +341,12 @@ export default {
           plist.datalength=plist.content.length
 
         }
-
+        data.paper_list[index].plist=plist
+        localStorage.setItem("user_local",JSON.stringify(this.$till.set_local(this.$route.name,this.$route.query.plid,data))) 
         this.plist=plist
       })
       this.centerDialogVisible = true;
+      }
     },
    async SendIt(pid) {
      let {people_arr,}=this
@@ -417,9 +420,21 @@ export default {
         for(let i in Image_arr){
           srcList.push(Image_arr[i].fpath)
         }
+        for(let i in paper_list){
+          paper_list[i].plist={}
+        }
         this.srcList=srcList
         this.files=files
         this.paper_list=paper_list
+        let page_data={
+          srcList:srcList,
+          files:files,
+          paper_list:paper_list,
+          prepare_lesson_data:this.prepare_lesson_data,
+          sub_title:this.sub_title,
+          tcontents:this.tcontents,
+        }
+       localStorage.setItem("user_local",JSON.stringify(this.$till.set_local(this.$route.name,this.$route.query.plid,page_data)))  
       });
     },
 
@@ -459,10 +474,22 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-    this.$till.user_local(this.$route.name,this.$route.query.plid)
+   let is_local=this.$till.user_local(this.$route.name,this.$route.query.plid)
     this.plid = this.$route.query.plid;
     this.class_id=this.$route.query.class_id;
+   if(!is_local){
     this.GetInfo();//获取备课详情
+   }else{
+     let data=this.$till.get_local(this.$route.name,this.$route.query.plid)
+     let {srcList,files,paper_list,prepare_lesson_data,sub_title,tcontents}=data
+     this.srcList=srcList
+     this.paper_list=paper_list
+     this.files=files
+     this.prepare_lesson_data=prepare_lesson_data
+     this.sub_title=sub_title
+     this.tcontents=tcontents
+   }
+    
    
   },
   //生命周期 - 挂载完成（可以访问DOM元素）

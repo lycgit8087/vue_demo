@@ -1,4 +1,4 @@
-  // import router from '../router'
+ 
 
   function get_time(timestamp, format) {
         const formatNumber = n => {
@@ -81,14 +81,40 @@
     return result;
   }
 
-
+  // 
   function user_local(page,id){
-    console.log(page,id)
     let user_local_data=localStorage.getItem("user_local")
-    console.log(user_local_data)
-    // console.log(router)
-    
+    user_local_data=JSON.parse(user_local_data)
+    let num =user_local_data.page_data.findIndex(item=>item.id==id&&item.page==page)
+    if(num!=-1){
+      return true
+    }else{
+      return false
+    }
+  }
+  function set_local(page,id,data){
+    let user_local_data=localStorage.getItem("user_local")
+    user_local_data=JSON.parse(user_local_data)
+    let num =user_local_data.page_data.findIndex(item=>item.id==id)
+    if(num==-1){
+      user_local_data.page_data.push({
+        id:id,
+        page:page,
+        data:data
+      })
+    }else{
+      user_local_data.page_data[num].data=data
+    }
+    return user_local_data
+  }
 
+  function get_local(page,id){
+    let user_local_data=localStorage.getItem("user_local")
+    user_local_data=JSON.parse(user_local_data)
+    let num =user_local_data.page_data.findIndex(item=>item.id==id&&item.page==page)
+      if(num!=-1){
+        return user_local_data.page_data[num].data
+      }
   }
 
 
@@ -99,5 +125,7 @@ module.exports = {
     change_file_url,
     htmlspecialchars_decode,
     formatSeconds,
-    user_local
+    user_local,
+    set_local,
+    get_local
   }

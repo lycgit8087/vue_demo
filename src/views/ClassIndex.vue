@@ -38,7 +38,17 @@
           </el-image>
           <div class="CLassIndex_Right_Top_Msg">
             <p>{{UserInfo.name}}</p>
-            <p class="ResetLogin" @click="BackLogin" >退出登录</p>
+            <!-- <p class="ResetLogin"  >退出登录</p> -->
+
+            <el-dropdown trigger="click" @command="handleCommand">
+      <span class="el-dropdown-link">
+        设置<i class="el-icon-caret-bottom el-icon--right"></i>
+      </span>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item command="0" >退出登陆</el-dropdown-item>
+        <el-dropdown-item command="1" >清空缓存</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
           </div>
         </div>
 
@@ -342,6 +352,21 @@ export default {
 
     },
 
+   async handleCommand(command){
+      if(command==0){
+          this.BackLogin()
+      }else{
+        localStorage.setItem("user_local","")
+            this.$message.success({
+              message: "缓存清理成功！",
+              offset: 380,
+              duration: 1000
+            });
+       await this.GetUserInfo()
+       await this.set_user_local()
+      }
+    },
+
     initWebSocket (token) {
       let websock=this.$store.state.websocket
       let self=this
@@ -350,7 +375,6 @@ export default {
       var ws=  `wss://wss.imofang.cn:1818/?token=${token}`;
       websock = new WebSocket(ws)
       websock.onmessage = function (e) {
-        console.log(JSON.parse(e.data))
         let data=JSON.parse(e.data)
         if(data.hasOwnProperty('response_msg')){
 
@@ -464,6 +488,7 @@ export default {
     },
     BackLogin() {
      localStorage.setItem("token", "");
+     localStorage.setItem("user_local","")
       this.$router.replace({ name: "Login"});
     },
 
@@ -558,7 +583,6 @@ export default {
         page_data:[],
         local_time: Date.parse(new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1)) 
       }
-
       if(user_local_data){
         user_local_data=JSON.parse(user_local_data)
         console.log(user_local_data)
@@ -566,14 +590,9 @@ export default {
         localStorage.setItem("user_local","")
         }
       }else{
-        console.log(udata)
         localStorage.setItem("user_local",JSON.stringify(udata))
 
       }
-      
-     
-    
-      
     },
 
     // 获取备课列表
@@ -768,7 +787,7 @@ export default {
   font-size: 36px;
   font-weight: 600;
   color: rgba(32, 32, 32, 1);
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 /* .CLassIndex_Right_Top_Msg p:nth-child(2) {
   font-size: 24px;
@@ -1177,6 +1196,26 @@ tbody {
 .action_data{
   background: #545DFF;
   color: #fff;
+}
+.CLassIndex_Right_Top_Msg .el-dropdown-link{
+  width: 100px !important;
+  height: 50px !important;
+  display: flex;
+  align-items: center;
+  font-size: 26px !important;
+  color:#545DFF !important;
+  /* background: #545DFF ; */
+  border-radius: 5px !important;
+}
+.CLassIndex_Right_Top_Msg{
+
+}
+.el-dropdown-menu__item{
+  height: 90px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px !important;
 }
 .el-calendar-table td.is-selected{
   /* background: none !important; */

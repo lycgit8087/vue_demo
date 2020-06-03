@@ -111,7 +111,7 @@ axios.interceptors.response.use(
 // 获取新token
 export async function get_new_token(config){
   
-  const token = localStorage.setItem("token");
+  const token = localStorage.getItem("token");
   return new Promise((resolve,reject) => {
     axios.post("/?c=api", {}, { 
     headers: { 

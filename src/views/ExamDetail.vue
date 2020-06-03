@@ -190,9 +190,16 @@ export default {
   },
   components: {},
   created() {
-    
     this.pid = this.$route.query.pid;
-    this.GetInfo();
+    let is_local=this.$till.user_local(this.$route.name,this.$route.query.pid)
+   if(!is_local){
+     this.GetInfo();
+   }else{
+     let data=this.$till.get_local(this.$route.name,this.$route.query.pid)
+      let {content,plist}=data
+      this.content=content
+      this.plist=plist
+   }
   },
   mounted() {},
   methods: {
@@ -243,6 +250,14 @@ export default {
         plist.count = count;
         this.content = content;
         this.plist = plist;
+
+        // 设置缓存
+        let page_data={
+          content:content,
+          plist:plist,
+        }
+       localStorage.setItem("user_local",JSON.stringify(this.$till.set_local(this.$route.name,this.$route.query.pid,page_data)))  
+
       });
       this.centerDialogVisible = true;
     },
