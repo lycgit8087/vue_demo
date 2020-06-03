@@ -44,11 +44,11 @@
       <span class="el-dropdown-link">
         设置<i class="el-icon-caret-bottom el-icon--right"></i>
       </span>
-      <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item command="0" >退出登陆</el-dropdown-item>
-        <el-dropdown-item command="1" >清空缓存</el-dropdown-item>
-      </el-dropdown-menu>
-    </el-dropdown>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="0" >退出登录</el-dropdown-item>
+          <el-dropdown-item command="1" >清空缓存</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
           </div>
         </div>
 

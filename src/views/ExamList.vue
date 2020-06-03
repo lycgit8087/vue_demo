@@ -713,9 +713,9 @@ export default {
 .el-button + .el-button {
   margin-left: 0 !important;
 }
-.exam_list_left_title {
-  font-size: 38px;
-  font-weight: bold;
+.exam_list_left .exam_list_left_title {
+  font-size: 38px !important;
+  font-weight: bold !important;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 30px;
   margin-top: 20px;
