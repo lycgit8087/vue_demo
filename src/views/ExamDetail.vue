@@ -30,7 +30,13 @@
           <div class="check_qas_view" v-for=" aitem in  qitem.answers" :key="aitem.id" >
             <!-- <p>{{aitem.name}}</p> -->
             <div v-for="oitem in aitem.content.options " class="oitem_item" :key="oitem.value" >
-             <span  >{{oitem.value}}</span>  <span>{{oitem.text}}</span>  
+             <span  >{{oitem.value}}</span> 
+              <span v-if='oitem.text.indexOf("img:")==-1'  >{{oitem.text}}</span>  
+                 <el-image v-else :src="oitem.url">
+             <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+          </el-image>
             </div>
           </div>
           </div>
@@ -43,10 +49,7 @@
       <div class="answer_center">
         <div class="answer_center_top">
           <span>{{rq_title}}</span>
-          <p>
-            <span>正确率：</span>
-            <span>{{rq_rate}}%</span>
-          </p>
+         
         </div>
         <div class="html_div" v-html="qas_content"></div>
          <!-- 选择题答案项显示 -->
@@ -54,32 +57,43 @@
           <div class="check_qas_view" v-for=" aitem in  answer_data" :key="aitem.id" >
             <!-- <p>{{aitem.name}}</p> -->
             <div v-for="oitem in aitem.content.options " class="oitem_item" :key="oitem.value" >
-             <span  >{{oitem.value}}</span>  <span>{{oitem.text}}</span>  
+             <span  >{{oitem.value}}</span> 
+              <span v-if='oitem.text.indexOf("img:")==-1' >{{oitem.text}}</span>
+                <el-image v-else :src="oitem.url">
+             <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+          </el-image>
             </div>
           </div>
           </div>
 
         <!-- 答案解析 -->
-        <div class="answer_konw" @click="change_right_toggle" >
+        <div class="answer_konw" @click="change_right_toggle" v-show="!right_toggle"  >
           <el-image :src="answericon">
              <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
-
           </el-image>
           <span>答案解析</span>
-
-           <el-image :src="right_toggle?bluetop:bluebot">
+        </div>
+        <div class="answr_parent" v-show="right_toggle" >
+          <div class="answr_parent_top" @click="change_right_toggle"  >
+            <div class="answr_parent_top_left">解析</div>
+            
+               <el-image :src="closeIcon" >
              <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
-
           </el-image>
-
-
+          </div>
+          <div class="answer_qri"  v-html="qri" ></div>
         </div>
 
-        <div class="answer_qri" v-show="right_toggle" v-html="qri" ></div>
+         <p class="answer_rate" v-if='ns_data.length!=0||ys_data.length!=0' >
+            <span>正确率：</span>
+            <span>{{rq_rate}}%</span>
+          </p>
        
 
         <!-- 人员显示 -->
@@ -164,6 +178,8 @@ export default {
       blackbot,
       bluebot,
       blacktop,
+      closeIcon: require("../assets/detail_close_icon.png"),
+
       centerDialogVisible: false,
       BookImage: require("../assets/open_book.png"),
       pid: 0,
@@ -185,7 +201,7 @@ export default {
       qtype:-1,
       answer_data:[],
       error_toggle:true,
-      success_toggle:false
+      success_toggle:true
     };
   },
   components: {},
@@ -245,8 +261,19 @@ export default {
             content[i].qas[j].content =  this.$till.htmlspecialchars_decode(
               content[i].qas[j].content
             );
+
+            for(let k in content[i].qas[j].answers){
+              if(content[i].qas[j].answers[k].type==1){
+                for(let o in content[i].qas[j].answers[k].content.options){
+                  if(content[i].qas[j].answers[k].content.options[o].text.indexOf("img:")!=-1){
+                    content[i].qas[j].answers[k].content.options[o].url=this.$till.change_file_url(content[i].qas[j].answers[k].content.options[o].text.substring(5)) 
+                  }
+                }
+              }
+            }
           }
         }
+        console.log(content)
         plist.count = count;
         this.content = content;
         this.plist = plist;
@@ -281,6 +308,18 @@ export default {
         res.qas_content =  this.$till.htmlspecialchars_decode(res.content);
         this.qas_content = res.qas_content;
 
+
+        //选择题转换
+        for(let i in res.answer_data){
+          for(let o in res.answer_data[i].content.options){
+               if(res.answer_data[i].content.options[o].text.indexOf("img:")!=-1){
+                    res.answer_data[i].content.options[o].url=this.$till.change_file_url(res.answer_data[i].content.options[o].text.substring(5)) 
+                  }
+            
+          }
+        }
+
+
         // 答错
         for(let i in res.ns_data){
           res.ns_data[i].avatar=this.$till.change_file_url(res.ns_data[i].avatar)
@@ -291,7 +330,7 @@ export default {
           res.ys_data[i].avatar=this.$till.change_file_url(res.ys_data[i].avatar)
         }
 
-       
+       console.log(res.answer_data)
         this.ns_data = res.ns_data;
         this.ys_data = res.ys_data;
         this.rq_rate = res.rq_rate;
@@ -434,6 +473,15 @@ export default {
 };
 </script>
 <style  >
+.answer_rate{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 25px;
+  color: #00AD56;
+  margin-top: 15px;
+  margin-bottom: 30px;
+}
 .ExamDetail {
   display: flex;
   height: 100vh;
@@ -454,24 +502,84 @@ export default {
   color: rgba(32, 32, 32, 1);
   margin-bottom: 50px;
 }
+
+.answr_parent{
+  width:100%;
+min-height:297px;
+background:rgba(244,244,244,1);
+border-radius:8px;
+display: flex;
+flex-direction: column;
+padding-left: 30px;
+padding-bottom: 30px;
+box-sizing: border-box;
+}
+.answr_parent_top{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 30px;
+  box-sizing: border-box;
+  
+}
+.answr_parent_top_left{
+  width:91px;
+height:43px;
+background:rgba(84,93,255,1);
+border-radius:0px 0px 8px 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #fff;
+font-size: 25px;
+}
+.answr_parent_top .el-image{
+  width: 23px;
+  height: 23px;
+}
 .qas_view {
   width: 100%;
 }
 .oitem_item{
   display: flex;
   align-items: center;
-  font-size: 30px;
-  height: 60px;
+  min-width:483px;
+min-height:74px;
+background:rgba(255,255,255,1);
+border-radius:9px;
+border:4px solid rgba(189,189,189,1);
+margin-bottom: 19px;
+font-size: 25px;
+padding: 10px 0;
+box-sizing: border-box;
 
 }
-.oitem_item span{
-  margin-right: 30px;
+.oitem_item span:nth-child(1){
+  width: 68px;
+  border-right: 4px solid #BDBDBD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #545DFF;
+}
+.oitem_item span:nth-child(2){
+  padding: 0 30px;
+  box-sizing:border-box;
+}
+
+.oitem_item .el-image{
+  margin-left: 15px;
 }
 .check_qas_view_parent{
   width: 100%;
+  
 }
 .check_qas_view{
   margin-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .ExamDetail_right {
   width: 1218px;
@@ -560,7 +668,7 @@ export default {
   display: flex;
   width: 100%;
   flex-direction: column;
-  align-items: center;
+  /* align-items: center; */
 }
 .answer_center_top {
   width: 100%;
@@ -587,20 +695,23 @@ export default {
 .answer_konw {
   display: flex;
   align-items: center;
-  font-size: 28px;
+  justify-content: center;
+  font-size: 25px;
   font-weight: 400;
-  margin-bottom: 37px;
-  width: 100%;
+  margin-bottom: 20px;
+  width:173px;
+height:56px;
+background:rgba(84,93,255,1);
+border-radius:8px;
 }
 .answer_konw span{
-  color: #545DFF;
-  margin-right: 15px;
+  color: #fff;
+  margin-left: 15px;
 
 }
 .answer_konw .el-image:nth-child(1) {
   width: 31px;
   height: 31px;
-  margin-right: 20px;
 }
 
 .answer_konw .el-image:nth-child(3){

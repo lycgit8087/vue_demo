@@ -25,7 +25,7 @@
   function change_file_url(url){
     if(url.length==0) return url
     if (url.indexOf("files/") != -1) {
-      return 'https://sf.imofang.cn/' + url
+      return 'https://sc.imofang.cn/' + url
     } else {
       return "https://files.imofang.cn" + url
     }

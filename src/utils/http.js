@@ -14,6 +14,7 @@ axios.defaults.retryDelay = 1000;
 //http request 拦截器
 axios.interceptors.request.use(
   config => {
+    // console.log(config.headers.action)
     if(config.headers.action!="token_get"&&requestCount === 0&&config.headers.action!="qrcode_get"){
       loadingInstance = Loading.service({
         text: 'loading...',

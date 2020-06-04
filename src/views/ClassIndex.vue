@@ -45,8 +45,9 @@
         设置<i class="el-icon-caret-bottom el-icon--right"></i>
       </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="0" >退出登录</el-dropdown-item>
           <el-dropdown-item command="1" >清空缓存</el-dropdown-item>
+          <el-dropdown-item command="0" >退出登录</el-dropdown-item>
+
         </el-dropdown-menu>
       </el-dropdown>
           </div>
@@ -253,7 +254,7 @@ export default {
       subList:[],
       subject_tree:[],
       push_sub_value:-1,
-
+      websock_view:""
     };
   },
   //监听属性 类似于data概念
@@ -353,6 +354,7 @@ export default {
     },
 
    async handleCommand(command){
+     console.log(command)
       if(command==0){
           this.BackLogin()
       }else{
@@ -375,22 +377,43 @@ export default {
       var ws=  `wss://wss.imofang.cn:1818/?token=${token}`;
       websock = new WebSocket(ws)
       websock.onmessage = function (e) {
+        
+          console.log(e.data)
         let data=JSON.parse(e.data)
         if(data.hasOwnProperty('response_msg')){
+          self.$message.success({
+              message: "web建立成功",
+              offset: 380,
+              duration: 3000
+            });
         }else{
+          self.$message.success({
+              message: "接收到web信息",
+              offset: 380,
+              duration: 3000
+            });
            self.$store.dispatch('change_web_type',data.msg.mode)
         }
       }
       websock.onclose = function (e) {
+
+        console.log("关闭")
       }
       websock.onopen = function () {
+        console.log("开启")
       }
 
       // 连接发生错误的回调方法
       websock.onerror = function () {
         console.log('WebSocket连接发生错误')
+        self.$message.success({
+              message: "web连接失败",
+              offset: 380,
+              duration: 3000
+            });
       }
       this.$store.dispatch('change_websocket',websock)
+      this.websock_view=websock
       }
  
 },
@@ -480,8 +503,10 @@ export default {
       });
     },
     BackLogin() {
-     localStorage.setItem("token", "");
-     localStorage.setItem("user_local","")
+      this.websock_view.close()
+      this.$store.dispatch('change_websocket',null)
+      localStorage.setItem("token", "");
+      localStorage.setItem("user_local","")
       this.$router.replace({ name: "Login"});
     },
 

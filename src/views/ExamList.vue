@@ -50,7 +50,7 @@
       </div>
 
       <!-- 试题 -->
-      <div class="exam_list_view">
+      <div class="exam_list_view" v-if="paper_list.length!=0" >
         <p>试题</p>
         <div class="scroll_view" v-infinite-scroll="right_scroll" style="overflow:auto">
           <div class="exam_list_view_item" v-for="(item,index) in paper_list" :key="item.pid">
@@ -723,6 +723,8 @@ export default {
 .exam_list_left_des_text{
   font-size: 30px;
   margin-bottom: 20px;
+  margin-top: 20px;
+  font-weight: 500;
 
 }
 .exam_list_left_text {
@@ -826,7 +828,7 @@ export default {
   padding-top: 50px;
 }
 .left_view {
-  height: 90vh;
+  height: 87vh;
   padding-left: 20px;
   box-sizing: border-box;
 }

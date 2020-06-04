@@ -211,7 +211,7 @@
         <div v-for="(item,index) in other_list" :key="item.name">
           <p class="list_view_scroll_number">{{index+1}}</p>
           <div class="list_view_scroll_other_title">
-            <p>{{item.name}}</p>
+            <p class="list_view_scroll_other_title_fp" >{{item.name}}</p>
             <p class="list_view_scroll_other_text">
               <span>正确率：</span>
               <span>{{item.rp_rate}}%</span>
@@ -240,10 +240,6 @@
       <div class="answer_center">
         <div class="answer_center_top">
           <span>{{rq_title}}</span>
-          <p>
-            <span>正确率：</span>
-            <span>{{rq_rate}}%</span>
-          </p>
         </div>
         <div class="html_div" v-html="qas_content"></div>
          <!-- 选择题答案项显示 -->
@@ -251,32 +247,45 @@
           <div class="check_qas_view" v-for=" aitem in  answer_data" :key="aitem.id" >
             <!-- <p>{{aitem.name}}</p> -->
             <div v-for="oitem in aitem.content.options " class="oitem_item" :key="oitem.value" >
-             <span  >{{oitem.value}}</span>  <span>{{oitem.text}}</span>  
+             <span  >{{oitem.value}}</span>
+             
+              <span v-if='oitem.text.indexOf("img:")==-1'  >{{oitem.text}}</span>  
+                 <el-image v-else :src="oitem.url">
+             <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+          </el-image> 
             </div>
           </div>
           </div>
 
         <!-- 答案解析 -->
-        <div class="answer_konw" @click="change_right_toggle" >
+        <div class="answer_konw" @click="change_right_toggle" v-show="!right_toggle"  >
           <el-image :src="answericon">
              <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
-
           </el-image>
           <span>答案解析</span>
+        </div>
 
-           <el-image :src="right_toggle?bluetop:bluebot">
+        <div class="answr_parent" v-show="right_toggle" >
+          <div class="answr_parent_top" @click="change_right_toggle"  >
+            <div class="answr_parent_top_left">解析</div>
+            
+               <el-image :src="closeIcon" >
              <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
-
           </el-image>
-
-
+          </div>
+          <div class="answer_qri"  v-html="qri" ></div>
         </div>
 
-        <div class="answer_qri" v-show="right_toggle" v-html="qri" ></div>
+         <p class="answer_rate" v-if='ns_data.length!=0||ys_data.length!=0' >
+            <span>正确率：</span>
+            <span>{{rq_rate}}%</span>
+          </p>
        
 
         <!-- 人员显示 -->
@@ -362,6 +371,8 @@ export default {
       blacktop,
       answer_toggle: false,
       BookImage: require("../assets/open_book.png"),
+      closeIcon: require("../assets/detail_close_icon.png"),
+
       RightIcon: require("../assets/right_icon.png"),
       ErrorIcon: require("../assets/eorr.png"),
       NoNumImage: require("../assets/no_num.png"),
@@ -400,7 +411,7 @@ export default {
       right_toggle: false,
        answer_data:[],
       error_toggle:true,
-      success_toggle:false
+      success_toggle:true
 
     };
   },
@@ -412,8 +423,13 @@ export default {
   watch:{
       web_type(val){
         if(val==2){
+          // this.$message.success({
+          //     message: "接收到web",
+          //     offset: 380,
+          //     duration: 1000
+          //   });
           console.log(val)
-           this.GetRightList();
+          this.GetRightList();
           this.GetPaperOverview();
           this.GetRightOther()
           this.$store.dispatch('change_web_type',0)
@@ -477,6 +493,8 @@ export default {
         class_id:this.$store.state.class_id
       }).then(res => {
         let over_view = res;
+        console.log("统计===",res)
+
         for (let i in over_view.ns_results) {
           over_view.ns_results[i].avatar = this.$till.change_file_url(
             over_view.ns_results[i].avatar
@@ -501,6 +519,8 @@ export default {
         class_id:this.$store.state.class_id
 
       }).then(res => {
+        console.log("题目===",res.data)
+
         let other_list=res.data
         this.other_list=other_list
       });
@@ -513,8 +533,9 @@ export default {
         class_id:this.$store.state.class_id
 
       }).then(res => {
+        console.log("知识点===",res.data)
         if(res.data){
-       topic_list = res.data;
+          topic_list = res.data;
         }
         this.topic_list = topic_list;
       });
@@ -530,6 +551,18 @@ export default {
         is_loadstus:1
       }).then(res => {
         res.qas_content = this.$till.htmlspecialchars_decode(res.content);
+
+
+           //选择题转换
+        for(let i in res.answer_data){
+          for(let o in res.answer_data[i].content.options){
+               if(res.answer_data[i].content.options[o].text.indexOf("img:")!=-1){
+                    res.answer_data[i].content.options[o].url=this.$till.change_file_url(res.answer_data[i].content.options[o].text.substring(5)) 
+                  }
+            
+          }
+        }
+
 
         // 答错
         for(let i in res.ns_data){
@@ -877,6 +910,9 @@ export default {
   justify-content: space-between;
   margin-bottom: 32px;
 }
+.list_view_scroll_other_title_fp{
+  font-size: 25px;
+}
 .list_view_scroll_other_text {
   display: flex;
   align-items: center;
@@ -901,7 +937,7 @@ export default {
   font-size: 25px;
   color: #fff;
   left: 16px;
-  top: 18px;
+  top: 13px;
 }
 .student_view_right_scroll::-webkit-scrollbar,
 .list_view_scroll::-webkit-scrollbar,
@@ -989,18 +1025,8 @@ export default {
 .el-dialog__headerbtn {
   font-size: 35px;
 }
-.answer_center {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-}
-.answer_center_top {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  margin-bottom: 28px;
-}
+
+
 .list_view_scroll_title {
   font-size: 25px;
   font-weight: 500;
@@ -1024,29 +1050,7 @@ export default {
 .answer_center_top p span:nth-child(2) {
   color: #00ad56;
 }
-.answer_konw {
-  display: flex;
-  align-items: center;
-  font-size: 28px;
-  font-weight: 400;
-  margin-bottom: 37px;
-  width: 100%;
-}
-.answer_konw span{
-  color: #545DFF;
-  margin-right: 15px;
 
-}
-.answer_konw .el-image:nth-child(1) {
-  width: 31px;
-  height: 31px;
-  margin-right: 20px;
-}
-
-.answer_konw .el-image:nth-child(3){
-     width: 17px;
-  height: 19px;
-}
 .poeple_view {
   display: flex;
   flex-direction: column;
