@@ -10,7 +10,7 @@
         <div class="all_data_view">
           <!-- 进度条 -->
           <div class="progress_view">
-            <el-progress type="circle" :percentage="(over_view.s_count/over_view.m_count)*100" :show-text="false"></el-progress>
+            <el-progress type="circle" :stroke-width="12" color="#545DFF" :percentage="(over_view.s_count/over_view.m_count)*100" :show-text="false"></el-progress>
             <p>
               <span>{{over_view.s_count}}</span>
               <span>/{{over_view.m_count}}</span>
@@ -97,7 +97,7 @@
               v-infinite-scroll="student_right_scroll"
               style="overflow:auto"
             >
-              <div v-for="item in over_view.ns_results" :key="item.sid" @click="ToStudentView(item.sid)" >
+              <div v-for="item in over_view.ns_results" :key="item.sid" >
                 <el-image :src="item.avatar" fit="cover">
                   <div slot="error" class="image-slot">
                     <i class="el-icon-picture-outline"></i>
@@ -145,7 +145,7 @@
       >
       <template >
         <div v-for="(item,index) in topic_list" :key="item.code" @click="CheckQas(item.code)">
-          <p class="list_view_scroll_number">{{index+1}}</p>
+          <p :class="['list_view_scroll_number',index<3?'list_view_scroll_number_avtive':'']">{{index+1}}</p>
           <p class="list_view_scroll_title">{{item.title}}</p>
           <div class="all_cout" v-if="item.points.length">
             <p v-for=" pitem in  item.points" :key="pitem.id">{{pitem.name}}</p>
@@ -209,7 +209,7 @@
       >
       
         <div v-for="(item,index) in other_list" :key="item.name">
-          <p class="list_view_scroll_number">{{index+1}}</p>
+          <p :class="['list_view_scroll_number',index<3?'list_view_scroll_number_avtive':'']">{{index+1}}</p>
           <div class="list_view_scroll_other_title">
             <p class="list_view_scroll_other_title_fp" >{{item.name}}</p>
             <p class="list_view_scroll_other_text">
@@ -217,7 +217,7 @@
               <span>{{item.rp_rate}}%</span>
             </p>
           </div>
-          <el-progress :text-inside="false" :stroke-width="26" :percentage="item.rp_rate"></el-progress>
+          <el-progress :text-inside="false" color="#545DFF"  :percentage="item.rp_rate"></el-progress>
         </div>
       </div>
        </template>
@@ -237,7 +237,7 @@
 
     <!-- 题目弹出框 -->
     <el-dialog :visible.sync="answer_toggle">
-      <div class="answer_center">
+      <div class="answer_center" v-infinite-scroll="answer_load" style="overflow:auto"  >
         <div class="answer_center_top">
           <span>{{rq_title}}</span>
         </div>
@@ -428,7 +428,6 @@ export default {
           //     offset: 380,
           //     duration: 1000
           //   });
-          console.log(val)
           this.GetRightList();
           this.GetPaperOverview();
           this.GetRightOther()
@@ -519,7 +518,7 @@ export default {
         class_id:this.$store.state.class_id
 
       }).then(res => {
-        console.log("题目===",res.data)
+        console.log("知识点===",res.data)
 
         let other_list=res.data
         this.other_list=other_list
@@ -533,12 +532,15 @@ export default {
         class_id:this.$store.state.class_id
 
       }).then(res => {
-        console.log("知识点===",res.data)
+        console.log("题目===",res.data)
         if(res.data){
           topic_list = res.data;
         }
         this.topic_list = topic_list;
       });
+    },
+    answer_load(){
+
     },
 
     //查看题目
@@ -641,7 +643,17 @@ export default {
 </script>
 <style  >
 .el-progress-bar__outer{
-  height: 30px !important;
+  height: 20px !important;
+}
+.check_qas_view_parent{
+  width: 100%;
+  
+}
+.check_qas_view{
+  margin-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .stunde_number {
   display: flex;
@@ -709,7 +721,7 @@ export default {
   display: flex;
   align-items: center;
   color: #202020;
-  font-size: 22px;
+  font-size: 25px;
 }
 .stunde_name .el-image {
   width: 54px;
@@ -728,6 +740,108 @@ export default {
   width: 100%;
   margin-top: 10px;
   margin-bottom: 20px;
+}
+.oitem_item{
+  display: flex;
+  align-items: center;
+  min-width:483px;
+min-height:74px;
+background:rgba(255,255,255,1);
+border-radius:9px;
+border:4px solid rgba(189,189,189,1);
+margin-bottom: 19px;
+font-size: 25px;
+padding: 10px 0;
+box-sizing: border-box;
+
+}
+.oitem_item span:nth-child(1){
+  width: 68px;
+  border-right: 4px solid #BDBDBD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #545DFF;
+}
+.oitem_item span:nth-child(2){
+  padding: 0 30px;
+  box-sizing:border-box;
+}
+
+.oitem_item .el-image{
+  margin-left: 15px;
+}
+
+.answer_konw {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+  font-weight: 400;
+  margin-bottom: 20px;
+  background:rgba(84,93,255,1);
+  border-radius:8px;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+.answer_konw span{
+  color: #fff;
+  margin-left: 15px;
+
+}
+.answer_konw .el-image:nth-child(1) {
+  width: 31px;
+  height: 31px;
+}
+
+.answer_konw .el-image:nth-child(3){
+     width: 17px;
+  height: 19px;
+}
+
+.answr_parent{
+  width:100%;
+min-height:297px;
+background:rgba(244,244,244,1);
+border-radius:8px;
+display: flex;
+flex-direction: column;
+padding-left: 30px;
+padding-bottom: 30px;
+box-sizing: border-box;
+}
+.answr_parent_top{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 30px;
+  box-sizing: border-box;
+  
+}
+.answr_parent_top_left{
+  width:91px;
+height:43px;
+background:rgba(84,93,255,1);
+border-radius:0px 0px 8px 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #fff;
+font-size: 25px;
+}
+.answr_parent_top .el-image{
+  width: 23px;
+  height: 23px;
+}
+.answer_rate{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 25px;
+  color: #00AD56;
+  margin-top: 15px;
+  margin-bottom: 30px;
 }
 .Census_left_view {
   display: flex;
@@ -887,8 +1001,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.list_view_scroll {
   padding-top: 15px;
   box-sizing: border-box;
 }
@@ -902,6 +1014,7 @@ export default {
   position: relative;
   padding:18px 18px 28px 60px ;
   box-sizing: border-box;
+  border: 1px solid #f3f3f3;
 }
 .list_view_scroll_other_title {
   display: flex;
@@ -930,14 +1043,18 @@ export default {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(84, 93, 255, 1);
   display: flex;
   align-items: center;
+  background: #BDBDBD;
   justify-content: center;
   font-size: 25px;
   color: #fff;
   left: 16px;
   top: 13px;
+}
+.list_view_scroll_number_avtive{
+  background: rgba(84, 93, 255, 1) !important;
+
 }
 .student_view_right_scroll::-webkit-scrollbar,
 .list_view_scroll::-webkit-scrollbar,
@@ -949,7 +1066,7 @@ export default {
 .student_view_right_scroll > div {
   display: flex;
   align-items: center;
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 43px;
@@ -1033,11 +1150,29 @@ export default {
   color: rgba(32, 32, 32, 1);
   margin-bottom: 20px;
 }
+.answer_center::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 5px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 5px;
+}
+.answer_center {
+  display: flex;
+  width: 100%;
+  max-height: 60vh;
+  flex-direction: column;
+  align-items: flex-start;
+  /* align-items: center; */
+}
+.answer_center_top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 28px;
+}
 .answer_center_top > span {
   font-size: 24px;
   font-weight: 700;
-  color: rgba(32, 32, 32, 1);
-
+  color:  #202020;
   margin-right: 38px;
 }
 .answer_center_top p {

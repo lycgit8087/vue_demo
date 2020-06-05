@@ -18,7 +18,7 @@
         </div>
       </div>
     </div>
-    <div class="exam_list_right">
+    <div class="exam_list_right" v-infinite-scroll="right_scroll" style="overflow:auto"  >
       <!-- :preview-src-list="getSrcList(index)" -->
       <viewer :images="srcList"           
             class="viewer" ref="viewer"
@@ -26,7 +26,7 @@
            <img v-for="src in srcList" :src="src" :key="src" class="view_image">
       </viewer>
       <!-- 附件 -->
-      <div class="file_list">
+      <div class="file_list" v-if="files.length!=0" >
         <p>附件</p>
         <div class="file_list_view"  >
           <div v-for="(item,index) in files" :key="item.name"    >
@@ -52,7 +52,7 @@
       <!-- 试题 -->
       <div class="exam_list_view" v-if="paper_list.length!=0" >
         <p>试题</p>
-        <div class="scroll_view" v-infinite-scroll="right_scroll" style="overflow:auto">
+        <div class="scroll_view" >
           <div class="exam_list_view_item" v-for="(item,index) in paper_list" :key="item.pid">
             <el-image :src="file_image" fit="cover">
                <div slot="error" class="image-slot">
@@ -561,6 +561,8 @@ export default {
 }
 .span_class{
   line-height: 1.6 !important;
+  font-size: 26px !important;
+
 }
 .ExamList {
   display: flex;
@@ -583,7 +585,7 @@ export default {
   display: flex;
   padding: 54px 0px;
   width: 732px;
-  height: 100%;
+  height: 95vh;
   box-sizing: border-box;
   flex-direction: column;
 }
@@ -610,16 +612,18 @@ export default {
   display: flex;
   flex-direction: column;
   /* margin-right: 70px; */
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 40px;
   width: 25%;
   position: relative;
   padding: 0 10px;
   box-sizing: border-box;
+  height: 120px;
 }
 .file_list_view > div p{
   width: 100%;
+  height: 50px;
   text-align: center;
   white-space: normal;
   text-overflow: -o-ellipsis-lastline;
@@ -629,6 +633,7 @@ export default {
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
+  line-height: 1.3;
 
 }
 .file_list_view > div a{
@@ -643,7 +648,6 @@ export default {
 .file_list_view > div .el-image {
   width: 54px;
   height: 54px;
-  margin-bottom: 12px;
 }
 .exam_list_view {
   display: flex;
@@ -655,13 +659,13 @@ export default {
   font-size: 32px;
   font-weight: 500;
   color: rgba(0, 3, 54, 1);
-  margin-bottom: 16px;
+  margin-bottom: 50px;
 }
 .scroll_view {
-  height: 570px;
+  height: auto;
   width: 702px;
 }
-.scroll_view::-webkit-scrollbar ,.left_view::-webkit-scrollbar{
+.scroll_view::-webkit-scrollbar ,.left_view::-webkit-scrollbar,.exam_list_right::-webkit-scrollbar{
   /*滚动条整体样式*/
   width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
   height: 1px;
@@ -669,7 +673,7 @@ export default {
 .exam_list_view_item {
   height: 200px;
   display: flex;
-  width: 540px;
+  /* width: 540px; */
   border-bottom: 2px solid #ecedf1;
   margin-bottom: 50px;
 }
@@ -724,7 +728,7 @@ export default {
   font-size: 30px;
   margin-bottom: 20px;
   margin-top: 20px;
-  font-weight: 500;
+  font-weight: 700;
 
 }
 .exam_list_left_text {

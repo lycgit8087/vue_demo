@@ -346,6 +346,7 @@ export default {
       this.sub_value=val.toString()
 
     },
+    
   },
   //方法集合
   methods: {
@@ -381,17 +382,17 @@ export default {
           console.log(e.data)
         let data=JSON.parse(e.data)
         if(data.hasOwnProperty('response_msg')){
-          self.$message.success({
-              message: "web建立成功",
-              offset: 380,
-              duration: 3000
-            });
+          // self.$message.success({
+          //     message: "web建立成功",
+          //     offset: 380,
+          //     duration: 3000
+          //   });
         }else{
-          self.$message.success({
-              message: "接收到web信息",
-              offset: 380,
-              duration: 3000
-            });
+          // self.$message.success({
+          //     message: "接收到web信息",
+          //     offset: 380,
+          //     duration: 3000
+          //   });
            self.$store.dispatch('change_web_type',data.msg.mode)
         }
       }
@@ -603,7 +604,6 @@ export default {
       }
       if(user_local_data){
         user_local_data=JSON.parse(user_local_data)
-        console.log(user_local_data)
         if(now_time>udata.local_time){
         localStorage.setItem("user_local","")
         }
@@ -651,15 +651,15 @@ export default {
             if(is_now_year){
                 listarr[i].day_time =ids.length!=0?this.$till.get_time(
               listarr[i].ptime * 1000,
-              "M-D h:s"
+              "M-D h:m"
             ): this.$till.get_time(
               listarr[i].ptime * 1000,
-              "h:s"
+              "h:m"
             );
             }else{
               listarr[i].day_time =this.$till.get_time(
               listarr[i].ptime * 1000,
-              "Y-M-D h:s"
+              "Y-M-D h:m"
             )
             }
           }
@@ -897,6 +897,7 @@ export default {
 }
  .el-dialog{
   margin-top: 0vh !important;
+  border-radius: 15px !important;
 }
 .el-dialog__wrapper{
   display: flex;

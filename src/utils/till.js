@@ -48,7 +48,10 @@
       '<p class="p_class" style="margin-bottom:10px" '
     );
     str = str.replace(/\<span/gi, '<span class="span_class" ');
-
+    str = str.replace(
+      /\<div/gi,
+      '<div class="p_class" '
+    );
     
     if (str.indexOf("src='/files") != -1) {
         str = str.replace(/src='/g, `src='https://sc.imofang.cn`)

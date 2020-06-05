@@ -46,7 +46,7 @@
 
     <!-- 题目弹出框 -->
     <el-dialog :visible.sync="answer_toggle">
-      <div class="answer_center">
+      <div class="answer_center" v-infinite-scroll="answer_load" style="overflow:auto" >
         <div class="answer_center_top">
           <span>{{rq_title}}</span>
          
@@ -273,7 +273,6 @@ export default {
             }
           }
         }
-        console.log(content)
         plist.count = count;
         this.content = content;
         this.plist = plist;
@@ -330,7 +329,6 @@ export default {
           res.ys_data[i].avatar=this.$till.change_file_url(res.ys_data[i].avatar)
         }
 
-       console.log(res.answer_data)
         this.ns_data = res.ns_data;
         this.ys_data = res.ys_data;
         this.rq_rate = res.rq_rate;
@@ -376,6 +374,9 @@ export default {
           }
         }
       }
+    },
+    answer_load(){
+
     },
 
    
@@ -653,7 +654,7 @@ box-sizing: border-box;
   margin-right: 27px;
 }
 .ExamDetail_left_list::-webkit-scrollbar,
-.ExamDetail_right::-webkit-scrollbar {
+.ExamDetail_right::-webkit-scrollbar,.answer_center::-webkit-scrollbar {
   /*滚动条整体样式*/
   width: 5px; /*高宽分别对应横竖滚动条的尺寸*/
   height: 5px;
@@ -662,12 +663,14 @@ box-sizing: border-box;
   /* padding-left: 30px; */
   box-sizing: border-box;
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 50px;
 }
 .answer_center {
   display: flex;
   width: 100%;
+  max-height: 60vh;
   flex-direction: column;
+  align-items: flex-start;
   /* align-items: center; */
 }
 .answer_center_top {
@@ -699,10 +702,10 @@ box-sizing: border-box;
   font-size: 25px;
   font-weight: 400;
   margin-bottom: 20px;
-  width:173px;
-height:56px;
-background:rgba(84,93,255,1);
-border-radius:8px;
+  background:rgba(84,93,255,1);
+  border-radius:8px;
+  padding: 10px 20px;
+  box-sizing: border-box;
 }
 .answer_konw span{
   color: #fff;

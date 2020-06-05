@@ -15,7 +15,7 @@
       </div>
 
       <!-- 二维码 -->
-      <div v-show="tab_index==0">
+      <div v-show="tab_index==0" class="tab_view" >
         <div class="qrcode_bg" >
           <div class="qrcode_view" ref="qrcode_bg_style">
             <div id="qrcode"></div>
@@ -27,7 +27,7 @@
           <p >微信扫码登录</p>
         </div>
       </div>
-      <div v-show="tab_index==1">
+      <div v-show="tab_index==1" class="tab_view"  >
         <face :faceView="checkFaceView"></face>
       </div>
     </div>
@@ -249,6 +249,9 @@ export default {
   left: 0;
   top: 0;
 }
+.tab_view{
+  height: 50vh;
+}
 .login_left .el-image {
   height: 100vh;
   width: 100%;
@@ -279,11 +282,12 @@ export default {
   border-radius: 20px;
 }
 .login_right_tab {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 79px;
+  border-bottom: 1px solid #f3f3f3;
+  box-sizing: border-box;
 }
 .login_right_tab p {
   font-size: 48px;
@@ -326,7 +330,7 @@ export default {
   font-size: 24px;
   font-weight: 400;
   color: rgba(189, 189, 189, 1);
-  margin-top: 6px;
+  margin-top: 20px;
 }
 .face {
   width: 100%;
