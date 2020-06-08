@@ -2,6 +2,46 @@
 <template>
   <div class="CLassIndex">
     <div class="CLassIndex_Left">
+
+      <div @click="change_tab" class="class_tab_view"  >
+      <div :class="tab_index==0?'class_tab_view_active':''" >
+        <el-image :src="tab_index==0?classTimeActionIcon:classTimeIcon" fit="cover"   >
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+            </el-image>
+
+      <p>
+        <span>备</span>
+        <span>课</span>
+        <span>日</span>
+        <span>历</span>
+
+        </p>
+      </div>
+
+      <div :class="tab_index==1?'class_tab_view_active':''" >
+        <el-image :src="tab_index==1?teachActionIcon:teachIcon" fit="cover"   >
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+            </el-image>
+
+      <p> 
+         <span>教</span>
+        <span>材</span>
+        <span>目</span>
+        <span>录</span>
+        </p>
+
+
+      </div>
+      
+      
+    </div>
+      <!-- 教学日历 -->
+      <div class="CLassIndex_Left_one" v-show="tab_index==0" >
       <el-calendar v-model="value" :first-day-of-week="1">
         <template slot="dateCell" slot-scope="{date, data}">
           <div >
@@ -25,99 +65,14 @@
           </div>
         </template>
       </el-calendar>
-    </div>
-
-    <div class="CLassIndex_Right">
-      <!-- 教师头部信息 -->
-      <div class="CLassIndex_Right_Top">
-        <div class="CLassIndex_Right_Top_Left">
-          <el-image :src="HeadImage" fit="cover">
-            <div slot="error" class="image-slot">
-        <i class="el-icon-picture-outline"></i>
       </div>
-          </el-image>
-          <div class="CLassIndex_Right_Top_Msg">
-            <p>{{UserInfo.name}}</p>
-            <!-- <p class="ResetLogin"  >退出登录</p> -->
 
-            <el-dropdown trigger="click" @command="handleCommand">
-      <span class="el-dropdown-link">
-        设置<i class="el-icon-caret-bottom el-icon--right"></i>
-      </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="1" >清空缓存</el-dropdown-item>
-          <el-dropdown-item command="0" >退出登录</el-dropdown-item>
+      <!-- 教学目录 -->
 
-        </el-dropdown-menu>
-      </el-dropdown>
-          </div>
-        </div>
-
-        <el-button type="primary" @click="SeeSubject" >教材目录</el-button>
-
-      </div>
-       <!-- 时间筛选 -->
-        <!-- <el-date-picker
-          v-model="time_value"
-          type="daterange"
-          align="right"
-          unlink-panels
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          :picker-options="pickerOptions"
-          value-format="yyyy/MM/dd"
-        ></el-date-picker> -->
-
-    
-
-      <!-- 标题 -->
-      <div class="ListTitle">
-        <p class="ListTitle_now_data" v-if="ids.length==0" >我的备课</p>
-          <div class="ListTitle_all_data" v-else >
-              <div class="ListTitle_all_data_left" >
-                <p>筛选结果</p>
-                <p @click="clear_screen" >清空</p>
-
-              </div>
-              <div class="ListTitle_all_data_left" >共{{list_data.length}}条数据</div>
+      <div class="CLassIndex_Left_two" v-show="tab_index==1" >
 
 
-          </div>
-        </div>
-
-      <!-- 列表内容 -->
-
-      <div
-        class="ListView"
-        v-infinite-scroll="load"
-        style="overflow:auto"
-      >
-        <!-- <el-scrollbar  class="scroll_view"> -->
-        <div
-          class="ListItem"
-          v-for="item in list_data"
-          :key="item.plid"
-          @click="TOExamList(item.plid,item.class_id)"
-        >
-          <div>
-            <div class="ListParentChildViewTop">
-              <p>{{item.acname}}</p>
-              <p>{{item.day_time}}</p>
-            </div>
-            <div class="ListParentChildViewBot">
-              <p>{{item.spctitle}}</p>
-              <p>{{item.gname+item.cname}}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-      <!-- 章节选择 -->
-      <!-- 题目弹出框 -->
-    <el-dialog :visible.sync="sub_toggle">
-      <div class="sub_list_title" >按教材目录筛选</div>
+          <div class="sub_list_title" >按教材目录筛选</div>
       <div class="picker_view">
       
         <!-- 年级班级选择器 -->
@@ -149,13 +104,14 @@
           highlight-current
           check-on-click-node
           :props="defaultProps"
+          @check-change='changeitem'
           >
         </el-tree>
 
 
       </div>
       
-      <div slot="footer">
+      <!-- <div slot="footer">
         <el-button
           type="danger"
           @click="cancle_data"
@@ -168,8 +124,93 @@
           @click="confrm_data"
           class="send_confrm"
         >确定</el-button>
+      </div> -->
+
+
       </div>
-    </el-dialog>
+    </div>
+
+    <div class="CLassIndex_Right">
+      <!-- 教师头部信息 -->
+      <div class="CLassIndex_Right_Top">
+        <div class="CLassIndex_Right_Top_Left">
+          <el-image :src="HeadImage" fit="cover">
+            <div slot="error" class="image-slot">
+        <i class="el-icon-picture-outline"></i>
+      </div>
+          </el-image>
+          <div class="CLassIndex_Right_Top_Msg">
+            <p>{{UserInfo.name}}</p>
+            <!-- <p class="ResetLogin"  >退出登录</p> -->
+
+            <el-dropdown trigger="click" @command="handleCommand">
+      <span class="el-dropdown-link">
+        设置<i class="el-icon-caret-bottom el-icon--right"></i>
+      </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="1" >清空缓存</el-dropdown-item>
+          <el-dropdown-item command="0" >退出登录</el-dropdown-item>
+
+        </el-dropdown-menu>
+      </el-dropdown>
+          </div>
+        </div>
+
+        <!-- <el-button type="primary" @click="SeeSubject" >教材目录</el-button> -->
+
+      </div>
+       <!-- 时间筛选 -->
+        <!-- <el-date-picker
+          v-model="time_value"
+          type="daterange"
+          align="right"
+          unlink-panels
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          :picker-options="pickerOptions"
+          value-format="yyyy/MM/dd"
+        ></el-date-picker> -->
+
+    
+
+      <!-- 标题 -->
+      <div class="ListTitle">
+        <p class="ListTitle_now_data"  >备课列表</p>
+        </div>
+
+      <!-- 列表内容 -->
+
+      <div
+        class="ListView"
+        v-infinite-scroll="load"
+        style="overflow:auto"
+      >
+        <!-- <el-scrollbar  class="scroll_view"> -->
+        <div
+          class="ListItem"
+          v-for="item in (tab_index==0?list_data:teachlist)"
+          :key="item.plid"
+          @click="TOExamList(item.plid,item.class_id)"
+        >
+          <div>
+            <div class="ListParentChildViewTop">
+              <p>{{item.acname}}</p>
+              <p>{{item.day_time}}</p>
+            </div>
+            <div class="ListParentChildViewBot">
+              <p>{{item.spctitle}}</p>
+              <p>{{item.gname+item.cname}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+
+      <!-- 章节选择 -->
+     
 
 
   </div>
@@ -192,7 +233,13 @@ export default {
           label: 'label'
         },
       is_search:false,
+      teachlist:[],
       value: "",
+      TabIcon: require("../assets/tab_icon.png"),
+      teachIcon: require("../assets/teach.png"),
+      teachActionIcon: require("../assets/teach_active.png"),
+      classTimeIcon: require("../assets/classtime.png"),
+      classTimeActionIcon: require("../assets/classtime_active.png"),
       grade:0,
       websock:null,
       sub_arr:[],
@@ -254,7 +301,9 @@ export default {
       subList:[],
       subject_tree:[],
       push_sub_value:-1,
-      websock_view:""
+      cout_num:0,
+      websock_view:"",
+      tab_index:0
     };
   },
   //监听属性 类似于data概念
@@ -270,7 +319,6 @@ export default {
   watch: {
     value(val, oldval) {
       let { list_data, listarr,ids,is_post } = this;
-      
       this.star_time = this.$till.get_time(Date.parse(val), "Y/M/01");
       this.end_time = this.getMonthDay(val);
       this.value = this.$till.get_time(Date.parse(val), "Y/M/D");
@@ -280,21 +328,23 @@ export default {
         this.$till.get_time(Date.parse(val), "Y/M") !=
         this.$till.get_time(Date.parse(oldval), "Y/M")
       ) {
-        if(is_post){
-          this.is_post=false
-        let time_arr=this.GetAllMouth(val)
-        for(let i in time_arr){
-          time_arr[i].data=list_data.filter(item => item.time == time_arr[i].day)
-        }
-        this.time_arr=time_arr
-          return
-        }
         this.list_data = [];
         this.time_arr=this.GetAllMouth(val)
         this.GetPrepareLessonList();
       } else {
-        list_data =ids.length!=0?listarr: listarr.filter(item => item.time == this.value);
+        list_data =listarr.filter(item => item.time == this.value);
         this.list_data = list_data;
+      }
+    },
+    ids(val,oldval){
+      if(val.length!=oldval.length){
+        if(val.length==0){
+          this.teachlist=[]
+        }else{
+        this.get_teach_list()
+
+        }
+
       }
     },
     time_value(val) {
@@ -313,6 +363,7 @@ export default {
       if(subList.length==0)return  
       let num=subList.findIndex(item=>item.id==val)
       let arr=subList[num]
+      this.teachlist=[]
       this.subject_tree=this.ChangeSubject_arr(arr.subject_data)
     },
     class_value(val){
@@ -334,7 +385,7 @@ export default {
       this.subject_tree=[]
       this.sub_value=""
       this.class_value = value;
-      // this.push_sub_value=-1
+      this.teachlist=[]
       this.GetSubject()
     },
     push_sub_value(val){
@@ -353,9 +404,20 @@ export default {
     sub_scroll(){
 
     },
+    change_tab(){
+      
+      let index=this.tab_index
+      if(index==0){
+        index=1
+        this.teachlist=[]
+        this.init_sub_data()
+      }else{
+        index=0
+      }
+      this.tab_index=index
+    },
 
    async handleCommand(command){
-     console.log(command)
       if(command==0){
           this.BackLogin()
       }else{
@@ -378,26 +440,14 @@ export default {
       var ws=  `wss://wss.imofang.cn:1818/?token=${token}`;
       websock = new WebSocket(ws)
       websock.onmessage = function (e) {
-        
-          console.log(e.data)
+         console.log(e.data)
         let data=JSON.parse(e.data)
         if(data.hasOwnProperty('response_msg')){
-          // self.$message.success({
-          //     message: "web建立成功",
-          //     offset: 380,
-          //     duration: 3000
-          //   });
         }else{
-          // self.$message.success({
-          //     message: "接收到web信息",
-          //     offset: 380,
-          //     duration: 3000
-          //   });
            self.$store.dispatch('change_web_type',data.msg.mode)
         }
       }
       websock.onclose = function (e) {
-
         console.log("关闭")
       }
       websock.onopen = function () {
@@ -426,32 +476,14 @@ export default {
 
     // 获取选中数据
     confrm_data(){
-      let ids_arr=this.$refs.tree.getCheckedKeys()
-      if(ids_arr.length==0){
-        let value=this.$till.get_time(Date.parse(new Date()), "Y/M/01")
-       this.star_time = value;
-        this.end_time = this.getMonthDay(value);
-        this.is_search=false
-        this.is_post=false
-        this.class_value=[]
-      }else{
-        this.star_time=""
-        this.end_time=""
-        this.is_search=true
-        this.is_post=true
-      }
       
-      this.ids=ids_arr
-      this.sub_toggle=false
-      this.list_data=[]
-      this.GetPrepareLessonList()
     },
 
     // 取消
-    cancle_data(){
-      this.sub_toggle=false
-      this.push_sub_value=-1
-    },
+    // cancle_data(){
+    //   this.sub_toggle=false
+    //   this.push_sub_value=-1
+    // },
     // 设置默认选择项
     init_sub_data(){
       let {list_data,class_arr}=this
@@ -472,11 +504,10 @@ export default {
       
     },
     // 查看备课记录
-    SeeSubject(){
-      let {sub_toggle}=this
-      this.init_sub_data()
-      this.sub_toggle=!sub_toggle
-    },
+    // SeeSubject(){
+    //   let {sub_toggle}=this
+    //   this.init_sub_data()
+    // },
 
     load() {
       this.loading = true;
@@ -612,6 +643,60 @@ export default {
 
       }
     },
+    changeitem(data){
+       let ids_arr=this.$refs.tree.getCheckedKeys()
+        this.ids=ids_arr
+    },
+
+    async get_teach_list(){
+      let {
+        UserInfo,
+        class_value,
+        star_time,
+        end_time,
+        ids,
+        value,
+        list_data,
+        time_arr,
+        is_clear,
+        is_search
+      } = this;
+      await this.$post("module_api", "/?c=api", {
+        module_tag: "gfteachingplan",
+        module_action: "get_prepare_lesson_list",
+        org_id: UserInfo.org_id,
+        staff_id: UserInfo.sid,
+        class_id: class_value,
+        chapters: ids.join(","),
+        begin_date: "",
+        end_date: ""
+      }).then(res=>{
+
+         let listarr = res.data;
+        let is_now_year=this.isNowYear()
+        if (listarr.length) {
+          for (let i in listarr) {
+            listarr[i].time = this.$till.get_time(
+              listarr[i].ptime * 1000,
+              "Y/M/D"
+            );
+            if(is_now_year){
+                listarr[i].day_time =this.$till.get_time(
+              listarr[i].ptime * 1000,
+              "M-D h:m"
+            )
+            }else{
+              listarr[i].day_time =this.$till.get_time(
+              listarr[i].ptime * 1000,
+              "Y-M-D h:m"
+            )
+            }
+          }
+        }
+        this.teachlist = listarr;
+
+      })
+    },
 
     // 获取备课列表
     async GetPrepareLessonList() {
@@ -629,14 +714,13 @@ export default {
         is_search
       } = this;
       
-    
       await this.$post("module_api", "/?c=api", {
         module_tag: "gfteachingplan",
         module_action: "get_prepare_lesson_list",
         org_id: UserInfo.org_id,
         staff_id: UserInfo.sid,
         class_id: class_value,
-        chapters: ids.join(","),
+        chapters: "",
         begin_date: star_time,
         end_date: end_time
       }).then(res => {
@@ -649,10 +733,7 @@ export default {
               "Y/M/D"
             );
             if(is_now_year){
-                listarr[i].day_time =ids.length!=0?this.$till.get_time(
-              listarr[i].ptime * 1000,
-              "M-D h:m"
-            ): this.$till.get_time(
+                listarr[i].day_time = this.$till.get_time(
               listarr[i].ptime * 1000,
               "h:m"
             );
@@ -663,14 +744,7 @@ export default {
             )
             }
           }
-          if(is_search){
-            if(ids.length!=0){
-              value=listarr[0].time
-            }
-          }else{
-              value=this.$till.get_time(Date.parse(new Date()), "Y/M/D")
-
-          }
+          
           list_data = listarr.filter(item => item.time == value);
         }
         for(let i in time_arr){
@@ -678,14 +752,7 @@ export default {
         }
         this.time_arr=time_arr
         this.listarr = listarr;
-        this.list_data =ids.length!=0? listarr:list_data;
-        if(ids.length!=0&&this.list_data.length!=0){
-          this.value=list_data[0].time
-        }else{
-          this.value=value
-
-        }
-        this.isloading = false;
+        this.list_data =list_data;
       });
     }
   },
@@ -739,6 +806,51 @@ export default {
  .is-selected {
   color: #1989fa !important;
 }
+.el-calendar{
+  width: 724px;
+}
+.class_tab_view{
+ width:80px;
+height:424px;
+background:rgba(255,255,255,1);
+border-radius:0px 15px 15px 0px;
+border:1px solid rgba(216,216,216,1);
+margin-right: 35px;
+margin-top: 170px;
+}
+.class_tab_view>div{
+  width: 100%;
+  height: 50%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+.class_tab_view>div:nth-child(1){
+border-radius:0px 15px 0px 0px;
+}
+.class_tab_view>div:nth-child(2){
+border-radius:0px 0px 15px 0px;
+}
+.class_tab_view>div p{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  align-items: center;
+  font-size: 28px;
+}
+.class_tab_view .el-image{
+  width: 36px;
+  height: 36px;
+  margin-bottom: 8px;
+}
+.class_tab_view_active{
+  background: #545DFF;
+  color: #fff;
+}
 .el-tag {
   font-size: 26px;
 }
@@ -748,12 +860,13 @@ export default {
 }
 .CLassIndex {
   display: flex;
-  padding: 80px 75px 0px 50px;
+  padding: 80px 75px 0px 0px;
   box-sizing: border-box;
   height: 100vh;
 }
 .CLassIndex_Left {
   width: 857px;
+  display: flex;
 }
 .CLassIndex_Right {
   display: flex;

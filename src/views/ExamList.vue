@@ -25,26 +25,30 @@
             @inited="inited" >
            <img v-for="src in srcList" :src="src" :key="src" class="view_image">
       </viewer>
+
+      <!-- <el-button type="primary" @click="scaleIt">放大</el-button>
+      <el-button type="primary" @click="smallit">缩小</el-button> -->
+
       <!-- 附件 -->
       <div class="file_list" v-if="files.length!=0" >
         <p>附件</p>
         <div class="file_list_view"  >
-          <div v-for="(item,index) in files" :key="item.name"    >
+          <div v-for="(item,index) in files" :key="item.name"  @click="check_file(item.fpath,item.type_num,item.method_text)"   >
             <el-image :src="item.url" fit="cover" @click="show_image(index)"   v-if="item.type_num==0">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
 
             </el-image>
-            <el-image :src="item.url" fit="cover"  v-if="item.type_num!=0" @click="see_file(item.fpath,item.type_num)" >
+            <el-image :src="item.url" fit="cover"  v-if="item.type_num!=0"  >
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
-
+          <!-- @click="see_file(item.fpath,item.type_num)" -->
             </el-image>
          
             <p>{{item.fcname}}</p>
-            <a v-if="item.type_num>2" :href="item.fpath" :download="item.fcname" target="_self"  ></a>
+            <!-- <a v-if="item.type_num>2" :href="item.fpath" :download="item.fcname" target="_self"  ></a> -->
           </div>
         </div>
       </div>
@@ -78,7 +82,7 @@
           <span class="see_dialog_center_title">
             {{plist.title}}
           </span>
-          <span class="see_dialog_center_text">总分{{plist.count}}分，作答{{plist.qminute}}分钟</span>
+          <span class="see_dialog_center_text">总分{{plist.count}}分</span>
           <span class="see_dialog_center_tree">共分为{{plist.datalength}}个部分：</span>
 
           <div class="see_item" v-for="item in plist.content" :key="item.partname">
@@ -192,14 +196,14 @@ export default {
       loading: true,
       video_url:"",
       file_arr: [
-        {text:"jpg,jpeg,gif,png,bmp",url:ImageIcon,type:0},
-        {text:"3gpp,mp4,rm,rmvb,avi,3gp,mov,mtv",url:VideoIcon,type:1},
-        {text:"doc,docx",url:WordIcon,type:3},
-        {text:"pptx,ppt",url:PPtIcon,type:3},
-        {text:"xlsx,xls",url:XlsIcon,type:3},
-        {text:"zip,rar",url:RarIcon,type:3},
-        {text:"pdf",url:PdfIcon,type:3},
-        {text:"mp3,aac,wma,ogg,m4a,flac,ape,wav,amr",url:AudioIcon,type:2},
+        {text:"jpg,jpeg,gif,png,bmp",url:ImageIcon,type:0,method:"InsertImage"},
+        {text:"3gpp,mp4,rm,rmvb,avi,3gp,mov,mtv",url:VideoIcon,type:1,method:"InsertVideo"},
+        {text:"doc,docx",url:WordIcon,type:3,method:""},
+        {text:"pptx,ppt",url:PPtIcon,type:3,method:"ImportPptx"},
+        {text:"xlsx,xls",url:XlsIcon,type:3,method:""},
+        {text:"zip,rar",url:RarIcon,type:3,method:""},
+        {text:"pdf",url:PdfIcon,type:3,method:""},
+        {text:"mp3,aac,wma,ogg,m4a,flac,ape,wav,amr",url:AudioIcon,type:2,method:"InsertAudio"},
       ],
       srcList:[],
       class_name:"",
@@ -260,6 +264,7 @@ export default {
   },
   //方法集合
   methods: {
+   
     htm_check(e){
       if(e.target.tagName=="IMG"){
         let srcList=[e.target.src]
@@ -295,6 +300,60 @@ export default {
         this.file_toggle=true
         this.file_url=url
 
+    },
+
+    check_file(url,type,method_text){
+      console.log(url,method_text)
+      if(method_text=="ImportPptx"){
+        console.log("ppt",method_text,url)
+           window.external.InvokeMethod(JSON.stringify({
+          method:method_text,
+          args:JSON.stringify({
+            url:url
+          })
+      }))
+      }else{
+           window.external.InvokeMethod(JSON.stringify({
+          method:method_text,
+          args:JSON.stringify({
+            url:url,
+            top:100,
+            left:100
+          })
+      })) 
+      }
+         
+      
+    
+    },
+
+     scaleIt(){
+       window.external.InvokeMethod(JSON.stringify({
+          "method": "ResizeBrowserWindow", 
+          "args": JSON.stringify({
+             "frameWidth": 1280,
+              "frameHeight": 720, 
+              "resizeDirection":
+               "topLeftBottomRight"
+              })}))
+      //   window.external.InvokeMethod(JSON.stringify({
+      //   method:"ResizeBrowserWindow",
+      //   args:JSON.stringify({
+      //     frameWidth:1600,
+      //     frameHeight:900,
+      //     resizeDirection:"topLeftBottomRight"
+      //   })
+      // }))
+    },
+    smallit(){
+         window.external.InvokeMethod(JSON.stringify({
+        method:"ResizeBrowserWindow",
+        args:JSON.stringify({
+          frameWidth:600,
+          frameHeight:500,
+          resizeDirection:"topLeftBottomRight"
+        })
+      }))
     },
 
     getSrcList(index){
@@ -420,7 +479,7 @@ export default {
           
           files[i].url=file_arr[num].url
           files[i].type_num=file_arr[num].type
-
+          files[i].method_text=file_arr[num].method
 
         }
         this.tcontents = tcontents;
@@ -433,6 +492,7 @@ export default {
           paper_list[i].plist={}
         }
         this.srcList=srcList
+        console.log(files)
         this.files=files
         this.paper_list=paper_list
         let page_data={
@@ -578,7 +638,7 @@ export default {
   width: 1118px;
   height: 100%;
   background: #f8f8ff;
-  padding: 0px 100px 30px 20px;
+  padding: 100px 100px 30px 20px;
   box-sizing: border-box;
 }
 .exam_list_right {
@@ -623,7 +683,7 @@ export default {
 }
 .file_list_view > div p{
   width: 100%;
-  height: 50px;
+  height: 45px;
   text-align: center;
   white-space: normal;
   text-overflow: -o-ellipsis-lastline;
@@ -832,7 +892,7 @@ export default {
   padding-top: 50px;
 }
 .left_view {
-  height: 87vh;
+  height: 82vh;
   padding-left: 20px;
   box-sizing: border-box;
 }

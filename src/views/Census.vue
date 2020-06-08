@@ -116,7 +116,7 @@
                     <i class="el-icon-picture-outline"></i>
                   </div>
                 </el-image>
-                <p>暂无任何排名</p>
+                <p>暂无学生</p>
               </div>
             </template>
           </div>
@@ -193,7 +193,7 @@
                     <i class="el-icon-picture-outline"></i>
                   </div>
                 </el-image>
-                <p>暂无任何排名</p>
+                <p>暂无内容</p>
               </div>
             </template>
 
@@ -229,11 +229,58 @@
                     <i class="el-icon-picture-outline"></i>
                   </div>
                 </el-image>
-                <p>暂无任何排名</p>
+                <p>暂无内容</p>
               </div>
             </template>
 
     </div>
+
+     <!-- 学生弹出框 -->
+    <el-dialog :visible.sync="student_toggle" custom-class="dclass" >
+
+      <div class="student_view_page">
+    <div class="student_view_left_msg">
+
+      <div class="stundet_title" ><span>个人答题详情</span></div>
+
+      <div class="stundet_msg" >
+        <div class="stundet_msg_top" >
+             <el-image :src="info.avatar" fit="cover">
+         <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+      </el-image>
+      <span class="student_name">{{info.sname}}</span>
+        </div>
+       <div class="left_des" v-for="item in left_arr" :key="item.text">
+        <span>{{item.text}}</span>
+        <span>{{item.des}}</span>
+      </div>
+
+      </div>
+     
+     
+    </div>
+    <div class="student_view_right_msg">
+      <span class="student_view_right_title">答题卡</span>
+      <span class="student_view_right_text">{{info.paper_title}}</span>
+
+      <div class="student_scroll_view" v-infinite-scroll="load" style="overflow:auto">
+        <div class="student_scroll_view_item" v-for="item in info.qa_results" :key="item.partname">
+          <span>{{item.partname}}</span>
+          <div class="student_scroll_view_item_des">
+            <span
+              v-for="qitem in item.qas"
+              :key="qitem.id"
+              :class="qitem.result==0?'span_error':qitem.result==1?'span_success':qitem.result==2?'span_error':''"
+            >{{qitem.num}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+      
+    </el-dialog>
 
     <!-- 题目弹出框 -->
     <el-dialog :visible.sync="answer_toggle">
@@ -370,6 +417,7 @@ export default {
       bluebot,
       blacktop,
       answer_toggle: false,
+      student_toggle:false,
       BookImage: require("../assets/open_book.png"),
       closeIcon: require("../assets/detail_close_icon.png"),
 
@@ -395,6 +443,15 @@ export default {
         { text: "题目", type: 0 },
         { text: "知识点", type: 0 }
       ],
+       left_arr: [
+        { text: "成绩排行", des: "" },
+        { text: "分数", des: "" },
+        { text: "用时", des: "" },
+        { text: "答错数", des: "" },
+        { text: "答对数", des: "" }
+      ],
+      sid:0,
+      info:{},
       TabIndex: 0,
       is_change_before: false,
       is_change_next: false,
@@ -492,7 +549,6 @@ export default {
         class_id:this.$store.state.class_id
       }).then(res => {
         let over_view = res;
-        console.log("统计===",res)
 
         for (let i in over_view.ns_results) {
           over_view.ns_results[i].avatar = this.$till.change_file_url(
@@ -518,8 +574,6 @@ export default {
         class_id:this.$store.state.class_id
 
       }).then(res => {
-        console.log("知识点===",res.data)
-
         let other_list=res.data
         this.other_list=other_list
       });
@@ -532,7 +586,6 @@ export default {
         class_id:this.$store.state.class_id
 
       }).then(res => {
-        console.log("题目===",res.data)
         if(res.data){
           topic_list = res.data;
         }
@@ -609,6 +662,31 @@ export default {
       }
     
     },
+      GetInfo(){
+    let {sid,pid,left_arr}=this
+     this.$post("paper_result", "/?c=api", {
+        student_id: sid,
+        pid: pid
+      }).then(res=>{
+        let info=res
+        info.avatar=this.$till.change_file_url(info.avatar)
+        left_arr[0].des=info.order
+        left_arr[1].des=info.score
+        left_arr[2].des=this.$till.formatSeconds(info.used_time)
+        left_arr[3].des= info.nq_count 
+        left_arr[4].des=info.rq_count
+          let num=1
+        for(let i in info.qa_results){
+          for(let j in info.qa_results[i].qas){
+          info.qa_results[i].qas[j].num=num
+          num++
+          }
+        }
+      this.student_toggle=true
+      this.left_arr=left_arr
+      this.info=info
+      })
+  },
 
    
     before() {
@@ -634,9 +712,8 @@ export default {
       this.right_toggle=!right_toggle
     },
     ToStudentView(sid) {
-      let { pid } = this;
-
-      this.$router.push({ name: "StudentView",query:{pid:pid,sid:sid} });
+      this.sid=sid
+      this.GetInfo()
     }
   }
 };
@@ -940,12 +1017,13 @@ font-size: 25px;
 .student_view_left {
   width: 576px;
   height: 70vh;
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0px 9px 27px 0px rgba(27, 27, 78, 0.1);
   border-radius: 18px;
   padding: 20px 40px;
   box-sizing: border-box;
   margin-right: -20px;
+background:rgba(255,255,255,1);
+box-shadow:0px 9px 28px 0px rgba(27,27,78,0.1);
+border-radius:19px;
 }
 .student_view_left > span {
   font-size: 25px;
@@ -970,7 +1048,6 @@ font-size: 25px;
 }
 .student_view_left_scroll > div>div {
   height: 90px;
-  border-bottom: 2px solid #ecedf1;
   width: 100%;
   display: flex;
   align-items: center;
@@ -982,15 +1059,16 @@ font-size: 25px;
 
 .student_view_right {
   width: 252px;
-  height: 70vh;
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0px 9px 27px 0px rgba(27, 27, 78, 0.1);
   border-radius: 18px;
   padding: 20px 36px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
+height:70;
+background:rgba(255,255,255,1);
+box-shadow:0px 9px 28px 0px rgba(27,27,78,0.1);
+border-radius:19px;
 }
 .student_view_right_scroll {
   height: 60vh;
@@ -1142,6 +1220,9 @@ font-size: 25px;
 .el-dialog__headerbtn {
   font-size: 35px;
 }
+ .Census .el-dialog{
+  /* width: auto; */
+}
 
 
 .list_view_scroll_title {
@@ -1226,6 +1307,35 @@ font-size: 25px;
   margin-top: 10px;
   margin-bottom: 20px;
 }
+.stundet_msg{
+  display: flex;
+  width:407px;
+height:602px;
+background:rgba(245,246,248,1);
+border-radius:33px;
+border:1px solid rgba(219,220,229,1);
+position: relative;
+flex-direction: column;
+padding-top: 150px;
+box-sizing: border-box;
+margin-left: 41px;
+}
+.stundet_msg_top{
+  display: flex;
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translate(-50%,0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stundet_msg_top .el-image{
+  width: 130px;
+  height: 130px;
+  margin-bottom: 15px;
+  border-radius: 50%;
+}
 .poeple_view_item > div .el-image {
   width: 72px;
   height: 72px;
@@ -1298,8 +1408,152 @@ student_view_right_scroll .no_data_view .el-image {
   width: 144px;
   height: 88px;
 }
+.
 .Census_right .no_data_view .el-image {
   width: 400px;
   height: 219px;
+}
+
+
+/* 学生弹出框 */
+
+.student_view_page {
+  display: flex;
+}
+ .student_view_page .student_view_left {
+  width: 727px;
+  display: flex;
+  flex-direction: column;
+  padding: 0 100px 30px 20px;
+  box-sizing: border-box;
+  align-items: center;
+}
+ .student_view_page .student_view_left .el-image {
+  width: 162px;
+  height: 162px;
+  border-radius: 50%;
+  margin-top: 16px;
+  margin-bottom: 18px;
+}
+ .student_view_page .student_name {
+  margin-bottom: 88px;
+  color: #202020;
+  font-size: 32px;
+}
+ .student_view_page .left_des {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 58px;
+  padding: 0 30px;
+  box-sizing: border-box;
+}
+ .student_view_page .left_des span:nth-child(1) {
+  font-size: 36px;
+  font-weight: 400;
+  color: rgba(32, 32, 32, 1);
+}
+.left_des span:nth-child(2) {
+  font-size: 36px;
+  font-weight: 400;
+  color: #202020;
+}
+  .student_view_page  .student_view_right {
+  display: flex;
+  flex-direction: column;
+  width: 813px;
+  padding: 72px 55px 0px 55px;
+  box-sizing: border-box;
+  align-items: center;
+}
+  .student_view_page .student_view_right_title {
+  color: #202020;
+  font-size: 32px;
+  margin-bottom: 19px;
+}
+ .student_view_page .student_view_right_text {
+  font-size: 28px;
+  font-weight: 500;
+  color: rgba(32, 32, 32, 1);
+  margin-bottom: 65px;
+}
+.student_view_left_msg{
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+}
+.student_view_right_msg{
+  display: flex;
+  flex-direction: column;
+  width: 813px;
+  align-items: center;
+  padding-left: 50px;
+  box-sizing: border-box;
+}
+ .student_view_page .student_scroll_view {
+  width: 100%;
+  height: 40vh;
+}
+ .student_view_page .student_scroll_view::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
+}
+.el-tree-node > .el-tree-node__children {
+  overflow: visible !important;
+}
+.student_scroll_view_item {
+  display: flex;
+  flex-direction: column;
+}
+.student_scroll_view_item > span {
+  font-size: 32px;
+  font-weight: 400;
+  color: rgba(32, 32, 32, 1);
+  margin-bottom: 27px;
+}
+.student_scroll_view_item_des {
+  display: flex;
+  flex-wrap: wrap;
+}
+.student_scroll_view_item_des > span {
+  width: 76px;
+  height: 76px;
+  background: rgba(255, 255, 255, 1);
+  border: 2px solid rgba(135, 139, 148, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-right: 45px;
+  margin-bottom: 26px;
+  font-size: 38px;
+  box-sizing: border-box;
+}
+.span_error {
+  background: #fa6060 !important;
+  color: #fff;
+  border: none !important;
+}
+.span_success {
+  background: #545dff !important;
+  color: #fff;
+  border: none !important;
+}
+.stundet_title{
+  width: 100%;
+  display: flex;
+  border-left: 9px solid #FA7272;
+  padding-left: 30px;
+  box-sizing: border-box;
+  font-size: 33px;
+  margin-bottom: 100px;
+}
+.dclass{
+  width: auto;
+}
+.dclass .el-dialog__body{
+  padding-left: 0;
 }
 </style>

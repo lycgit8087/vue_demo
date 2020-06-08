@@ -26,8 +26,8 @@ Vue.component("back",Back);
 Vue.component("alert-view",AlertView);
 Vue.component("face",Face);
 Vue.use(ElementUI);
-// import Vconsole from 'vconsole'
-// let vConsole = new Vconsole()
+import Vconsole from 'vconsole'
+let vConsole = new Vconsole()
 // Vue.use(vConsole)
 //定义全局变量
 Vue.prototype.$till=till;

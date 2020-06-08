@@ -491,7 +491,7 @@ export default {
   width: 702px;
   height: 100vh;
   background: #f8f8ff;
-  padding: 0 30px;
+  padding: 76px 30px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
