@@ -52,12 +52,14 @@
       /\<div/gi,
       '<div class="p_class" '
     );
-    
+
     if (str.indexOf("src='/files") != -1) {
-        str = str.replace(/src='/g, `src='https://sc.imofang.cn`)
-    } else {
-      str = str.replace(/src='/g, `src='https://files.imofang.cn`);
+        str = str.replace(/src='\/files/g, `src='https://sc.imofang.cn/files`)
+    } 
+    if(str.indexOf("src='/") != -1) {
+      str = str.replace(/src='\//g, `src='https://files.imofang.cn/`);
     }
+
     str = str.replace(/\<img/gi, '<img style="max-width:100%;height:auto" ');
     return str;
   }

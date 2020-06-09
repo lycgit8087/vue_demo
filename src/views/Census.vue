@@ -126,17 +126,42 @@
     <div class="Census_right">
       <span>题目排行</span>
       <div class="Census_right_tab">
-        <div
+        <div class="Census_right_tab_left" >
+            <div
           v-for="(item,index) in TabArr"
           :class="TabIndex==index?'tab_action':''"
           :key="item.text"
           @click="TabCheck(index)"
         >{{item.text}}</div>
+
+        </div>
+        <div class="Census_right_tab_right"  >
+            <div class="Census_right_tab_right_image" @click="change_send" v-if="is_send" >
+               <el-image :src="close_cancle" fit="cover">
+                  <div slot="error" class="image-slot">
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
+                </el-image>
+                <span>取消</span>
+            </div>
+            <div class="send_button" @click="change_push_toggle" v-if="is_send" >推送</div>
+
+            <div class="Census_right_tab_right_image" @click="change_send" v-if="!is_send" >
+               <el-image :src="pencil" fit="cover">
+                  <div slot="error" class="image-slot">
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
+                </el-image>
+                <span>个性化作业</span>
+            </div>
+
+        </div>
+        
       </div>
       <!-- 题目 -->
       
       <template  v-if="TabIndex==0&&topic_list.length!=0&&over_view.ys_results.length!=0" >
-      
+      <el-checkbox-group v-model="leftcheckList">
       <div
         class="list_view_scroll"
         v-infinite-scroll="load"
@@ -144,9 +169,25 @@
         
       >
       <template >
+        
         <div v-for="(item,index) in topic_list" :key="item.code" @click="CheckQas(item.code)">
-          <p :class="['list_view_scroll_number',index<3?'list_view_scroll_number_avtive':'']">{{index+1}}</p>
-          <p class="list_view_scroll_title">{{item.title}}</p>
+          <el-checkbox :label="item.code"   v-if="is_send"  >
+          <div class="list_view_scroll_top"  >
+            
+              <p :class="['list_view_scroll_number',index<3?'list_view_scroll_number_avtive':'']">{{index+1}}</p>
+              <p class="list_view_scroll_title">{{item.title}}</p>
+           
+          </div>
+           </el-checkbox>
+
+           <div class="list_view_scroll_top bottom_top" v-else >
+            
+              <p :class="['list_view_scroll_number',index<3?'list_view_scroll_number_avtive':'']">{{index+1}}</p>
+              <p class="list_view_scroll_title">{{item.title}}</p>
+           
+          </div>
+
+          
           <div class="all_cout" v-if="item.points.length">
             <p v-for=" pitem in  item.points" :key="pitem.id">{{pitem.name}}</p>
           </div>
@@ -176,13 +217,16 @@
             </div>
 
             <!-- 科目章节 -->
-            <div class="list_view_scroll_bot_right"></div>
+            <div class="list_view_scroll_bot_right" @click="change_push_toggle" >相似题推送</div>
           </div>
         </div>
+
         </template>
          
 
       </div>
+      </el-checkbox-group>
+
         </template>
         
        <template v-if="TabIndex==0&&over_view.ys_results.length==0">
@@ -199,7 +243,8 @@
 
       <template v-if="TabIndex==1&&other_list.length!=0&&over_view.ys_results.length!=0" >
         
-     
+      <el-checkbox-group v-model="rightcheckList">
+        
       <!-- 知识点 -->
       <div
         class="list_view_scroll_other"
@@ -209,7 +254,9 @@
       >
       
         <div v-for="(item,index) in other_list" :key="item.name">
-          <p :class="['list_view_scroll_number',index<3?'list_view_scroll_number_avtive':'']">{{index+1}}</p>
+             <el-checkbox :label="item.code"  >
+          <div class="list_view_scroll_top"  >
+            <p :class="['list_view_scroll_number',index<3?'list_view_scroll_number_avtive':'']">{{index+1}}</p>
           <div class="list_view_scroll_other_title">
             <p class="list_view_scroll_other_title_fp" >{{item.name}}</p>
             <p class="list_view_scroll_other_text">
@@ -217,9 +264,15 @@
               <span>{{item.rp_rate}}%</span>
             </p>
           </div>
+
+          </div>
+          </el-checkbox>
+          
           <el-progress :text-inside="false" color="#545DFF"  :percentage="item.rp_rate"></el-progress>
         </div>
       </div>
+      </el-checkbox-group>
+
        </template>
         <template v-if="TabIndex==1&&other_list.length==0&&over_view.ys_results.length==0">
               <!-- 无数据展示 -->
@@ -289,22 +342,6 @@
           <span>{{rq_title}}</span>
         </div>
         <div class="html_div" v-html="qas_content"></div>
-         <!-- 选择题答案项显示 -->
-          <div v-if="qtype==1||qtype==2" class="check_qas_view_parent" >
-          <div class="check_qas_view" v-for=" aitem in  answer_data" :key="aitem.id" >
-            <!-- <p>{{aitem.name}}</p> -->
-            <div v-for="oitem in aitem.content.options " class="oitem_item" :key="oitem.value" >
-             <span  >{{oitem.value}}</span>
-             
-              <span v-if='oitem.text.indexOf("img:")==-1'  >{{oitem.text}}</span>  
-                 <el-image v-else :src="oitem.url">
-             <div slot="error" class="image-slot">
-              <i class="el-icon-picture-outline"></i>
-            </div>
-          </el-image> 
-            </div>
-          </div>
-          </div>
 
         <!-- 答案解析 -->
         <div class="answer_konw" @click="change_right_toggle" v-show="!right_toggle"  >
@@ -338,7 +375,7 @@
         <!-- 人员显示 -->
         <!-- 答错 -->
         <div class="poeple_view" v-if='ns_data.length!=0' >
-          <p @click="change_error" > <span>答错学生</span> <span>{{ns_data.length}}</span>   <el-image :src="error_toggle?blacktop:blackbot" fit="cover">
+          <p @click="change_error" > <span>答错学生</span> <span class="error_stundets" >{{ns_data.length}}</span>   <el-image :src="error_toggle?blacktop:blackbot" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
@@ -360,7 +397,7 @@
         <!-- 答对 -->
 
         <div class="poeple_view" v-if='ys_data.length!=0' >
-          <p @click="change_success" > <span>答对学生</span> <span>{{ys_data.length}}</span>   <el-image :src="success_toggle?blacktop:blackbot" fit="cover">
+          <p @click="change_success" > <span>答对学生</span> <span class="success_stundets" >{{ys_data.length}}</span>   <el-image :src="success_toggle?blacktop:blackbot" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
@@ -398,6 +435,53 @@
         >下一题</el-button>
       </div>
     </el-dialog>
+
+
+    <!-- 推送题目 -->
+    <el-dialog :visible.sync="push_toggle">
+      <div class="answer_center" v-infinite-scroll="answer_load" style="overflow:auto"  >
+        <p class="push_title" >个性化作业推送</p>
+        <p class="push_text" >已选择3个知识点</p>
+        <div  class="knowledge_view" >
+            <div v-for="i in 6" :key="i" >
+              <span>10以内加减法</span>
+                <el-image :src="blue_close" fit="cover">
+                 <div slot="error" class="image-slot">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+
+              </el-image>
+            </div>
+
+        </div>
+        <p class="push_text_des" >每道题推送相似题数量</p>
+        
+        <div class="push_text_des_view" >
+            <p :class="i==5?'des_action':''" v-for="i in 10" :key="i" >{{i}}</p>
+            <el-input
+            placeholder="自定义"
+            v-model="input_value"
+            clearable>
+          </el-input>
+        </div>
+        <!--答错学生列表 -->
+
+
+      </div>
+      <div slot="footer">
+        <el-button
+          type="danger"
+          class="send_cancle"
+          @click="change_push_toggle"
+        >取消</el-button>
+
+        <el-button
+          type="primary"
+          class="send_confrm"
+          @click="change_push_toggle"
+        >发送</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -420,7 +504,10 @@ export default {
       student_toggle:false,
       BookImage: require("../assets/open_book.png"),
       closeIcon: require("../assets/detail_close_icon.png"),
-
+      pencil: require("../assets/pencil.png"),
+      close_cancle: require("../assets/close_cancle.png"),
+      blue_close: require("../assets/blue_close.png"),
+      input_value:"",
       RightIcon: require("../assets/right_icon.png"),
       ErrorIcon: require("../assets/eorr.png"),
       NoNumImage: require("../assets/no_num.png"),
@@ -429,6 +516,7 @@ export default {
       FirstIcon: require("../assets/first_icon.png"),
       SecondIcon: require("../assets/second_icon.png"),
       ThreeIcon: require("../assets/there_icon.png"),
+      push_toggle:false,
       other_list:[],
       pid: 0,
       over_view: {
@@ -460,6 +548,7 @@ export default {
       qas_code: "",
       code: "",
       ns_data: [],
+      is_send:false,
       ys_data: [],
       rq_rate: 0,
       rq_title: "",
@@ -468,7 +557,9 @@ export default {
       right_toggle: false,
        answer_data:[],
       error_toggle:true,
-      success_toggle:true
+      success_toggle:true,
+      leftcheckList:[],
+      rightcheckList:[]
 
     };
   },
@@ -512,6 +603,15 @@ export default {
     },
   mounted() {},
   methods: {
+    change_push_toggle(){
+      return
+      let {push_toggle}=this
+      this.push_toggle=!push_toggle
+    },
+    change_send(){
+      let {is_send}=this
+      this.is_send=!is_send
+    },
         change_error(){
       let　{error_toggle}=this
       this.error_toggle=!error_toggle
@@ -521,7 +621,7 @@ export default {
       this.success_toggle=!success_toggle
     },
     TabCheck(index) {
-      let {other_list,over_view}=this
+      let {other_list,over_view,is_send}=this
       
       this.TabIndex = index;
       if(index==1&&other_list.length==0&&over_view.ys_results.length!=0){
@@ -598,7 +698,8 @@ export default {
 
     //查看题目
     async CheckQas(code) {
-      let { pid } = this;
+      let { pid,is_send } = this;
+      if(is_send)return
       this.qas_code = code;
       await this.$post("qa_content", "/?c=api", {
         code: code,
@@ -610,15 +711,29 @@ export default {
 
            //选择题转换
         for(let i in res.answer_data){
-          for(let o in res.answer_data[i].content.options){
+          if(res.answer_data[i].type==1){
+            let html_text=""
+             for(let o in res.answer_data[i].content.options){
+            
                if(res.answer_data[i].content.options[o].text.indexOf("img:")!=-1){
                     res.answer_data[i].content.options[o].url=this.$till.change_file_url(res.answer_data[i].content.options[o].text.substring(5)) 
+                     html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <img src="${res.answer_data[i].content.options[o].url}"></img></span>
+                  </div>`
+                  }else{
+                     html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <span>${res.answer_data[i].content.options[o].text}</span></span>
+                  </div>`
                   }
-            
-          }
+                   }
+                    let allhtml=`<div class="check_qas_view">${html_text}</div>`
+                res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, allhtml)
+              }else{
+                    res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, "")
+
+              }
+         
         }
 
-
+        res.qas_content=res.qas_content.replace(/卍.*?卍/g, "")
         // 答错
         for(let i in res.ns_data){
           res.ns_data[i].avatar=this.$till.change_file_url(res.ns_data[i].avatar)
@@ -748,14 +863,23 @@ export default {
   align-items: center;
   justify-content: space-between;
   margin-top: 47px;
+  padding-left: 55px;
+  box-sizing: border-box;
 }
 .list_view_scroll_bot > div {
   display: flex;
   align-items: center;
 }
 .list_view_scroll_bot_right {
-  color: #bdbdbd;
-  font-size: 25px;
+  color: #fff;
+  font-size: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width:175px;
+height:55px;
+background:rgba(84,93,255,1);
+border-radius:37px;
 }
 .list_view_scroll_bot_left > div {
   display: flex;
@@ -895,6 +1019,37 @@ box-sizing: border-box;
   padding-right: 30px;
   box-sizing: border-box;
   
+}
+.send_button{
+width:125px;
+height:56px;
+background:rgba(84,93,255,1);
+border-radius:37px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #fff;
+font-size: 33px;
+margin-left: 40px;
+}
+.Census_right_tab_right{
+  display: flex;
+  align-items: center;
+  padding-right: 80px;
+  box-sizing: border-box;
+}
+.Census_right_tab_right_image{
+  display: flex;
+  align-items: center;
+font-size:29px;
+font-weight:500;
+color:rgba(32,32,32,1);
+margin-left: 41px;
+}
+.Census_right_tab_right_image .el-image{
+  width: 35px;
+  height: 35px;
+  margin-right: 4px;
 }
 .answr_parent_top_left{
   width:91px;
@@ -1075,7 +1230,7 @@ border-radius:19px;
 }
 .list_view_scroll,
 .list_view_scroll_other {
-  /* height: 800px; */
+  height: 88vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1090,7 +1245,7 @@ border-radius:19px;
   border-radius: 18px;
   margin-bottom: 18px;
   position: relative;
-  padding:18px 18px 28px 60px ;
+  padding:18px 18px 28px 19px ;
   box-sizing: border-box;
   border: 1px solid #f3f3f3;
 }
@@ -1099,7 +1254,6 @@ border-radius:19px;
   width: 100%;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 32px;
 }
 .list_view_scroll_other_title_fp{
   font-size: 25px;
@@ -1117,7 +1271,6 @@ border-radius:19px;
   font-size: 24px;
 }
 .list_view_scroll_number {
-  position: absolute;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -1127,8 +1280,7 @@ border-radius:19px;
   justify-content: center;
   font-size: 25px;
   color: #fff;
-  left: 16px;
-  top: 13px;
+  margin-right: 19px;
 }
 .list_view_scroll_number_avtive{
   background: rgba(84, 93, 255, 1) !important;
@@ -1184,12 +1336,17 @@ border-radius:19px;
 .Census_right_tab {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
   margin-bottom: 30px;
   padding-left: 70px;
   box-sizing: border-box;
 }
-.Census_right_tab > div {
+.Census_right_tab_left{
+  display: flex;
+  align-items: center;
+}
+.Census_right_tab_left > div {
   width: 144px;
   height: 54px;
   background: rgba(236, 236, 236, 1);
@@ -1223,13 +1380,37 @@ border-radius:19px;
  .Census .el-dialog{
   /* width: auto; */
 }
+.knowledge_view{
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.knowledge_view>div{
+background:rgba(242,242,255,1);
+border-radius:4px;
+border:1px solid rgba(204,207,255,1);
+display: flex;
+align-items: center;
+justify-content: center;
+color: #888CD3;
+font-size: 22px;
+padding: 10px 14px;
+box-sizing: border-box;
+margin-right: 20px;
+margin-bottom: 20px;
+
+}
+.knowledge_view>div .el-image{
+  width: 20px;
+  height: 20px;
+  margin-left: 20px;
+}
 
 
 .list_view_scroll_title {
   font-size: 25px;
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
-  margin-bottom: 20px;
 }
 .answer_center::-webkit-scrollbar {
   /*滚动条整体样式*/
@@ -1242,6 +1423,7 @@ border-radius:19px;
   max-height: 60vh;
   flex-direction: column;
   align-items: flex-start;
+  padding-top: 5px;
   /* align-items: center; */
 }
 .answer_center_top {
@@ -1286,7 +1468,7 @@ border-radius:19px;
 }
 .poeple_view > p .el-image{
   width: 19px;
-  height: 17px;
+  height: 19px;
 }
 .poeple_view > div {
   display: flex;
@@ -1302,10 +1484,10 @@ border-radius:19px;
   margin-right: 45px;
   margin-bottom: 35px;
 }
-.answer_qri{
-  width: 100%;
-  margin-top: 10px;
-  margin-bottom: 20px;
+.Census_right .el-checkbox{
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
 }
 .stundet_msg{
   display: flex;
@@ -1382,6 +1564,8 @@ margin-left: 41px;
   align-items: center;
   color: #bdbdbd;
   font-size: 26px;
+  padding-left: 55px;
+  box-sizing: border-box;
 }
 .all_cout p {
   margin-right: 15px;
@@ -1408,7 +1592,7 @@ student_view_right_scroll .no_data_view .el-image {
   width: 144px;
   height: 88px;
 }
-.
+
 .Census_right .no_data_view .el-image {
   width: 400px;
   height: 219px;
@@ -1550,10 +1734,59 @@ student_view_right_scroll .no_data_view .el-image {
   font-size: 33px;
   margin-bottom: 100px;
 }
+.push_title{
+font-size:33px;
+color:rgba(32,32,32,1);
+margin-bottom: 14px;
+}
+.push_text{
+font-size:27px;
+color:rgba(32,32,32,1);
+margin-bottom: 17px;
+}
+.push_text_des{
+font-size:25px;
+color:rgba(32,32,32,1);
+margin-bottom: 20px;
+}
+.push_text_des_view{
+  display: flex;
+  align-items: center;
+}
+.des_action{
+  background: #66BD6A !important;
+  color: #fff !important;
+}
+.push_text_des_view p{
+  width:48px;
+height:48px;
+background:rgba(233,233,233,1);
+border-radius:7px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #AFAFAF;
+font-size: 25px;
+margin-right: 14px;
+}
+.push_text_des_view .el-input,.push_text_des_view input{
+  width:171px;
+height:48px;
+background:rgba(233,233,233,1);
+border-radius:7px;
+}
 .dclass{
   width: auto;
 }
 .dclass .el-dialog__body{
   padding-left: 0;
+}
+.list_view_scroll_top{
+  display: flex;
+  align-items: center;
+  /* margin-bottom: 30px; */
+}
+.bottom_top{
+  margin-bottom: 30px;
 }
 </style>

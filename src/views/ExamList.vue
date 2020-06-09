@@ -33,8 +33,9 @@
       <div class="file_list" v-if="files.length!=0" >
         <p>附件</p>
         <div class="file_list_view"  >
-          <div v-for="(item,index) in files" :key="item.name"  @click="check_file(item.fpath,item.type_num,item.method_text)"   >
-            <el-image :src="item.url" fit="cover" @click="show_image(index)"   v-if="item.type_num==0">
+          <div v-for="(item) in files" :key="item.name"  @click="check_file(item.fpath,item.type_num,item.method_text)"   >
+            <el-image :src="item.url" fit="cover"   v-if="item.type_num==0">
+              <!-- @click="show_image(index)"  -->
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
@@ -48,7 +49,7 @@
             </el-image>
          
             <p>{{item.fcname}}</p>
-            <!-- <a v-if="item.type_num>2" :href="item.fpath" :download="item.fcname" target="_self"  ></a> -->
+            <a v-if="item.method_text==''" :href="item.fpath" :download="item.fcname" target="_self"  ></a>
           </div>
         </div>
       </div>
@@ -303,9 +304,19 @@ export default {
     },
 
     check_file(url,type,method_text){
-      console.log(url,method_text)
+       if(method_text=="")return
+      let user_local_data= JSON.parse(localStorage.getItem("user_local"))
+      let {plid,class_id}=this
+      let query={
+        plid,
+        class_id
+      }
+      user_local_data.is_file_leave=true
+      user_local_data.query=query
+      localStorage.setItem("user_local",JSON.stringify(user_local_data))
+      
+     
       if(method_text=="ImportPptx"){
-        console.log("ppt",method_text,url)
            window.external.InvokeMethod(JSON.stringify({
           method:method_text,
           args:JSON.stringify({
@@ -322,28 +333,19 @@ export default {
           })
       })) 
       }
-         
-      
-    
+      // 关闭窗口
+      window.external.InvokeMethod(JSON.stringify({ "method": "CloseWindow" }))
     },
 
      scaleIt(){
        window.external.InvokeMethod(JSON.stringify({
           "method": "ResizeBrowserWindow", 
           "args": JSON.stringify({
-             "frameWidth": 1280,
-              "frameHeight": 720, 
+             "frameWidth": 1920,
+              "frameHeight": 1080, 
               "resizeDirection":
                "topLeftBottomRight"
               })}))
-      //   window.external.InvokeMethod(JSON.stringify({
-      //   method:"ResizeBrowserWindow",
-      //   args:JSON.stringify({
-      //     frameWidth:1600,
-      //     frameHeight:900,
-      //     resizeDirection:"topLeftBottomRight"
-      //   })
-      // }))
     },
     smallit(){
          window.external.InvokeMethod(JSON.stringify({
@@ -892,7 +894,7 @@ export default {
   padding-top: 50px;
 }
 .left_view {
-  height: 82vh;
+  height: 85vh;
   padding-left: 20px;
   box-sizing: border-box;
 }

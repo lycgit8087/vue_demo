@@ -186,4 +186,29 @@ export default {
   font-size: 120px;
 }
 
+.success_stundets{
+  width:41px;
+height:30px;
+background:rgba(102,189,106,1);
+border-radius:103px;
+padding: 6px 8px ;
+box-sizing: border-box;
+color: #fff;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.error_stundets{
+  width:41px;
+height:30px;
+background:#FF5A58;
+border-radius:103px;
+padding: 6px 10px ;
+box-sizing: border-box;
+color: #fff;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
 </style>

@@ -774,6 +774,19 @@ export default {
     this.value = value;
     this.star_time = star_time;
     this.end_time = end_time;
+      let user_local_data= JSON.parse(localStorage.getItem("user_local"))
+      console.log(user_local_data)
+    if(user_local_data.is_file_leave){
+      let {plid,class_id}=user_local_data.query
+      this.$router.push({
+        name: "ExamList",
+        query: { plid: plid, class_id: class_id }
+      });
+      user_local_data.is_file_leave=false
+      user_local_data.query={}
+      localStorage.setItem("user_local",JSON.stringify(user_local_data))
+
+    }
 
     await this.GetPrepareLessonList();
     await this.set_user_local()
@@ -808,6 +821,9 @@ export default {
 }
 .el-calendar{
   width: 724px;
+}
+.CLassIndex .el-checkbox__inner{
+  border: 2px solid #DCDFE6;
 }
 .class_tab_view{
  width:80px;
