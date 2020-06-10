@@ -1,14 +1,22 @@
 <!-- back -->
 <template>
   <div class="Back">
-    <div class="back_to" @click="BackIt">
-      <el-image :src="backIcon" fit="cover">
+    <div class="back_to">
+
+        <el-image @click="Backindex" :src="indexIcon" fit="cover">
         <div slot="error" class="image-slot">
           <i class="el-icon-picture-outline"></i>
         </div>
       </el-image>
 
-      <span>返回</span>
+
+      <el-image  @click="BackIt" :src="backIcon" fit="cover">
+        <div slot="error" class="image-slot">
+          <i class="el-icon-picture-outline"></i>
+        </div>
+      </el-image>
+
+
     </div>
   </div>
 </template>
@@ -24,7 +32,9 @@ export default {
   data() {
     //这里存放数据
     return {
-      backIcon: require("../assets/backicon.png")
+      backIcon: require("../assets/back_icon.png"),
+      indexIcon: require("../assets/index_icon.png"),
+
     };
   },
   //监听属性 类似于data概念
@@ -35,7 +45,11 @@ export default {
   methods: {
     BackIt() {
       this.$router.go(-1);
-    }
+    },
+    Backindex(){
+      this.$router.replace({ name: "ClassIndex" });
+
+    },
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
@@ -56,27 +70,27 @@ export default {
   /* width: 100%; */
 }
 .back_to {
-    width:180px;
-    height:90px;
-    background:rgba(255,255,255,0.8);
-    box-shadow:0px 2px 10px 0px rgba(0,0,0,0.1);
-    border-radius:50px 0px 0px 50px;
-    border:1px solid rgba(233,233,233,1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size:32px;
-    font-weight:500;
-    color:rgba(32,32,32,1);
+    width:70px;
+height:164px;
+background:rgba(255,255,255,0.8);
+box-shadow:0px 2px 10px 0px rgba(0,0,0,0.1);
+border-radius:15px 0px 0px 15px;
+border:1px solid rgba(233,233,233,1);
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+align-items: center;
+padding: 25px 0;
+box-sizing: border-box;
+
     position: fixed;
     right: 0;
     bottom: 5vh;
     z-index: 666;
 }
 .back_to .el-image{
-    width: 45px;
-    height: 45px;
-    margin-right: 10px;
+    width: 38px;
+    height: 38px;
 }
 
 </style>

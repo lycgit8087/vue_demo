@@ -535,7 +535,10 @@ export default {
       });
     },
     BackLogin() {
-      this.websock_view.close()
+      if(this.websock_view!=''){
+        this.websock_view.close()
+
+      }
       this.$store.dispatch('change_websocket',null)
       localStorage.setItem("token", "");
       localStorage.setItem("user_local","")
@@ -857,6 +860,9 @@ border-radius:0px 0px 15px 0px;
   width: 100%;
   align-items: center;
   font-size: 28px;
+}
+.class_tab_view>div p span{
+  margin-top: 5px;
 }
 .class_tab_view .el-image{
   width: 36px;

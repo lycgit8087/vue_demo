@@ -18,7 +18,8 @@
     </div>
     <div class="ExamDetail_right" v-infinite-scroll="right_load" style="overflow:auto">
       <p class="ExamDetail_right_title">{{plist.title}}</p>
-      <p class="ExamDetail_right_text">分数：{{plist.count}}分 时间：{{plist.qminute}}分钟</p>
+      <p class="ExamDetail_right_text">分数：{{plist.count}}分 </p>
+      <!-- 时间：{{plist.qminute}}分钟 -->
 
       <div v-for="item in content" :key="item.tcid" class="qas_view">
         <p class="exam_list_left_title">{{item.partname}}</p>
@@ -571,6 +572,10 @@ font-size: 25px;
 .qas_view {
   width: 100%;
 }
+.qas_view>div{
+  display: flex;
+  flex-direction: column;
+}
 .oitem_item{
   display: flex;
   align-items: center;
@@ -635,7 +640,7 @@ box-sizing: border-box;
 }
 .exam_list_left_title {
   font-size: 32px;
-  font-weight: 400;
+  font-weight: bold;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 18px;
 }
@@ -643,7 +648,7 @@ box-sizing: border-box;
   /* padding-left: 15px; */
   box-sizing: border-box;
   font-size: 32px;
-  font-weight: 400;
+  font-weight: 600;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 20px;
   margin-top: 10px;

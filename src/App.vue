@@ -83,6 +83,7 @@ export default {
 .viewer-list > li  img{
   width: 100% !important;
   height: 100% !important;
+      transform: translateY(0) !important;
 }
 .viewer-button{
   width: 100px !important;

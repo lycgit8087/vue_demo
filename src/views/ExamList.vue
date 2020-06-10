@@ -1,6 +1,6 @@
 <!-- ExamList -->
 <template>
-  <div class="ExamList">
+  <div class="ExamList" @click.stop="hide_com" >
     <div class="exam_list_left">
       <back></back>
       <p  class="exam_title"  >{{sub_title}}</p>
@@ -33,24 +33,36 @@
       <div class="file_list" v-if="files.length!=0" >
         <p>附件</p>
         <div class="file_list_view"  >
-          <div v-for="(item) in files" :key="item.name"  @click="check_file(item.fpath,item.type_num,item.method_text)"   >
-            <el-image :src="item.url" fit="cover"   v-if="item.type_num==0">
-              <!-- @click="show_image(index)"  -->
-                 <div slot="error" class="image-slot">
-              <i class="el-icon-picture-outline"></i>
+          <!--  -->
+          <div class="file_list_view_top"  @click.stop="show_it(index)"   v-for="(item,index) in files" :key="item.name" >
+            <div  class="file_list_view_item"  >
+                <div class=" file_list_view_item_child ">
+                    <el-image :src="item.url" fit="cover"    v-if="item.type_num==0">
+                      
+                        <div slot="error" class="image-slot">
+                      <i class="el-icon-picture-outline"></i>
+                    </div>
+
+                    </el-image>
+                    <!-- @click="see_file(item.fpath,item.type_num)" -->
+                    <el-image   :src="item.url" fit="cover"   v-if="item.type_num!=0"  >
+                        <div slot="error" class="image-slot">
+                      <i class="el-icon-picture-outline"></i>
+                    </div>
+                    </el-image>
+                    <p   class="file_name" >{{item.fcname}}</p>
+                    <!-- <a   v-if="item.type>2&&item.type!=6" :href="item.fpath" :download="item.fcname" target="_self"  ></a>
+                    <p   v-if="item.type==6" class="ppt_view" @click="check_file(item.fpath,item.type_num,item.method_text)" ></p> -->
+                </div>
             </div>
 
-            </el-image>
-            <el-image :src="item.url" fit="cover"  v-if="item.type_num!=0"  >
-                 <div slot="error" class="image-slot">
-              <i class="el-icon-picture-outline"></i>
+            <div class="pos_view" v-show="item.is_show" >
+                <p @click.stop="handleCommand(litem.type)" v-for="litem in item.list_arr" :key="litem.text" >{{litem.text}}</p>
+
             </div>
-          <!-- @click="see_file(item.fpath,item.type_num)" -->
-            </el-image>
-         
-            <p>{{item.fcname}}</p>
-            <a v-if="item.method_text==''" :href="item.fpath" :download="item.fcname" target="_self"  ></a>
-          </div>
+            </div>
+        
+
         </div>
       </div>
 
@@ -148,10 +160,9 @@
           </el-image>
           <span class="success_text">发送成功</span>
           <el-button type="primary" class="to_see_data" @click="to_see_data">查看数据</el-button>
-          <div class="back_index" @click="BackIndex">返回首页</div>
+          <div class="back_index" @click="BackIndex">关闭</div>
         </div>
       </el-dialog>
-
 
       <!-- 视频 音频 弹出框 -->
       <el-dialog :visible.sync="file_toggle"  >
@@ -159,8 +170,6 @@
         <div class="video_file_view" >
               <video :src="file_url" v-if="file_type==1"  controls="controls" ></video>
               <audio :src="file_url" v-if="file_type==2" controls="controls"  ></audio>
-
-
         </div>
 
       </el-dialog>
@@ -197,14 +206,14 @@ export default {
       loading: true,
       video_url:"",
       file_arr: [
-        {text:"jpg,jpeg,gif,png,bmp",url:ImageIcon,type:0,method:"InsertImage"},
-        {text:"3gpp,mp4,rm,rmvb,avi,3gp,mov,mtv",url:VideoIcon,type:1,method:"InsertVideo"},
-        {text:"doc,docx",url:WordIcon,type:3,method:""},
-        {text:"pptx,ppt",url:PPtIcon,type:3,method:"ImportPptx"},
-        {text:"xlsx,xls",url:XlsIcon,type:3,method:""},
-        {text:"zip,rar",url:RarIcon,type:3,method:""},
-        {text:"pdf",url:PdfIcon,type:3,method:""},
-        {text:"mp3,aac,wma,ogg,m4a,flac,ape,wav,amr",url:AudioIcon,type:2,method:"InsertAudio"},
+        {text:"jpg,jpeg,gif,png,bmp",url:ImageIcon,type:0,method:"InsertImage",list_arr:[{text:"打开",type:0},{text:"导入",type:1}]},
+        {text:"3gpp,mp4,rm,rmvb,avi,3gp,mov,mtv",url:VideoIcon,type:1,method:"InsertVideo",list_arr:[{text:"打开",type:0},{text:"导入",type:1}]},
+        {text:"doc,docx",url:WordIcon,type:3,method:"",list_arr:[{text:"下载",type:2}]},
+        {text:"pptx,ppt",url:PPtIcon,type:6,method:"ImportPptx",list_arr:[{text:"导入",type:1}]},
+        {text:"xlsx,xls",url:XlsIcon,type:3,method:"",list_arr:[{text:"下载",type:2}]},
+        {text:"zip,rar",url:RarIcon,type:3,method:"",list_arr:[{text:"下载",type:2}]},
+        {text:"pdf",url:PdfIcon,type:3,method:"",list_arr:[{text:"下载",type:2}]},
+        {text:"mp3,aac,wma,ogg,m4a,flac,ape,wav,amr",url:AudioIcon,type:2,method:"InsertAudio",list_arr:[{text:"打开",type:0},{text:"导入",type:1}]},
       ],
       srcList:[],
       class_name:"",
@@ -226,6 +235,7 @@ export default {
       prepare_lesson_data:{},
       plist:{
       },
+      file_obj:{},
       file_type:0,
       class_id:0,
       send_toggle: false,
@@ -235,7 +245,8 @@ export default {
       send_loading: false,
       plid: 0,
       sub_title:"",
-      file_toggle:false
+      file_toggle:false,
+      file_index:0
     };
   },
   //监听属性 类似于data概念
@@ -265,6 +276,56 @@ export default {
   },
   //方法集合
   methods: {
+    show_it(index){
+      console.log("1234",index)
+      index=parseInt(index)
+      let {files}=this
+      for(let i in files){
+        files[i].is_show=false
+        
+      }
+      console.log(files[index].is_show)
+      for(let i in files){
+        if( parseInt(i)==index){
+        files[index].is_show=!files[index].is_show
+          
+        }
+      }
+    //  this.$set(this.files)
+
+      this.file_obj=files[index]
+      this.file_index=index
+      this.files=files
+      
+    },
+    hide_com(){
+      console.log("触发了")
+        let {files,file_index}=this
+        for(let i in files){
+           files[i].is_show=false
+
+        }
+          this.files=files
+        
+     
+    },
+    handleCommand(command){
+      let {files,file_obj,file_index}=this
+      files[file_index].is_show=false
+      this.files=files
+      if(command==0&&file_obj.type_num==0){
+        this.show_image(file_index)
+      }else if(command==0&&(file_obj.type_num==1||file_obj.type_num==2)){
+        this.see_file(file_obj.fpath,file_obj.type_num)
+      }else if(command==1){
+        this.check_file(file_obj.fpath,file_obj.type_num,file_obj.method_text)
+      }else if(command==2&&file_obj.type_num>2) {
+        var a = document.createElement('a');
+            a.target = "_self";
+            a.href =file_obj.fpath ;
+            a.click();
+      }
+    },
    
     htm_check(e){
       if(e.target.tagName=="IMG"){
@@ -278,7 +339,6 @@ export default {
       this.viewer = viewer
     },
     show_image(index){
-      
       let {files,srcList}=this
       let image_arr=files.filter(item=>item.ftype==0)
       if(srcList.length!=image_arr.length){
@@ -296,10 +356,18 @@ export default {
 
     see_file(url,type){
       let {files}=this
-      let srcList=[]
-      this.file_type=type
+
+      if(type==6){
+        this.check_file(url,type,"ImportPptx")
+      }else{
+        if(type==1||type==2){
+          this.file_type=type
         this.file_toggle=true
         this.file_url=url
+        }
+        
+      }
+      
 
     },
 
@@ -482,6 +550,8 @@ export default {
           files[i].url=file_arr[num].url
           files[i].type_num=file_arr[num].type
           files[i].method_text=file_arr[num].method
+          files[i].list_arr=file_arr[num].list_arr
+          files[i].is_show=false
 
         }
         this.tcontents = tcontents;
@@ -494,7 +564,7 @@ export default {
           paper_list[i].plist={}
         }
         this.srcList=srcList
-        console.log(files)
+        // console.log(files)
         this.files=files
         this.paper_list=paper_list
         let page_data={
@@ -537,7 +607,7 @@ export default {
     },
     BackIndex() {
       this.send_success=false
-      this.$router.replace({ name: "ClassIndex" });
+      // this.$router.replace({ name: "ClassIndex" });
     },
     close_send() {
       this.send_toggle = !this.send_toggle;
@@ -619,10 +689,10 @@ export default {
 .p_class{
   font-size: 26px !important;
   margin-bottom: 10px !important;
-  line-height: 1.5;
+  line-height: 2;
 }
 .span_class{
-  line-height: 1.6 !important;
+  line-height:2 !important;
   font-size: 26px !important;
 
 }
@@ -670,22 +740,28 @@ export default {
   display: flex;
   flex-wrap: wrap;
 }
-.file_list_view > div {
+.file_list_view_item {
   display: flex;
   flex-direction: column;
   /* margin-right: 70px; */
   justify-content: space-between;
   align-items: center;
   margin-bottom: 40px;
-  width: 25%;
+  /* width: 25%; */
   position: relative;
   padding: 0 10px;
   box-sizing: border-box;
   height: 120px;
 }
-.file_list_view > div p{
+.file_list_view_item>span{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+.file_name{
   width: 100%;
-  height: 45px;
   text-align: center;
   white-space: normal;
   text-overflow: -o-ellipsis-lastline;
@@ -698,7 +774,7 @@ export default {
   line-height: 1.3;
 
 }
-.file_list_view > div a{
+.file_list_view_item a{
   display: flex;
   height: 100%;
   width: 100%;
@@ -707,7 +783,7 @@ export default {
   left: 0;
 }
 
-.file_list_view > div .el-image {
+.file_list_view_item .el-image {
   width: 54px;
   height: 54px;
 }
@@ -723,6 +799,11 @@ export default {
   color: rgba(0, 3, 54, 1);
   margin-bottom: 50px;
 }
+
+/* .file_list_view>span{
+  display: flex;
+  flex-wrap: wrap;
+} */
 .scroll_view {
   height: auto;
   width: 702px;
@@ -759,6 +840,13 @@ export default {
   color: rgba(100, 100, 100, 1);
   margin-top: 15px;
 }
+.ppt_view{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 .exam_list_view_item_right_edit {
   display: flex;
   flex-wrap: wrap;
@@ -775,6 +863,14 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 25px !important;
+}
+.file_list_view_item_child{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
 }
 .el-button + .el-button {
   margin-left: 0 !important;
@@ -948,6 +1044,47 @@ export default {
   width: 90px;
   border-radius: 50%;
   background: rgba(216, 216, 216, 0.4);
+}
+.file_list_view_top{
+  width: 25%;
+  position: relative;
+}
+.pos_view{
+  width: 90%;
+  position: absolute;
+  border: 1px solid #f3f3f3;
+  right: 0;
+  top: 100%;
+  border-radius: 10px;
+  z-index: 5555;
+  background: #fff;
+  transform: translate(0%,-20%);
+}
+.pos_view>p{
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #202020;
+  
+
+}
+.pos_view::after{
+    content: "";
+    width: 0;
+    height: 0;
+  
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #f3f3f3;
+    /* border-top-width: 0;
+    border-bottom-color: #ebeef5; */
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translate(-50%,0%);
 }
 .people_view_item_image .el-image:nth-child(2) {
   width: 43px;
