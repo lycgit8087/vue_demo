@@ -2,9 +2,12 @@
   <div class="Census">
     <!-- 试题报告概览 -->
     <div class="Census_left">
-      <back></back>
+      <back @updateit="get_all" ></back>
       <div class="Census_left_view">
-        <p class="Census_left_title">试题报告概览</p>
+        <p class="Census_left_title">
+          <span @click="close_web" >试题报告概览</span>
+          <span :class=" this.$store.state.web_num==0?'web_error web_view ':'web_view'  "  ></span>
+          </p>
 
         <!-- 统计 -->
         <div class="all_data_view">
@@ -170,7 +173,7 @@
       >
       <template >
         
-        <div v-for="(item,index) in topic_list" :key="item.code" @click="CheckQas(item.code)">
+        <div v-for="(item,index) in topic_list" :key="index" @click="CheckQas(item.code)">
           <el-checkbox :label="item.code"   v-if="is_send"  >
           <div class="list_view_scroll_top"  >
             <div class="list_view_scroll_top_left" >
@@ -348,9 +351,10 @@
           <span>{{item.partname}}</span>
           <div class="student_scroll_view_item_des">
             <span
-              v-for="qitem in item.qas"
-              :key="qitem.id"
-              :class="qitem.result==0?'span_error':qitem.result==1?'span_success':qitem.result==2?'span_error':''"
+              v-for="(qitem,qindex) in item.qas"
+              :key="qindex"
+              :class="qitem.result==0?'':qitem.result==1?'span_success':qitem.result==2?'span_error':qitem.result==3?'span_error':''"
+              @click="CheckQas(qitem.code)"
             >{{qitem.num}}</span>
           </div>
         </div>
@@ -367,6 +371,11 @@
           <span>{{rq_title}}</span>
         </div>
         <div class="html_div" v-html="qas_content"></div>
+
+        <div class="right_answer_view" v-if="sid" >
+          <span>正确答案是：</span>
+          <p> <span v-for="item in answer_arr" :key="item" >{{item}}</span> </p>
+        </div>
 
         <!-- 答案解析 -->
         <div class="answer_konw" @click="change_right_toggle" v-show="!right_toggle"  >
@@ -451,7 +460,7 @@
           :loading="is_change_before"
           :disabled="is_change"
           class="send_cancle"
-          @click="before"
+          @click="all_before"
         >上一题</el-button>
 
         <el-button
@@ -459,7 +468,7 @@
           :loading="is_change_next"
           :disabled="is_change"
           class="send_confrm"
-          @click="next"
+          @click="all_next"
         >下一题</el-button>
       </div>
     </el-dialog>
@@ -657,7 +666,8 @@ export default {
         { text: "答错数", des: "" },
         { text: "答对数", des: "" }
       ],
-      sid:0,
+      answer_arr:[],
+      sid:"",
       info:{},
       TabIndex: 0,
       is_change_before: false,
@@ -699,6 +709,11 @@ export default {
           this.GetPaperOverview();
           this.GetRightOther()
           this.$store.dispatch('change_web_type',0)
+        }
+      },
+      student_toggle(val){
+        if(!val){
+          this.sid=""
         }
       },
       error_students_check(val,oldval){
@@ -750,6 +765,32 @@ export default {
     },
   mounted() {},
   methods: {
+    all_next(){
+      let {sid}=this
+      if(sid){
+        this.next_it()
+      }else{
+
+        this.next()
+      }
+    },
+    all_before(){
+       let {sid}=this
+      if(sid){
+        this.before_it()
+      }else{
+        this.before()
+      }
+    },
+    get_all(){
+          this.GetRightList();
+          this.GetPaperOverview();
+          this.GetRightOther()
+    },
+    close_web(){
+       let websock=this.$store.state.websocket
+       websock.close()
+    },
     change_error_student(index){
       let {error_students}=this
       error_students[index].is_check=!error_students[index].is_check
@@ -862,41 +903,66 @@ export default {
 
     //查看题目
     async CheckQas(code) {
-      let { pid,is_send } = this;
+      let { pid,is_send,sid } = this;
       if(is_send)return
       this.qas_code = code;
       await this.$post("qa_content", "/?c=api", {
+        student_id:sid,
         code: code,
         pid: pid,
         is_loadstus:1
       }).then(res => {
         res.qas_content = this.$till.htmlspecialchars_decode(res.content);
-
-
+        let answer_arr=[]
            //选择题转换
         for(let i in res.answer_data){
+          if(sid){
+             answer_arr.push(res.uanswers[`answer_${res.answer_data[i].id}`])
+          }
+         
           if(res.answer_data[i].type==1){
             let html_text=""
-             for(let o in res.answer_data[i].content.options){
             
+            
+             for(let o in res.answer_data[i].content.options){
+               
                if(res.answer_data[i].content.options[o].text.indexOf("img:")!=-1){
                     res.answer_data[i].content.options[o].url=this.$till.change_file_url(res.answer_data[i].content.options[o].text.substring(5)) 
-                     html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <img src="${res.answer_data[i].content.options[o].url}"></img></span>
+                      if(sid){
+                          html_text+=`<div class="oitem_item ${((res.uanswers[`uanswer_${res.answer_data[i].id}`]==res.answer_data[i].content.options[o].value)&&res.uanswers[`uanswer_${res.answer_data[i].id}`]!=res.uanswers[`answer_${res.answer_data[i].id}`])?'eborder_class':''}  ${res.uanswers[`answer_${res.answer_data[i].id}`]==res.answer_data[i].content.options[o].value?'rborder_class':''} "><span>${res.answer_data[i].content.options[o].value}</span> <img src="${res.answer_data[i].content.options[o].url}"></img></span>
                   </div>`
+                      }else{
+                          html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <img src="${res.answer_data[i].content.options[o].url}"></img></span>
+                  </div>`
+                      }
                   }else{
-                     html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <span>${res.answer_data[i].content.options[o].text}</span></span>
+                    if(sid){
+                      html_text+=`<div class="oitem_item ${((res.uanswers[`uanswer_${res.answer_data[i].id}`]==res.answer_data[i].content.options[o].value)&&res.uanswers[`uanswer_${res.answer_data[i].id}`]!=res.uanswers[`answer_${res.answer_data[i].id}`])?'eborder_class':''} ${res.uanswers[`answer_${res.answer_data[i].id}`]==res.answer_data[i].content.options[o].value?'rborder_class':''} "><span>${res.answer_data[i].content.options[o].value}</span> <span>${res.answer_data[i].content.options[o].text}</span></span>
                   </div>`
+                    }else{
+                      html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <span>${res.answer_data[i].content.options[o].text}</span></span>
+                  </div>`
+                    }
+                     
                   }
                    }
-                    let allhtml=`<div class="check_qas_view">${html_text}</div>`
+                 let allhtml=`<div class="check_qas_view">${html_text}</div>`
                 res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, allhtml)
               }else{
-                    res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, "")
+
+                if(sid){
+                  // "<span class='eclass' ></span>"  "<span class='rclass' ></span>"
+                  res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, res.uanswers[`uanswer_${res.answer_data[i].id}`]==res.uanswers[`answer_${res.answer_data[i].id}`]?`<span class='rclass' >${res.uanswers[`uanswer_${res.answer_data[i].id}`]}</span>`:`<span class='eclass' >${res.uanswers[`uanswer_${res.answer_data[i].id}`]}</span>`)
+
+                }else{
+                  res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, "")
+                }
+                    
 
               }
          
         }
-
+        res.answer_arr=answer_arr
         res.qas_content=res.qas_content.replace(/卍.*?卍/g, "")
         // 答错
         for(let i in res.ns_data){
@@ -915,6 +981,7 @@ export default {
         if(res.qri){
           res.qri =  this.$till.htmlspecialchars_decode(res.qri);
         }
+        this.answer_arr=answer_arr
         this.answer_data=res.answer_data
         this.qri=res.qri
         this.qtype=res.type
@@ -929,6 +996,7 @@ export default {
       this.is_change = true;
       this.is_change_next = true;
       let num=topic_list.findIndex(item=>item.code==qas_code)
+      
       if(num==topic_list.length-1){
         this.is_change = false;
         this.is_change_next = false;
@@ -942,7 +1010,7 @@ export default {
     
     },
       GetInfo(){
-    let {sid,pid,left_arr}=this
+      let {sid,pid,left_arr}=this
      this.$post("paper_result", "/?c=api", {
         student_id: sid,
         pid: pid
@@ -983,6 +1051,72 @@ export default {
                 });
       }else{
         this.CheckQas(topic_list[parseInt(num) - 1].code);
+      }
+    },
+
+
+    next_it() {
+      let { info, qas_code } = this;
+      let content=info.qa_results
+      for (let i in content) {
+        for (let j in content[i].qas) {
+          if (qas_code == content[i].qas[j].code) {
+            if (j == content[i].qas.length - 1) {
+              if (
+                content[parseInt(i) + 1] &&
+                content[parseInt(i) + 1].qas.length != 0
+              ) {
+                this.right_toggle=false
+                this.CheckQas(content[parseInt(i) + 1].qas[0].code);
+              } else {
+                
+                this.$message({
+                  message: "已到底部",
+                  type: "warning"
+                });
+              }
+            } else {
+              this.right_toggle=false
+              this.CheckQas(content[i].qas[parseInt(j) + 1].code);
+            }
+          }
+        }
+      }
+    },
+
+   
+    before_it() {
+      let { info, qas_code } = this;
+      let content=info.qa_results
+     
+      
+
+      for (let i in content) {
+        for (let j in content[i].qas) {
+          if (qas_code == content[i].qas[j].code) {
+            if (j == 0) {
+              if (
+                content[parseInt(i) - 1] &&
+                content[parseInt(i) - 1].qas.length != 0
+              ) {
+                this.right_toggle=false
+                this.CheckQas(
+                  content[parseInt(i) - 1].qas[
+                    content[parseInt(i) - 1].qas.length - 1
+                  ].code
+                );
+              } else {
+                this.$message({
+                  message: "已到顶部",
+                  type: "warning"
+                });
+              }
+            } else {
+              this.right_toggle=false
+              this.CheckQas(content[i].qas[parseInt(j) - 1].code);
+            }
+          }
+        }
       }
     },
       // 答案解析显示隐藏
@@ -1153,6 +1287,7 @@ border-radius:37px;
   align-items: center;
   color: #202020;
   font-size: 25px;
+  padding-left:40px;
 }
 .stunde_name .el-image {
   width: 54px;
@@ -1232,7 +1367,6 @@ box-sizing: border-box;
 
 .answr_parent{
   width:100%;
-min-height:297px;
 background:rgba(244,244,244,1);
 border-radius:8px;
 display: flex;
@@ -1492,6 +1626,7 @@ border-radius:19px;
   display: flex;
   align-items: center;
   margin-right: 60px;
+  line-height: 1.5;
 }
 .list_view_scroll_other_text {
   display: flex;
@@ -1684,6 +1819,28 @@ margin-bottom: 20px;
 .answer_center_top p span:nth-child(2) {
   color: #00ad56;
 }
+.right_answer_view{
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+}
+.right_answer_view>span{
+  font-size: 33px;
+  color: #202020;
+  margin-right: 15px;
+}
+.right_answer_view>p{
+  display: flex;
+  align-items: center;
+  color: #00ad56;
+  font-size: 33px;
+}
+.right_answer_view>p span{
+  margin-right: 15px;
+}
+
 
 .poeple_view {
   display: flex;
@@ -1786,7 +1943,17 @@ margin-left: 41px;
 .student_view_left_scroll > div>div>div:nth-child(2){
   width: 220px;
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
+}
+.web_view{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #66BD6A;
+  margin-left: 20px;
+}
+.web_error{
+  background: #fa6060 !important;
 }
 .student_high span:nth-child(3),.student_view_left_scroll > div>div>div:nth-child(3){
   width: 150px;
@@ -1809,6 +1976,7 @@ margin-left: 41px;
 }
 .all_cout p {
   margin-right: 15px;
+  line-height: 1.5;
 }
 .no_data_view {
   width: 100%;
@@ -1837,8 +2005,21 @@ student_view_right_scroll .no_data_view .el-image {
   width: 400px;
   height: 219px;
 }
+.eclass{
+  color: #fa6060 !important ;
+ 
+}
+.rclass{
+  color: #00AD56 !important;
+  
 
-
+}
+.eborder_class{
+   border: 4px solid #fa6060  !important;
+}
+.rborder_class{
+   border: 4px solid #00AD56  !important;
+}
 /* 学生弹出框 */
 
 .student_view_page {
@@ -2021,7 +2202,7 @@ border-radius:7px;
  
 }
 .dclass{
-  width: auto;
+  width: 1262px !important;
 }
 .dclass .el-dialog__body{
   padding-left: 0;

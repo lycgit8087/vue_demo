@@ -1,6 +1,7 @@
 <!-- CLassIndex -->
 <template>
   <div class="CLassIndex">
+    <back @loginit='open_login' @updateit="clear_data" ></back>
     <div class="CLassIndex_Left">
 
       <div @click="change_tab" class="class_tab_view"  >
@@ -34,8 +35,6 @@
         <span>目</span>
         <span>录</span>
         </p>
-
-
       </div>
       
       
@@ -143,7 +142,7 @@
             <p>{{UserInfo.name}}</p>
             <!-- <p class="ResetLogin"  >退出登录</p> -->
 
-            <el-dropdown trigger="click" @command="handleCommand">
+            <!-- <el-dropdown trigger="click" @command="handleCommand">
       <span class="el-dropdown-link">
         设置<i class="el-icon-caret-bottom el-icon--right"></i>
       </span>
@@ -152,7 +151,7 @@
           <el-dropdown-item command="0" >退出登录</el-dropdown-item>
 
         </el-dropdown-menu>
-      </el-dropdown>
+      </el-dropdown> -->
           </div>
         </div>
 
@@ -210,6 +209,22 @@
     
 
       <!-- 章节选择 -->
+
+       <!-- 试题发送 -->
+
+      <el-dialog
+        :visible.sync="login_toggle"
+      >
+        <div class="login_view">
+          是否退出登录
+          
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="danger" class="send_cancle" @click="open_login">取消</el-button>
+
+          <el-button type="primary" class="send_confrm" @click="BackLogin">确定</el-button>
+        </span>
+      </el-dialog>
      
 
 
@@ -219,7 +234,7 @@
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
-import Cookies from "js-cookie";
+
 
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -242,6 +257,7 @@ export default {
       classTimeActionIcon: require("../assets/classtime_active.png"),
       grade:0,
       websock:null,
+      login_toggle:false,
       sub_arr:[],
       sub_value:"",
       HeadImage: "",
@@ -421,18 +437,24 @@ export default {
       if(command==0){
           this.BackLogin()
       }else{
-        localStorage.setItem("user_local","")
-            this.$message.success({
-              message: "缓存清理成功！",
-              offset: 380,
-              duration: 1000
-            });
-       await this.GetUserInfo()
-       await this.set_user_local()
+       
       }
     },
+    open_login(){
+      let {login_toggle}=this
+      this.login_toggle=!login_toggle
+    },
+   async clear_data(){
+       localStorage.setItem("user_local","")
+         
+       await this.GetUserInfo()
+       await this.set_user_local()
+    },
+
+   
 
     initWebSocket (token) {
+      // console.log(WebsocketHeartbeatJs)
       let websock=this.$store.state.websocket
       let self=this
       if(websock==null){
@@ -448,20 +470,24 @@ export default {
         }
       }
       websock.onclose = function (e) {
-        console.log("关闭")
+         console.log("websocket关闭")
+        self.$store.dispatch('change_web_num',0)
+        //  判断重连
+        self.open_web()
+       
+        
       }
       websock.onopen = function () {
-        console.log("开启")
+        console.log("websocket开启")
+        self.$store.dispatch('change_web_num',1)
       }
 
       // 连接发生错误的回调方法
       websock.onerror = function () {
         console.log('WebSocket连接发生错误')
-        self.$message.success({
-              message: "web连接失败",
-              offset: 380,
-              duration: 3000
-            });
+        self.$store.dispatch('change_web_num',0)
+          //  判断重连
+        self.open_web()
       }
       this.$store.dispatch('change_websocket',websock)
       this.websock_view=websock
@@ -473,7 +499,17 @@ export default {
       this.$refs.tree.setCheckedKeys([]);
       this.confrm_data()
     },
-
+    open_web(){
+      let self=this
+         // 重连
+        if(self.$route.name=="Census"){
+          self.$store.dispatch('change_websocket',null)
+           self.$post("user_info", "/?c=api", {}).then(res => {
+        
+          self.initWebSocket(res.ws_token)
+          });
+        }
+    },
     // 获取选中数据
     confrm_data(){
       
@@ -535,14 +571,18 @@ export default {
       });
     },
     BackLogin() {
+
       if(this.websock_view!=''){
         this.websock_view.close()
 
       }
+      this.open_login()
       this.$store.dispatch('change_websocket',null)
       localStorage.setItem("token", "");
       localStorage.setItem("user_local","")
       this.$router.replace({ name: "Login"});
+      
+
     },
 
     GetAllMouth(data){
@@ -574,6 +614,8 @@ export default {
       await this.$post("user_info", "/?c=api", {}).then(res => {
         this.UserInfo = res;
         this.initWebSocket(res.ws_token)
+        // this.init_web(res.ws_token)
+
         let { belong_data, subject_data } = res;
         this.$store.dispatch("change_sid", res.sid);
         this.$store.dispatch("change_org_id", res.org_id);
@@ -639,11 +681,11 @@ export default {
       if(user_local_data){
         user_local_data=JSON.parse(user_local_data)
         if(now_time>udata.local_time){
+          
         localStorage.setItem("user_local","")
         }
       }else{
         localStorage.setItem("user_local",JSON.stringify(udata))
-
       }
     },
     changeitem(data){
@@ -777,8 +819,9 @@ export default {
     this.value = value;
     this.star_time = star_time;
     this.end_time = end_time;
-      let user_local_data= JSON.parse(localStorage.getItem("user_local"))
-      console.log(user_local_data)
+    await this.set_user_local()
+    let user_local_data= JSON.parse(localStorage.getItem("user_local"))
+    
     if(user_local_data.is_file_leave){
       let {plid,class_id}=user_local_data.query
       this.$router.push({
@@ -792,7 +835,7 @@ export default {
     }
 
     await this.GetPrepareLessonList();
-    await this.set_user_local()
+    
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
@@ -1054,6 +1097,13 @@ border-radius:0px 0px 15px 0px;
 .el-checkbox__inner {
   width: 40px !important;
   height:40px !important;
+}
+.login_view{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+
 }
 .ListParentChildViewTop p:nth-child(2) {
   font-size: 28px;

@@ -2,19 +2,46 @@
 <template>
   <div class="Back">
     <div class="back_to">
+       <!-- 返回上一页 -->
+      <div @click="BackIt" v-if="route_name!='ClassIndex'" >
+        <el-image  :src="backIcon" fit="cover">
+          <div slot="error" class="image-slot">
+            <i class="el-icon-picture-outline"></i>
+          </div>
+        </el-image>
+      </div>
 
-        <el-image @click="Backindex" :src="indexIcon" fit="cover">
-        <div slot="error" class="image-slot">
-          <i class="el-icon-picture-outline"></i>
-        </div>
-      </el-image>
+      <!-- 返回首页 -->
+      <div @click="Backindex" v-if="route_name!='ClassIndex'" >
+        <el-image  :src="indexIcon" fit="cover">
+          <div slot="error" class="image-slot">
+            <i class="el-icon-picture-outline"></i>
+          </div>
+        </el-image>
+      </div>
+
+      <!-- 刷新 -->
+      <div @click="updateIt" >
+        <el-image  :src="updateIcon" fit="cover">
+          <div slot="error" class="image-slot">
+            <i class="el-icon-picture-outline"></i>
+          </div>
+        </el-image>
+      </div>
 
 
-      <el-image  @click="BackIt" :src="backIcon" fit="cover">
-        <div slot="error" class="image-slot">
-          <i class="el-icon-picture-outline"></i>
-        </div>
-      </el-image>
+      <!-- 退出 -->
+      <div @click="LoginIt" v-if="route_name=='ClassIndex'" >
+        <el-image  :src="loginIcon" fit="cover">
+          <div slot="error" class="image-slot">
+            <i class="el-icon-picture-outline"></i>
+          </div>
+        </el-image>
+      </div>
+
+
+     
+
 
 
     </div>
@@ -34,7 +61,9 @@ export default {
     return {
       backIcon: require("../assets/back_icon.png"),
       indexIcon: require("../assets/index_icon.png"),
-
+      updateIcon: require("../assets/update.png"),
+      loginIcon: require("../assets/login.png"),
+      route_name:""
     };
   },
   //监听属性 类似于data概念
@@ -46,13 +75,21 @@ export default {
     BackIt() {
       this.$router.go(-1);
     },
-    Backindex(){
+    Backindex() {
       this.$router.replace({ name: "ClassIndex" });
-
+    },
+    LoginIt(){
+      this.$emit("loginit") 
+    },
+    updateIt(){
+      this.$emit("updateit") 
     },
   },
   //生命周期 - 创建完成（可以访问当前this实例）
-  created() {},
+  created() {
+    this.route_name=this.$route.name
+    console.log(this.$route.name);
+  },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
   beforeCreate() {}, //生命周期 - 创建之前
@@ -70,27 +107,31 @@ export default {
   /* width: 100%; */
 }
 .back_to {
-    width:70px;
-height:164px;
-background:rgba(255,255,255,0.8);
-box-shadow:0px 2px 10px 0px rgba(0,0,0,0.1);
-border-radius:15px 0px 0px 15px;
-border:1px solid rgba(233,233,233,1);
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-align-items: center;
-padding: 25px 0;
-box-sizing: border-box;
-
-    position: fixed;
-    right: 0;
-    bottom: 5vh;
-    z-index: 666;
+  width: 94px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.1);
+  border-radius: 15px 0px 0px 15px;
+  border: 1px solid rgba(233, 233, 233, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  box-sizing: border-box;
+  position: fixed;
+  right: 0;
+  bottom: 5vh;
+  z-index: 666;
 }
-.back_to .el-image{
-    width: 38px;
-    height: 38px;
+.back_to > div {
+  height: 100px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
+.back_to .el-image {
+  width: 51px;
+  height: 51px;
+}
 </style>

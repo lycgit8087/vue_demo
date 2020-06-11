@@ -7,7 +7,6 @@ import 'lib-flexible'
 import axios from 'axios';
 import './style/reset.css'
 // import './style/border.css'
-import Cookies from 'js-cookie'
  const till= require('./utils/till')
 import ElementUI  from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -26,9 +25,9 @@ Vue.component("back",Back);
 Vue.component("alert-view",AlertView);
 Vue.component("face",Face);
 Vue.use(ElementUI);
-import Vconsole from 'vconsole'
-let vConsole = new Vconsole()
-Vue.use(vConsole)
+// import Vconsole from 'vconsole'
+// let vConsole = new Vconsole()
+// Vue.use(vConsole)
 //定义全局变量
 Vue.prototype.$till=till;
 
@@ -39,7 +38,6 @@ Vue.prototype.$patch=patch;
 Vue.prototype.$put=put;
 Vue.prototype.$get_token=get_token;
 Vue.prototype.$axios=axios;
-Vue.prototype.$Cookies=Cookies;
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

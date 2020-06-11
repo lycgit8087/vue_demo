@@ -2,7 +2,7 @@
 <template>
   <div class="ExamList" @click.stop="hide_com" >
     <div class="exam_list_left">
-      <back></back>
+      <back @updateit="GetInfo" ></back>
       <p  class="exam_title"  >{{sub_title}}</p>
       <div class="left_view" v-infinite-scroll="left_scroll" style="overflow:auto">
         <div v-for="item in tcontents" :key="item.tcid">
@@ -34,7 +34,7 @@
         <p>附件</p>
         <div class="file_list_view"  >
           <!--  -->
-          <div class="file_list_view_top"  @click.stop="show_it(index)"   v-for="(item,index) in files" :key="item.name" >
+          <div class="file_list_view_top"  @click.stop="show_it(index)"   v-for="(item,index) in files" :key="index" >
             <div  class="file_list_view_item"  >
                 <div class=" file_list_view_item_child ">
                     <el-image :src="item.url" fit="cover"    v-if="item.type_num==0">
@@ -277,35 +277,34 @@ export default {
   //方法集合
   methods: {
     show_it(index){
-      console.log("1234",index)
       index=parseInt(index)
       let {files}=this
       for(let i in files){
         files[i].is_show=false
         
       }
-      console.log(files[index].is_show)
       for(let i in files){
         if( parseInt(i)==index){
         files[index].is_show=!files[index].is_show
           
         }
       }
-    //  this.$set(this.files)
+    
 
       this.file_obj=files[index]
       this.file_index=index
       this.files=files
+      this.$forceUpdate()
       
     },
     hide_com(){
-      console.log("触发了")
         let {files,file_index}=this
         for(let i in files){
            files[i].is_show=false
 
         }
           this.files=files
+          this.$forceUpdate()
         
      
     },
@@ -313,6 +312,7 @@ export default {
       let {files,file_obj,file_index}=this
       files[file_index].is_show=false
       this.files=files
+      this.$forceUpdate()
       if(command==0&&file_obj.type_num==0){
         this.show_image(file_index)
       }else if(command==0&&(file_obj.type_num==1||file_obj.type_num==2)){
@@ -564,7 +564,6 @@ export default {
           paper_list[i].plist={}
         }
         this.srcList=srcList
-        // console.log(files)
         this.files=files
         this.paper_list=paper_list
         let page_data={
@@ -751,7 +750,7 @@ export default {
   position: relative;
   padding: 0 10px;
   box-sizing: border-box;
-  height: 120px;
+  /* height: 120px; */
 }
 .file_list_view_item>span{
   display: flex;
@@ -786,6 +785,7 @@ export default {
 .file_list_view_item .el-image {
   width: 54px;
   height: 54px;
+  margin-bottom: 40px;
 }
 .exam_list_view {
   display: flex;
@@ -868,7 +868,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   height: 100%;
   width: 100%;
 }
@@ -884,8 +884,8 @@ export default {
 }
 .exam_list_left_des_text{
   font-size: 30px;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  margin-bottom: 30px;
+  margin-top: 30px;
   font-weight: 700;
 
 }

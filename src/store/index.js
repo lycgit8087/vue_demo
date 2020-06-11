@@ -9,6 +9,7 @@ Vue.use(Vuex);
      url:"http://files.imofang.cn",
      websocket:null,
      web_type:0,
+     web_num:0,
      keepAlive: []
      //要设置的初始属性值
    };
@@ -36,6 +37,10 @@ const mutations = {
       state.web_type =type
 
      },
+     edit_web_num(state,num){
+      state.web_num =num
+
+     },
      setKeepAlive: (state, keepAlive) => {
       state.keepAlive = keepAlive;
   }
@@ -46,6 +51,10 @@ const mutations = {
    },
    change_org_id(context,id){
     context.commit('edit_org_id',id);
+
+   },
+   change_web_num(context,num){
+      context.commit('edit_web_num',num);
 
    },
    change_class_id(context,id){

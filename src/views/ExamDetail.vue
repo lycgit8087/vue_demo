@@ -1,7 +1,7 @@
 <template>
   <div class="ExamDetail">
     <div class="ExamDetail_left">
-      <back></back>
+      <back @updateit="GetInfo" ></back>
       <p class="ExamDetail_left_title">答题卡</p>
       <div class="ExamDetail_left_list" v-infinite-scroll="left_load" style="overflow:auto">
         <div v-for="item in content" :key="item.partname">
@@ -536,7 +536,6 @@ export default {
 
 .answr_parent{
   width:100%;
-min-height:297px;
 background:rgba(244,244,244,1);
 border-radius:8px;
 display: flex;
@@ -647,7 +646,7 @@ box-sizing: border-box;
 .exam_list_left_title_item{
   /* padding-left: 15px; */
   box-sizing: border-box;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 600;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 20px;

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Message, Loading } from 'element-ui'
-import Cookies from 'js-cookie'
+
 import qs from 'qs'
 import router from '../router'
 let requestCount = 0;
