@@ -762,7 +762,7 @@ export default {
 .file_name{
   width: 100%;
   text-align: center;
-  font-size: 30px;
+  font-size: 24px;
   white-space: normal;
   text-overflow: -o-ellipsis-lastline;
   overflow: hidden;

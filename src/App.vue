@@ -216,5 +216,21 @@ html::-webkit-scrollbar {
   width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
   height: 1px;
 }
+.el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner{
+      background-color: #545dff !important;
+    border-color: #545dff !important;
+}
+.el-checkbox__input.is-checked+.el-checkbox__label{
+  color: #545dff !important
+}
+.el-checkbox.is-bordered.is-checked{
+  border-color:#545dff !important
+}
+.el-loading-spinner .path{
+  stroke:#545dff !important
+}
+.el-loading-spinner .el-loading-text{
+  color: #545dff !important;
+}
 
 </style>
