@@ -459,7 +459,6 @@ export default {
    
 
     initWebSocket (token) {
-      // console.log(WebsocketHeartbeatJs)
       let websock=this.$store.state.websocket
       let self=this
       if(websock==null){

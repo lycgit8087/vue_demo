@@ -225,7 +225,7 @@
             </div>
 
             <!-- 科目章节 -->
-            <div class="list_view_scroll_bot_right" @click.stop="change_push_toggle" >相似题推送</div>
+            <div class="list_view_scroll_bot_right" v-if="!is_send" @click.stop="change_push_toggle" >相似题推送</div>
           </div>
         </div>
 
@@ -260,9 +260,8 @@
         style="overflow:auto"
         v-show="TabIndex==1"
       >
-      
         <div v-for="(item,index) in other_list" :key="item.name">
-             <el-checkbox :label="item.id"  v-if="is_send" >
+             <el-checkbox :label="item.id"  v-model="other_list_value" v-if="is_send" >
           <div class="list_view_scroll_top "  >
             <div class="list_view_scroll_top_left"  >
                <p :class="['list_view_scroll_number',index<3?'list_view_scroll_number_avtive':'']">{{index+1}}</p>
@@ -366,7 +365,7 @@
 
     <!-- 题目弹出框 -->
     <el-dialog :visible.sync="answer_toggle">
-      <div class="answer_center" v-infinite-scroll="answer_load" style="overflow:auto"  >
+      <div class="answer_center" ref="answer_center_ref" v-infinite-scroll="answer_load" style="overflow:auto"  >
         <div class="answer_center_top">
           <span>{{rq_title}}</span>
         </div>
@@ -478,10 +477,13 @@
     <el-dialog :visible.sync="push_toggle">
       <div class="answer_center" v-infinite-scroll="answer_load" style="overflow:auto"  >
         <p class="push_title" >个性化作业推送</p>
+        <template v-if="TabIndex==1" >
+         
+        
         <p class="push_text" v-if="knowledge_list.length"  >已选择{{knowledge_list.length}}个知识点</p>
         <div  class="knowledge_view" >
             <div v-for="item in knowledge_list" :key="item.id" @click="dele_konwledge(item.id)" >
-              <span>{{item.text}}</span>
+              <span>{{item.name}}</span>
                 <el-image :src="blue_close" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
@@ -491,6 +493,7 @@
             </div>
 
         </div>
+        </template>
         <p class="push_text_des" >每道题推送相似题数量</p>
         
         <div class="push_text_des_view" >
@@ -634,12 +637,7 @@ export default {
       error_is_show:true,
       right_is_show:true,
 
-      knowledge_list:[
-        {text:"10以内加减法",id:0},
-        {text:"比较大小",id:1},
-        {text:"十几减9",id:2},
-
-      ],
+      knowledge_list:[],
       right_students:[
         {name:"杜芷芹",url:"https://files.imofang.cn/mcs/28/1/166/4700/head_avatar.png",is_check:false},
         {name:"杨碧蓉",url:"https://files.imofang.cn/mcs/28/1/166/4692/head_avatar.png",is_check:false},
@@ -653,7 +651,7 @@ export default {
         {name:"沈海阳",url:"https://files.imofang.cn/mcs/28/1/166/4698/head_avatar.png",is_check:true},
       ],
       push_check_num:-1,
-
+      other_list_value:"",
       topic_list: [],
       TabArr: [
         { text: "题目", type: 0 },
@@ -688,7 +686,8 @@ export default {
       error_toggle:true,
       success_toggle:true,
       leftcheckList:[],
-      rightcheckList:[]
+      rightcheckList:[],
+      right_list:[]
 
     };
   },
@@ -766,6 +765,7 @@ export default {
   mounted() {},
   methods: {
     all_next(){
+    this.$refs.answer_center_ref.scrollTop=0
       let {sid}=this
       if(sid){
         this.next_it()
@@ -810,7 +810,16 @@ export default {
       this.push_check_num=index
     },
     change_push_toggle(){
-      let {push_toggle}=this
+      let {push_toggle,rightcheckList,knowledge_list,other_list}=this
+      knowledge_list=[]
+      for(let i in other_list){
+        for(let j in rightcheckList){
+          if(rightcheckList[j]==other_list[i].id){
+            knowledge_list.push(other_list[i])
+          }
+        }
+      }
+      this.knowledge_list=knowledge_list
       this.push_toggle=!push_toggle
     },
     change_send(){
@@ -880,6 +889,9 @@ export default {
 
       }).then(res => {
         let other_list=res.data
+        for(let i in other_list){
+          other_list[i].name=this.$till.htmlspecialchars_decode(other_list[i].name)
+        }
         this.other_list=other_list
       });
     },
@@ -893,6 +905,11 @@ export default {
       }).then(res => {
         if(res.data){
           topic_list = res.data;
+          for(let i in topic_list){
+            for(let j in topic_list[i].points){
+              topic_list[i].points[j].name=this.$till.htmlspecialchars_decode(topic_list[i].points[j].name)
+            }
+          }
         }
         this.topic_list = topic_list;
       });
@@ -1260,6 +1277,11 @@ border-radius:37px;
   border-radius: 50%;
   margin-right: 4px;
 }
+.right_number{
+  display: flex;
+  align-items: center;
+  width: 190px;
+}
 .right_number p:nth-child(1) {
   color: #878b94;
   font-size: 25px;
@@ -1271,6 +1293,13 @@ border-radius:37px;
 .stunde_number .el-image {
   width: 43px;
   height: 43px;
+}
+.stunde_number p{
+   width: 43px;
+  height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .stunde_mark {
   font-size: 22px;

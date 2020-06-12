@@ -90,6 +90,7 @@ export default {
     },
     // 登录
     LoginIn() {
+      return
       this.$get_token("/?c=api", {
         user_type: 1,
         mode: 0,
@@ -201,13 +202,6 @@ export default {
     this.get_qrcode();
   },
 
-
-  // 保存图片
-  keepImg() {
-    var can = document.getElementById("shortCut");
-    this.BaseImage = this.convertCanvasToImage(can);
-    this.LoginIn();
-  },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
     this.qrcode(); //生成二维码
