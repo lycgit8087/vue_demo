@@ -214,6 +214,9 @@
 
       <el-dialog
         :visible.sync="login_toggle"
+        title="提示"
+        center
+        custom-class="index_dialog"
       >
         <div class="login_view">
           是否退出登录
@@ -449,6 +452,8 @@ export default {
          
        await this.GetUserInfo()
        await this.set_user_local()
+       await this.GetPrepareLessonList()
+       
     },
 
    
@@ -1067,7 +1072,7 @@ border-radius:0px 0px 15px 0px;
   justify-content: space-between;
 }
 .sub_center{
-  max-height: 60vh;
+  max-height: 80vh;
 }
 .sub_center .el-tree-node__content{
   height: auto;
@@ -1343,6 +1348,13 @@ tbody {
 }
 .el-date-range-picker .el-picker-panel__body {
   display: flex;
+}
+.index_dialog{
+  width: auto;
+}
+.index_dialog .el-dialog__title{
+  font-size: 33px;
+  font-weight: 700;
 }
 .el-picker-panel__body-wrapper {
   width: 1100px !important;

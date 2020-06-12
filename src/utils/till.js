@@ -42,7 +42,7 @@
     str = str.replace(/&amp;nbsp;/g, " ");
 
     str = str.replace(/{br}/g, "<br>");
-      str=str.replace(/font-size: \w+;?/g,' ')
+    str=str.replace(/font-size: \w+;?/g,' ')
     str = str.replace(
       /\<p/gi,
       '<p class="p_class" style="margin-bottom:10px" '

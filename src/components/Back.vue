@@ -10,6 +10,14 @@
           </div>
         </el-image>
       </div>
+      <!-- 放大缩小 -->
+      <div @click="change_scale"  >
+        <el-image  :src="this.$store.state.is_change_sacale?bigIcon:smallIcon" fit="cover">
+          <div slot="error" class="image-slot">
+            <i class="el-icon-picture-outline"></i>
+          </div>
+        </el-image>
+      </div>
 
       <!-- 返回首页 -->
       <div @click="Backindex" v-if="route_name!='ClassIndex'" >
@@ -63,7 +71,11 @@ export default {
       indexIcon: require("../assets/index_icon.png"),
       updateIcon: require("../assets/update.png"),
       loginIcon: require("../assets/login.png"),
-      route_name:""
+      bigIcon: require("../assets/big.png"),
+      smallIcon: require("../assets/small.png"),
+
+      route_name:"",
+      is_change:false
     };
   },
   //监听属性 类似于data概念
@@ -84,11 +96,22 @@ export default {
     updateIt(){
       this.$emit("updateit") 
     },
+     change_scale(){
+       let is_change=this.$store.state.is_change_sacale
+       this.$store.dispatch('change_sacale', !is_change)
+      
+         this.$forceUpdate()
+       if(is_change){
+          document.webkitExitFullscreen()
+       }else{
+         document.documentElement.webkitRequestFullscreen()
+       }
+       
+    },
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
     this.route_name=this.$route.name
-    console.log(this.$route.name);
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
@@ -108,7 +131,7 @@ export default {
 }
 .back_to {
   width: 94px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.3);
   box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.1);
   border-radius: 15px 0px 0px 15px;
   border: 1px solid rgba(233, 233, 233, 1);

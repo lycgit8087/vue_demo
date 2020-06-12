@@ -211,5 +211,10 @@ display: flex;
 align-items: center;
 justify-content: center;
 }
+html::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
+}
 
 </style>

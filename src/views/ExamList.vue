@@ -716,7 +716,7 @@ export default {
   display: flex;
   padding: 54px 0px;
   width: 732px;
-  height: 95vh;
+  height: 100vh;
   box-sizing: border-box;
   flex-direction: column;
 }
@@ -762,6 +762,7 @@ export default {
 .file_name{
   width: 100%;
   text-align: center;
+  font-size: 30px;
   white-space: normal;
   text-overflow: -o-ellipsis-lastline;
   overflow: hidden;

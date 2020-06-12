@@ -10,7 +10,8 @@ Vue.use(Vuex);
      websocket:null,
      web_type:0,
      web_num:0,
-     keepAlive: []
+     keepAlive: [],
+     is_change_sacale:false
      //要设置的初始属性值
    };
 const getters = {   //实时监听state值的变化(最新状态)
@@ -23,6 +24,10 @@ const mutations = {
    edit_sid(state,id){
     state.sid =id
    },
+   edit_sacale(state,bol){
+      state.is_change_sacale =bol
+     },
+
    edit_websocket(state,web){
       state.websocket=web
    },
@@ -71,6 +76,10 @@ const mutations = {
      },
      change_keep_alive(context,keepAlive){
       context.commit('setKeepAlive',keepAlive);
+
+     },
+     change_sacale(context,bol){
+      context.commit('edit_sacale',bol);
 
      }
 };

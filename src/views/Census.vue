@@ -5,7 +5,7 @@
       <back @updateit="get_all" ></back>
       <div class="Census_left_view">
         <p class="Census_left_title">
-          <span @click="close_web" >试题报告概览</span>
+          <span @dblclick="close_web" >试题报告概览</span>
           <span :class=" this.$store.state.web_num==0?'web_error web_view ':'web_view'  "  ></span>
           </p>
 
@@ -1535,7 +1535,7 @@ font-size: 25px;
 }
 .student_view_left {
   width: 576px;
-  height: 70vh;
+  height: 75vh;
   border-radius: 18px;
   padding: 20px 40px;
   box-sizing: border-box;
@@ -1552,7 +1552,7 @@ border-radius:19px;
 }
 .student_view_left_scroll {
   width: 100%;
-  height: 60vh;
+  height: 65vh;
   margin-top: 33px;
 }
 .student_view_left_scroll::-webkit-scrollbar {
@@ -1584,13 +1584,13 @@ border-radius:19px;
   display: flex;
   flex-direction: column;
   align-items: center;
-height:70;
+height:75vh;
 background:rgba(255,255,255,1);
 box-shadow:0px 9px 28px 0px rgba(27,27,78,0.1);
 border-radius:19px;
 }
 .student_view_right_scroll {
-  height: 60vh;
+  height: 65vh;
 }
 .list_view_scroll,
 .list_view_scroll_other {
@@ -2006,10 +2006,14 @@ student_view_right_scroll .no_data_view .el-image {
   height: 219px;
 }
 .eclass{
+  font-size: 30px;
   color: #fa6060 !important ;
+  font-weight: bold;
  
 }
 .rclass{
+  font-size: 30px;
+
   color: #00AD56 !important;
   
 
