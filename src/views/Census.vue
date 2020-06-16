@@ -863,6 +863,8 @@ export default {
         class_id:this.$store.state.class_id
       }).then(res => {
         let over_view = res;
+        console.log(pid)
+        console.log("概览"+res)
 
         for (let i in over_view.ns_results) {
           over_view.ns_results[i].avatar = this.$till.change_file_url(
@@ -929,6 +931,7 @@ export default {
         pid: pid,
         is_loadstus:1
       }).then(res => {
+        
         res.qas_content = this.$till.htmlspecialchars_decode(res.content);
         let answer_arr=[]
            //选择题转换

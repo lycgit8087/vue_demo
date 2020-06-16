@@ -828,6 +828,7 @@ export default {
     
     if(user_local_data.is_file_leave){
       let {plid,class_id}=user_local_data.query
+      this.$store.dispatch('change_class_id',class_id)
       this.$router.push({
         name: "ExamList",
         query: { plid: plid, class_id: class_id }
