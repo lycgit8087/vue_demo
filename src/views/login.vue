@@ -90,7 +90,7 @@ export default {
     },
     // 登录
     LoginIn() {
-      return
+      // return
       this.$get_token("/?c=api", {
         user_type: 1,
         mode: 0,
