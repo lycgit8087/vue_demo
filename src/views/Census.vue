@@ -138,7 +138,7 @@
         >{{item.text}}</div>
 
         </div>
-        <div class="Census_right_tab_right"  >
+        <div class="Census_right_tab_right" v-if="TabIndex==1"  >
             <div class="Census_right_tab_right_image" @click="change_send" v-if="is_send" >
                <el-image :src="close_cancle" fit="cover">
                   <div slot="error" class="image-slot">
@@ -174,7 +174,7 @@
       <template >
         
         <div v-for="(item,index) in topic_list" :key="index" @click="CheckQas(item.code)">
-          <el-checkbox :label="item.code"   v-if="is_send"  >
+          <el-checkbox :label="item.code"   v-if="is_send&&TabIndex==1"  >
           <div class="list_view_scroll_top"  >
             <div class="list_view_scroll_top_left" >
               <p :class="['list_view_scroll_number',index<3?'list_view_scroll_number_avtive':'']">{{index+1}}</p>
@@ -616,6 +616,7 @@ export default {
       close_cancle: require("../assets/close_cancle.png"),
       blue_close: require("../assets/blue_close.png"),
       input_value:"",
+      qas_num:0,
       RightIcon: require("../assets/right_icon.png"),
       ErrorIcon: require("../assets/eorr.png"),
       NoNumImage: require("../assets/no_num.png"),
@@ -809,9 +810,29 @@ export default {
     change_push_num(index){
       this.push_check_num=index
     },
+
+    get_qa_student_list(){
+      let {knowledge_list,pid}=this
+      console.log(knowledge_list)
+      let kid=[]
+      for(let i in knowledge_list){
+        kid.push(knowledge_list[i].id)
+      }
+      
+      this.$post("qa_student_list", "/?c=api", {
+      
+        pid: pid,
+        class_id:this.$store.state.class_id,
+        kpoints:kid.join(",")
+      }).then(res=>{
+        console.log(res)
+      })
+
+    },
     change_push_toggle(){
       let {push_toggle,rightcheckList,knowledge_list,other_list}=this
       knowledge_list=[]
+      
       for(let i in other_list){
         for(let j in rightcheckList){
           if(rightcheckList[j]==other_list[i].id){
@@ -820,6 +841,9 @@ export default {
         }
       }
       this.knowledge_list=knowledge_list
+      if(!push_toggle){
+        this.get_qa_student_list()
+      }
       this.push_toggle=!push_toggle
     },
     change_send(){
