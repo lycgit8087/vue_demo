@@ -520,7 +520,6 @@ export default {
         module_action: "get_prepare_lesson",
         plid: plid
       }).then(res => {
-        console.log( res)
         let { tcontents, prepare_lesson_data, files, paper_list } = res.data;
         let content_arr=[]
         for (let i in tcontents) {
@@ -619,7 +618,7 @@ export default {
     this.plid = this.$route.query.plid;
     this.class_id=this.$route.query.class_id;
      let user_local_data= JSON.parse(localStorage.getItem("user_local"))
-     console.log(user_local_data,this.$route.query)
+    
    if(!is_local){
     this.GetInfo();//获取备课详情
    }else{

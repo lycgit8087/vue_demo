@@ -505,7 +505,7 @@
           </el-input>
         </div>
         <!--答错学生列表 -->
-        <div class="student_list_view_push" >
+        <div class="student_list_view_push" v-if="error_students.length!=0" >
           <div class="student_list_view_push_top" >
             <div class="student_list_view_push_top_left" >
               <span>答错学生</span> 
@@ -520,8 +520,8 @@
 
           </div >
           <div  class="student_list_view_push_bot" >
-              <div v-for="(item,index) in error_students" :key="item.name" @click="change_error_student(index)" >
-                <el-image  :class="item.is_check?'student_check':''" :src="item.url" fit="cover">
+              <div v-for="(item,index) in error_students" :key="item.sid" @click="change_error_student(index)" >
+                <el-image  :class="item.is_check?'student_check':''" :src="item.avatar" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
@@ -539,7 +539,7 @@
         </div>
 
         <!-- 答对学生  success_stundets -->
-        <div class="student_list_view_push" >
+        <div class="student_list_view_push" v-if="right_students.length!=0" >
           <div class="student_list_view_push_top" >
             <div class="student_list_view_push_top_left" >
               <span>答对学生</span> 
@@ -554,8 +554,8 @@
 
           </div >
           <div  class="student_list_view_push_bot" >
-              <div v-for="(item,index) in right_students" :key="item.name" @click="change_right_student(index)"  >
-                <el-image :class="item.is_check?'student_check':''" :src="item.url" fit="cover">
+              <div v-for="(item,index) in right_students" :key="item.sid" @click="change_right_student(index)"  >
+                <el-image :class="item.is_check?'student_check':''" :src="item.avatar" fit="cover">
                  <div slot="error" class="image-slot">
               <i class="el-icon-picture-outline"></i>
             </div>
@@ -640,16 +640,11 @@ export default {
 
       knowledge_list:[],
       right_students:[
-        {name:"杜芷芹",url:"https://files.imofang.cn/mcs/28/1/166/4700/head_avatar.png",is_check:false},
-        {name:"杨碧蓉",url:"https://files.imofang.cn/mcs/28/1/166/4692/head_avatar.png",is_check:false},
-        {name:"许幼琴",url:"https://files.imofang.cn/mcs/28/1/166/4694/head_avatar.png",is_check:false},
       ],
       right_students_check:false,
       error_students_check:true,
 
       error_students:[
-        {name:"温以宁",url:"https://files.imofang.cn/mcs/28/1/166/4690/head_avatar.png",is_check:true},
-        {name:"沈海阳",url:"https://files.imofang.cn/mcs/28/1/166/4698/head_avatar.png",is_check:true},
       ],
       push_check_num:-1,
       other_list_value:"",
@@ -711,6 +706,9 @@ export default {
           this.$store.dispatch('change_web_type',0)
         }
       },
+      input_value(val){
+        this.push_check_num=val
+      },
       student_toggle(val){
         if(!val){
           this.sid=""
@@ -732,7 +730,6 @@ export default {
       },
       right_students_check(val){
          let {right_students}=this
-        
           for(let i in right_students){
             if(val){
               right_students[i].is_check=true
@@ -813,7 +810,6 @@ export default {
 
     get_qa_student_list(){
       let {knowledge_list,pid}=this
-      console.log(knowledge_list)
       let kid=[]
       for(let i in knowledge_list){
         kid.push(knowledge_list[i].id)
@@ -826,6 +822,21 @@ export default {
         kpoints:kid.join(",")
       }).then(res=>{
         console.log(res)
+        let push_ns_data=res.ns_data
+        let push_ys_data=res.ys_data
+        for(let i in push_ns_data){
+          push_ns_data[i].avatar=this.$till.change_file_url(push_ns_data[i].avatar)
+          push_ns_data[i].is_check=true
+        }
+
+        for(let i in push_ys_data){
+          push_ys_data[i].avatar=this.$till.change_file_url(push_ys_data[i].avatar)
+          push_ys_data[i].is_check=false
+        }
+
+        this.error_students=push_ns_data
+        this.right_students=push_ys_data
+
       })
 
     },
@@ -887,8 +898,6 @@ export default {
         class_id:this.$store.state.class_id
       }).then(res => {
         let over_view = res;
-        console.log(pid)
-        console.log("概览"+res)
 
         for (let i in over_view.ns_results) {
           over_view.ns_results[i].avatar = this.$till.change_file_url(
