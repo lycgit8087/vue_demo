@@ -584,7 +584,7 @@
         <el-button
           type="primary"
           class="send_confrm"
-          @click="change_push_toggle"
+          @click="Personlize_push"
         >发送</el-button>
       </div>
     </el-dialog>
@@ -799,15 +799,63 @@ export default {
       right_students[index].is_check=!right_students[index].is_check
       this.right_students=right_students
     },
-    dele_konwledge(id){
+   async dele_konwledge(id){
       let{knowledge_list}=this
       knowledge_list=knowledge_list.filter(item=>item.id!=id)
       this.knowledge_list=knowledge_list
+    await  this.get_qa_student_list()
+
     },
     change_push_num(index){
       this.push_check_num=index
     },
+    //个性化推送
+     Personlize_push(){
+      let {push_check_num,pid,error_students,right_students,knowledge_list }=this
+      let ystudents_arr=[],wstudents_arr=[],kid=[]
 
+      // 错误学生ID
+      for(let i in error_students){
+        if(error_students[i].is_check){
+          wstudents_arr.push(error_students[i].sid)
+        }
+
+      }
+      // 正确学生ID
+       for(let i in right_students){
+        if(right_students[i].is_check){
+          ystudents_arr.push(right_students[i].sid)
+        }
+
+      }
+
+      // 知识点
+       for(let i in knowledge_list){
+        kid.push(knowledge_list[i].id)
+      }
+
+
+       this.$post("qa_special_push", "/?c=api", {
+        ystudents:ystudents_arr.join(","),
+        wstudents:wstudents_arr.join(","),
+        kpoints:kid.join(","),
+        ptype:1,
+        num:push_check_num,
+        pid: pid,
+        class_id:this.$store.state.class_id,
+      }).then(res=>{
+        console.log(res)
+        
+        this.change_push_toggle()
+        this.$message.success({
+              message: "推送成功",
+              offset: 380,
+              duration: 1000
+            });
+      })
+
+    },
+    // 获取知识点错误学生
     get_qa_student_list(){
       let {knowledge_list,pid}=this
       let kid=[]
@@ -816,12 +864,10 @@ export default {
       }
       
       this.$post("qa_student_list", "/?c=api", {
-      
         pid: pid,
         class_id:this.$store.state.class_id,
         kpoints:kid.join(",")
       }).then(res=>{
-        console.log(res)
         let push_ns_data=res.ns_data
         let push_ys_data=res.ys_data
         for(let i in push_ns_data){
@@ -836,11 +882,14 @@ export default {
 
         this.error_students=push_ns_data
         this.right_students=push_ys_data
+        console.log(push_ns_data)
 
       })
 
     },
-    change_push_toggle(){
+
+   
+   async change_push_toggle(){
       let {push_toggle,rightcheckList,knowledge_list,other_list}=this
       knowledge_list=[]
       
@@ -853,7 +902,7 @@ export default {
       }
       this.knowledge_list=knowledge_list
       if(!push_toggle){
-        this.get_qa_student_list()
+       await this.get_qa_student_list()
       }
       this.push_toggle=!push_toggle
     },
@@ -956,7 +1005,7 @@ export default {
     //查看题目
     async CheckQas(code) {
       let { pid,is_send,sid } = this;
-      if(is_send)return
+      
       this.qas_code = code;
       await this.$post("qa_content", "/?c=api", {
         student_id:sid,
@@ -1985,6 +2034,9 @@ margin-left: 41px;
   height: 72px;
   border-radius: 50%;
   margin-bottom: 10px;
+}
+.push_text_des_view input{
+  font-size: 24px;
 }
 .student_high {
   display: flex;
