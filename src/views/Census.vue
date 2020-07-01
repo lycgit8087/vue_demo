@@ -225,7 +225,7 @@
             </div>
 
             <!-- 科目章节 -->
-            <div class="list_view_scroll_bot_right" v-if="!is_send" @click.stop="change_push_toggle" >相似题推送</div>
+            <!-- <div class="list_view_scroll_bot_right" v-if="!is_send" @click.stop="change_push_toggle" >相似题推送</div> -->
           </div>
         </div>
 
@@ -845,13 +845,16 @@ export default {
         class_id:this.$store.state.class_id,
       }).then(res=>{
         console.log(res)
-        
-        this.change_push_toggle()
-        this.$message.success({
+        if(res.response_code==0){
+          this.$message.success({
               message: "推送成功",
               offset: 380,
               duration: 1000
             });
+        }
+        
+        this.change_push_toggle()
+        
       })
 
     },
