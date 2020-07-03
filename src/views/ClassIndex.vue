@@ -190,7 +190,7 @@
           class="ListItem"
           v-for="item in (tab_index==0?list_data:teachlist)"
           :key="item.plid"
-          @click="TOExamList(item.plid,item.class_id)"
+          @click="TOExamList(item.plid,item.class_id,item.gid)"
         >
           <div>
             <div class="ListParentChildViewTop">
@@ -567,11 +567,12 @@ export default {
       this.sub_value = sub_value.join(",");
     },
     // 
-    TOExamList(plid, class_id) {
+    TOExamList(plid, class_id,gid) {
      this.$store.dispatch('change_class_id',class_id)
+     
       this.$router.push({
         name: "ExamList",
-        query: { plid: plid, class_id: class_id }
+        query: { plid: plid, class_id: class_id,gid:gid }
       });
     },
     BackLogin() {
@@ -827,11 +828,11 @@ export default {
     let user_local_data= JSON.parse(localStorage.getItem("user_local"))
     
     if(user_local_data.is_file_leave){
-      let {plid,class_id}=user_local_data.query
+      let {plid,class_id,gid}=user_local_data.query
       this.$store.dispatch('change_class_id',class_id)
       this.$router.push({
         name: "ExamList",
-        query: { plid: plid, class_id: class_id }
+        query: { plid: plid, class_id: class_id,gid:gid }
       });
       user_local_data.is_file_leave=false
       user_local_data.query={}

@@ -82,7 +82,7 @@
               <div class="exam_list_view_item_right_edit">
                 <el-button type="primary" @click="SeeIt(item.pid,index)">查看</el-button>
                 <el-button type="primary" @click="SendIt(item.pid)">发送</el-button>
-                <el-button type="primary" @click="SeeData(item.pid)">数据</el-button>
+                <el-button type="primary" @click="SeeData(item.pid,item.subject)">数据</el-button>
               </div>
             </div>
           </div>
@@ -236,6 +236,7 @@ export default {
       plist:{
       },
       file_obj:{},
+      subject:0,
       file_type:0,
       class_id:0,
       send_toggle: false,
@@ -374,10 +375,11 @@ export default {
     check_file(url,type,method_text){
        if(method_text=="")return
       let user_local_data= JSON.parse(localStorage.getItem("user_local"))
-      let {plid,class_id}=this
+      let {plid,class_id,gid}=this
       let query={
         plid,
-        class_id
+        class_id,
+        gid
       }
       user_local_data.is_file_leave=true
       user_local_data.query=query
@@ -481,7 +483,7 @@ export default {
       this.centerDialogVisible = true;
       }
     },
-   async SendIt(pid) {
+   async SendIt(pid,subject) {
      let {people_arr,}=this
      if(people_arr.length==0){
 
@@ -489,6 +491,7 @@ export default {
 
      }
       this.pid=pid
+      this.subject=subject
       this.send_toggle = true;
     },
     left_scroll(){
@@ -497,8 +500,9 @@ export default {
     right_scroll(){
 
     },
-    SeeData(id) {
-      this.$router.push({ name: "Census",query:{pid:id} });
+    SeeData(id,subject) {
+      let {gid}=this
+      this.$router.push({ name: "Census",query:{pid:id,subject:subject,gid:gid} });
     },
     ToExamDetail(){
       let {pid}=this
@@ -507,10 +511,10 @@ export default {
 
     },
     to_see_data() {
-        let {pid,people_arr}=this
+        let {pid,people_arr,gid,subject}=this
       this.send_success=false
 
-      this.$router.push({ name: "Census",query:{pid:pid} });
+      this.$router.push({ name: "Census",query:{pid:pid,subject:subject,gid:gid} });
 
     },
     async GetInfo() {
@@ -617,6 +621,7 @@ export default {
    let is_local=this.$till.user_local(this.$route.name,this.$route.query.plid)
     this.plid = this.$route.query.plid;
     this.class_id=this.$route.query.class_id;
+    this.gid=this.$route.query.gid
      let user_local_data= JSON.parse(localStorage.getItem("user_local"))
     
    if(!is_local){

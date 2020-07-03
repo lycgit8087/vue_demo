@@ -746,6 +746,9 @@ export default {
   created() {
    
     this.pid = this.$route.query.pid;
+    this.gid=this.$route.query.gid;
+    this.subject=this.$route.query.subject;
+
     this.GetRightList();
     this.GetPaperOverview();
   },
@@ -811,7 +814,7 @@ export default {
     },
     //个性化推送
      Personlize_push(){
-      let {push_check_num,pid,error_students,right_students,knowledge_list }=this
+      let {push_check_num,pid,error_students,right_students,knowledge_list,subject,gid }=this
       let ystudents_arr=[],wstudents_arr=[],kid=[]
 
       // 错误学生ID
@@ -840,6 +843,8 @@ export default {
         wstudents:wstudents_arr.join(","),
         kpoints:kid.join(","),
         ptype:1,
+        grade:gid,
+        subject:subject,
         num:push_check_num,
         pid: pid,
         class_id:this.$store.state.class_id,
