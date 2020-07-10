@@ -3,9 +3,9 @@
   <div class="face">
     <div class="container">
       <video id="video" preload autoplay loop muted ref="video_view" ></video>
-      <canvas id="canvas" ></canvas>
-      <canvas id="canvas1" ></canvas>
-      <canvas v-show="a==0" id="shortCut"   ></canvas>
+      <canvas id="canvas" :width="canvas_width" :height="canvas_heght" ></canvas>
+      <canvas id="canvas1" :width="canvas_width" :height="canvas_heght" ></canvas>
+      <canvas v-show="a==0" id="shortCut"  :width="canvas_width" :height="canvas_heght"  ></canvas>
       <div id="img" v-show="a==0"></div>
 
 
@@ -28,6 +28,8 @@ export default {
       saveArray: {},
       imgView: false,
       isLoading:false,
+      canvas_width:0,
+      canvas_heght:0,
       a:1,
       BaseImage:""
     };
@@ -58,6 +60,8 @@ export default {
       
       let el_width = this.$refs.video_view.clientWidth;
       let el_height = this.$refs.video_view.clientHeight;
+      this.canvas_width=el_width
+      this.canvas_heght=el_height
       var canvas1 = document.getElementById("canvas1");
       var context1 = canvas1.getContext("2d");
       setTimeout(()=>{
@@ -77,7 +81,9 @@ export default {
       var context2 = can.getContext("2d");
       let el_width = this.$refs.video_view.clientWidth;
       let el_height = this.$refs.video_view.clientHeight;
-      context2.drawImage(video, 0, 0, el_width, el_height/1.6);
+      // context2.drawImage(video, 0, 0, el_width, el_height/1.6);
+      context2.drawImage(video, 0, 0, el_width, el_height);
+
       this.imgView = true;
       this.keepImg()
     },
@@ -125,12 +131,13 @@ export default {
 
     },
     clearCanvas() {
+      let {canvas_width,canvas_heght}=this
       var c = document.getElementById("canvas");
       var c1 = document.getElementById("canvas1");
       var cxt = c.getContext("2d");
       var cxt1 = c1.getContext("2d");
-      cxt.clearRect(0, 0, 581, 436);
-      cxt1.clearRect(0, 0, 581, 436);
+      cxt.clearRect(0, 0, canvas_width, canvas_heght);
+      cxt1.clearRect(0, 0, canvas_width, canvas_heght);
     },
     closeFace() {
       if(this.trackerTask){

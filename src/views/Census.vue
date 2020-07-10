@@ -138,8 +138,8 @@
         >{{item.text}}</div>
 
         </div>
-        <div class="Census_right_tab_right" v-if="TabIndex==1"  >
-            <div class="Census_right_tab_right_image" @click="change_send" v-if="is_send" >
+        <div class="Census_right_tab_right"   >
+            <div class="Census_right_tab_right_image" @click="change_send" v-if="is_send&&TabIndex==1" >
                <el-image :src="close_cancle" fit="cover">
                   <div slot="error" class="image-slot">
                     <i class="el-icon-picture-outline"></i>
@@ -147,7 +147,7 @@
                 </el-image>
                 <span>取消</span>
             </div>
-            <div class="send_button" @click="change_push_toggle" v-if="is_send" >推送</div>
+            <div class="send_button" @click="change_push_toggle" v-if="is_send&&TabIndex==1" >推送</div>
 
             <div class="Census_right_tab_right_image" @click="change_send" v-if="!is_send" >
                <el-image :src="pencil" fit="cover">
@@ -915,7 +915,10 @@ export default {
       this.push_toggle=!push_toggle
     },
     change_send(){
-      let {is_send}=this
+      let {is_send,TabIndex}=this
+      if(TabIndex==0){
+        this.TabIndex=1
+      }
       this.is_send=!is_send
     },
         change_error(){
