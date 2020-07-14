@@ -14,6 +14,8 @@ import {post,fetch,patch,put,get_token,get_new_token} from './utils/http'
 import store from "./store"
 import Back from './components/Back'
 import AlertView from './components/AlertView'
+import HtmlView from './components/html_view'
+
 import Face from './components/Face'
 import Viewer from 'v-viewer'
 import 'viewerjs/dist/viewer.css'
@@ -24,6 +26,7 @@ Viewer.setDefaults({
 Vue.component("back",Back);
 Vue.component("alert-view",AlertView);
 Vue.component("face",Face);
+Vue.component("html-view",HtmlView)
 Vue.use(ElementUI);
 // import Vconsole from 'vconsole'
 // let vConsole = new Vconsole()
