@@ -567,7 +567,7 @@
 
           </div>
           <div class="konwledge_center_left_html"  >
-            <html-view></html-view>
+            <html-view  ></html-view>
 
           </div>
 
@@ -687,6 +687,7 @@ export default {
       bluebot,
       blacktop,
       konwledge_name:"",
+      is_change_data:true,
       konwledge_toggle:false,
       answer_toggle: false,
       student_toggle:false,
@@ -830,21 +831,24 @@ export default {
   },
   components: {},
   created() {
-   
+    let {is_change_data}=this
     this.pid = this.$route.query.pid;
     this.gid=this.$route.query.gid;
     this.subject=this.$route.query.subject;
-
-    this.GetRightList();
+    console.log(is_change_data)
+    if(is_change_data){
+       this.GetRightList();
     this.GetPaperOverview();
+    }
+   
   },
   beforeRouteLeave(to, from, next) {
         // 设置下一个路由的 meta
         if(to.name=="StudentView"){
-          from.meta.keepAlive = true; 
-
+          console.log(1)
+          this.is_change_data=false
         }else{
-          from.meta.keepAlive = false; 
+          this.is_change_data=true
 
         }
         next();

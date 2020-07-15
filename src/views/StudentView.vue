@@ -17,16 +17,52 @@
           </div>
         </div>
 
-
         <!-- 答题切换 -->
-         <el-tabs v-model="activeName" :stretch="true" @tab-click="handleClick">
-          <el-tab-pane label="答题卡" name="first">答题卡</el-tab-pane>
-          <el-tab-pane label="知识点掌握率" name="second">知识点掌握率</el-tab-pane>
+        <el-tabs v-model="activeName" :stretch="true" @tab-click="handleClick">
+          <el-tab-pane label="答题卡" name="first">
+            <div
+              class="exam_student_list"
+              v-infinite-scroll="exam_student_list_scroll"
+              style="overflow:auto"
+            >
+              <div v-for="(item,index) in info.qa_results" :key="index">
+                <p class="exam_student_list_title">{{item.partname}}</p>
+                <p class="exam_student_list_span">
+                  <span
+                    :class="qitem.result==1?'span_success':qitem.result==3?'span_error':''"
+                    v-for="(qitem,qindex) in item.qas"
+                    :key="qindex"
+                  >{{qitem.num}}</span>
+                </p>
+              </div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="知识点掌握率" name="second">
+            <div
+              class="exam_student_list"
+              v-infinite-scroll="exam_student_list_scroll"
+              style="overflow:auto"
+            >
+              <div class="exam_konwledge_view">
+                <div class="exam_konwledge_view_top">
+                  <p>
+                    <span>1</span>
+                    <span>20以内退位减法</span>
+                  </p>
+                  <span>42%</span>
+                </div>
+                <el-progress :text-inside="false" color="#66BD6A" :percentage="20"></el-progress>
+              </div>
+            </div>
+          </el-tab-pane>
         </el-tabs>
+      </div>
+      <div class="student_view_des_right">
+
+            <html-view :content="content" :des="tsocre" :title="paper_title"  ></html-view>
 
 
       </div>
-      <div class="student_view_des_right"></div>
     </div>
   </div>
 </template>
@@ -45,7 +81,10 @@ export default {
       ],
       list: 10,
       pid: 0,
-      activeName: 'second',
+      activeName: "first",
+      paper_title:"",
+      tsocre:"",
+      content:[],
       sid: 0,
       info: {}
     };
@@ -56,6 +95,7 @@ export default {
     this.sid = this.$route.query.sid;
     console.log(this.$route.query);
     this.GetInfo();
+    this.get_paper_result()
   },
 
   mounted() {},
@@ -83,10 +123,28 @@ export default {
 
         this.left_arr = left_arr;
         this.info = info;
+        console.log(left_arr);
+        console.log(info);
       });
     },
-    handleClick(tab, event){
-      console.log(tab, event);
+    get_paper_result(){
+       let { sid, pid, left_arr } = this;
+      this.$post("paper_result", "/?c=api", {
+        student_id: sid,
+        pid: pid,
+        is_result:0
+      }).then(res=>{
+        let {paper_title,tsocre,qa_results}=res
+        console.log(res)
+        this.tsocre= `分数：${tsocre}分` 
+        this.paper_title=paper_title
+        this.content=qa_results
+
+      })
+    },
+    exam_student_list_scroll() {},
+    handleClick(tab, event) {
+      // console.log(tab, event);
     },
     load() {}
   }
@@ -107,6 +165,52 @@ export default {
   align-items: center;
   background: #ededee;
 }
+.ExamDetail_right_title {
+  font-size: 38px;
+  font-weight: 400;
+  color: rgba(32, 32, 32, 1);
+  margin-bottom: 26px;
+}
+
+.ExamDetail_right_text {
+  font-size: 29px;
+  font-weight: 400;
+  color: rgba(135, 139, 148, 1);
+  margin-bottom: 25px;
+}
+.exam_konwledge_view_top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.exam_konwledge_view_top>span{
+font-size:26px;
+font-weight:400;
+color:rgba(32,32,32,1);
+}
+.exam_konwledge_view_top>p{
+  display: flex;
+  align-items: center;
+}
+.exam_konwledge_view_top>p span:nth-child(1){
+  display: flex;
+  align-items: center;
+  justify-content: center;
+font-size:20px;
+font-weight:500;
+color:rgba(174,174,174,1);
+width:26px;
+height:26px;
+background:rgba(250,96,96,1);
+border-radius:2px;
+margin-right: 20px;
+}
+.exam_konwledge_view_top>p span:nth-child(2){
+font-size:26px;
+font-weight:400;
+color:rgba(32,32,32,1);
+}
 .student_view_des_left .el-image {
   width: 162px;
   height: 162px;
@@ -114,25 +218,66 @@ export default {
   margin-top: 16px;
   margin-bottom: 18px;
 }
-.el-tabs{
+.el-tabs {
   /* width: 100%; */
   height: 100px;
 }
-.el-tabs__item{
+.el-tabs__item {
   width: 300px;
   height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 30px;
-
 }
-.el-tabs__active-bar{
+.exam_student_list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-top: 36px;
+  box-sizing: border-box;
+}
+.exam_student_list_title {
+  font-size: 26px;
+  font-weight: 500;
+  color: rgba(32, 32, 32, 1);
+  margin-bottom: 20px;
+}
+.exam_student_list_span {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.exam_student_list_span > span {
+  width: 52px;
+  height: 52px;
+  background: rgba(255, 255, 255, 1);
+  border: 1px solid rgba(135, 139, 148, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #4b4b4b;
+  border-radius: 50%;
+  margin-right: 25px;
+  margin-bottom: 20px;
+}
+.el-tabs__active-bar {
   height: 6px;
-  background-color:#545DFF
+  background-color: #545dff;
 }
-.el-tabs__item.is-active{
-  color: #545DFF;
+.el-tabs__item.is-active {
+  color: #545dff;
+}
+.span_error {
+  background: #fa6060 !important;
+  color: #fff !important;
+  border: none !important;
+}
+.span_success {
+  background: #545dff !important;
+  color: #fff !important;
+  border: none !important;
 }
 .student_des {
   display: flex;
@@ -145,7 +290,7 @@ export default {
   justify-content: space-between;
   margin-bottom: 54px;
 }
- .student_name {
+.student_name {
   font-size: 32px;
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
@@ -226,16 +371,24 @@ export default {
   font-size: 38px;
   box-sizing: border-box;
 }
-.tab_des_view{
+.exam_konwledge_view {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.exam_konwledge_view {
+  display: flex;
+  flex-direction: column;
+}
+.tab_des_view {
   width: 100%;
   display: flex;
   align-items: center;
-  
 }
-.tab_des_view p{
-font-size:30px;
-font-weight:500;
-color:rgba(32,32,32,1);
-margin-right: 50px;
+.tab_des_view p {
+  font-size: 30px;
+  font-weight: 500;
+  color: rgba(32, 32, 32, 1);
+  margin-right: 50px;
 }
 </style>

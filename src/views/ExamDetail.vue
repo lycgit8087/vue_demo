@@ -292,6 +292,7 @@ export default {
 
         plist.count = count;
         this.content = content;
+        console.log(content)
         this.plist = plist;
 
         // 设置缓存
