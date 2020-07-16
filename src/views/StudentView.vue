@@ -43,15 +43,15 @@
               v-infinite-scroll="exam_student_list_scroll"
               style="overflow:auto"
             >
-              <div class="exam_konwledge_view">
+              <div class="exam_konwledge_view" v-for="(item,index) in etag_list" :key="index" >
                 <div class="exam_konwledge_view_top">
                   <p>
-                    <span>1</span>
-                    <span>20以内退位减法</span>
+                    <span :class="index<=2?'wcolor':''" >{{index+1}}</span>
+                    <span>{{item.name}}</span>
                   </p>
-                  <span>42%</span>
+                  <span>{{item.rp_rate}}%</span>
                 </div>
-                <el-progress :text-inside="false" color="#66BD6A" :percentage="20"></el-progress>
+                <el-progress :text-inside="false" color="#66BD6A" :percentage="item.rp_rate"></el-progress>
               </div>
             </div>
           </el-tab-pane>
@@ -59,7 +59,7 @@
       </div>
       <div class="student_view_des_right">
 
-            <html-view :content="content" :des="tsocre" :title="paper_title"  ></html-view>
+            <html-view :content="content" :des="tsocre" :title="paper_title" :content_type="1"  ></html-view>
 
 
       </div>
@@ -79,6 +79,7 @@ export default {
         { text: "答错数", des: "" },
         { text: "答对数", des: "" }
       ],
+      etag_list:[],
       list: 10,
       pid: 0,
       activeName: "first",
@@ -96,6 +97,7 @@ export default {
     console.log(this.$route.query);
     this.GetInfo();
     this.get_paper_result()
+    this.get_etag_grasp()
   },
 
   mounted() {},
@@ -140,6 +142,20 @@ export default {
         this.paper_title=paper_title
         this.content=qa_results
 
+      })
+    },
+
+    // 获取学生知识点掌握
+    get_etag_grasp(){
+       let { sid, pid, left_arr } = this;
+      this.$post("etag_grasp", "/?c=api", {
+        student_id: sid,
+        pid: pid,
+
+      }).then(res=>{
+        console.log(res)
+        let etag_list=res.data
+        this.etag_list=etag_list
       })
     },
     exam_student_list_scroll() {},
@@ -202,7 +218,6 @@ font-weight:500;
 color:rgba(174,174,174,1);
 width:26px;
 height:26px;
-background:rgba(250,96,96,1);
 border-radius:2px;
 margin-right: 20px;
 }
@@ -249,8 +264,8 @@ color:rgba(32,32,32,1);
   width: 100%;
 }
 .exam_student_list_span > span {
-  width: 52px;
-  height: 52px;
+  width: 76px;
+  height: 76px;
   background: rgba(255, 255, 255, 1);
   border: 1px solid rgba(135, 139, 148, 1);
   display: flex;
@@ -318,7 +333,7 @@ color:rgba(32,32,32,1);
   display: flex;
   flex-direction: column;
   width: 1170px;
-  padding: 72px 55px 0px 55px;
+  padding: 0px 55px;
   box-sizing: border-box;
   align-items: center;
 }
@@ -390,5 +405,9 @@ color:rgba(32,32,32,1);
   font-weight: 500;
   color: rgba(32, 32, 32, 1);
   margin-right: 50px;
+}
+.wcolor{
+  color: #fff !important;
+  background: rgba(250,96,96,1)
 }
 </style>

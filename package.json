@@ -14,6 +14,7 @@
     "axios": "^0.19.2",
     "element-ui": "^2.13.1",
     "face": "^1.0.0",
+    "jquery": "^3.5.1",
     "lib-flexible": "^0.3.2",
     "qrcodejs2": "0.0.2",
     "qs": "^6.9.4",

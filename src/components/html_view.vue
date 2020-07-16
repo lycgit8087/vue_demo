@@ -2,21 +2,21 @@
 <template>
   <div class="html_view"  v-infinite-scroll="html_view_scroll"
               style="overflow:auto" >
-      <p class="html_view_title" >{{title}}</p>
-      <p class="html_view_des" >{{des}}</p>
+      <p class="html_view_title" v-if="title" >{{title}}</p>
+      <p class="html_view_des" v-if="des" >{{des}}</p>
 
        <div v-for="item in content" :key="item.tcid" class="qas_view">
-        <p class="exam_list_left_title">{{item.partname}}</p>
+        <p class="exam_list_left_title" v-if="item.partname" >{{item.partname}}</p>
         <div v-for="qitem in item.qas" :key="qitem.id">
-          <p class="exam_list_left_title_item">{{qitem.title}}</p>
+          <p class="exam_list_left_title_item" v-if="qitem.title" >{{qitem.title}}</p>
           <div class="html_div" v-html="qitem.content"></div>
-          <div class="right_text" >
+          <div class="right_text" v-if="content_type==1" >
             <span class="right_text_left" >【正确答案】：</span>
             <p class="right_text_right" > <span v-for="(aitem,aindex) in qitem.answers" :key="aindex" >{{aitem.ranswer}}</span> </p>
           </div>
 
-           <div class="right_text" >
-            <span class="right_text_left" >【解析】：</span>
+           <div class="right_text" v-if="content_type==1" >
+            <span class="right_text_left"  >【解析】：</span>
             <p class="right_text_right"  v-html="qitem.qri" ></p>
           </div>
         </div>
@@ -28,10 +28,11 @@
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
+import $ from "jquery";
 
 export default {
   //import引入的组件需要注入到对象中才能使用
-  name: "Back",
+  name: "html_view",
   components: {},
   data() {
     //这里存放数据
@@ -51,7 +52,7 @@ export default {
     },
     content_type:{
       type:Number,
-      default:0
+      default:0//  0:只是显示    1:显示解析以及做题情况  2:显示做题情况  3:单题显示
     },
     des:{
       type:String,
@@ -71,10 +72,17 @@ export default {
   //监控data中的数据变化
   watch: {
       content(val){
+        let {content_type}=this
           if(val.length==0)return
-          
            val=this.info(val)
-          console.log(val)
+           if(content_type==0){
+             this.return_data()
+           }else{
+             setTimeout(()=>{
+             this.set_class()
+
+             },1500)
+           }
 
       },
   },
@@ -85,193 +93,68 @@ export default {
     },
      // 设置正确或者错误
     set_class(params) {
-      let { exam_num, plist_arr, right_data, local_data } = this;
-      let new_select_arr = [],
-        new_success_arr = [];
-      (new_select_arr = params.select_answer),
-      (new_success_arr = params.success_answer);
+      let { content } = this;
+      let select_arr =[] ;
+          let success_arr = [];
+      console.log(content)
+      for(let i in content){
+        for(let j in content[i].qas){
+          for(let q in content[i].qas[j].answers){
+            if(content[i].qas[j].answers[q].type==4){
+              let id=content[i].qas[j].answers[q].id,
+                 left_line_data=[],right_line_data=[],
+                  uanswer=content[i].qas[j][`uanswer_${id}`],
+                  answer=content[i].qas[j][`answer_${id}`];
+               let  uanswer_arr=uanswer.split(","),
+                    answer_arr=answer.split(",")
+                    // 正确选择
+                    for(let a in answer_arr){
+                      let all_line=answer_arr[a].split("")
+                        left_line_data.push({value:all_line[0],text:all_line[1]})
+
+                    }
+                    success_arr.push({
+                      child_id:id,
+                      line_data:left_line_data
+                    })
+                
+
+                  // 用户选择
+
+                    for(let u in uanswer_arr){
+                      let all_line=uanswer_arr[u].split("")
+                     
+                        right_line_data.push({value:all_line[0],text:all_line[1]})
+
+                    }
+                    select_arr.push({
+                      child_id:id,
+                      line_data:right_line_data
+                    })
+                    }
+              
+            }
+            
+          }
+        }
+        console.log(success_arr)
+        console.log(select_arr)
       
-      let answer_data = plist_arr[exam_num].answers;
-      // 选择
-      // 正确
 
-      // 答案项
-
-      for (let l in answer_data) {
-        let type = answer_data[l].type;
-        if (type == 1) {
-          //单选题
-          let select_arr = new_select_arr.filter(item => item.type == 1);
-          let success_arr = new_success_arr.filter(item => item.type == 1);
-
-          let c_arr = $(`.check_qas_view_one`);
-          for (let i = 0; i < c_arr.length; i++) {
-            for (let j in select_arr) {
-              for (let o in success_arr) {
-                if (
-                  select_arr[j].child_id == c_arr[i].id &&
-                  success_arr[o].child_id == c_arr[i].id
-                ) {
-                  // 用户没有选择
-                  if (select_arr[j].value.length == 0) {
-                    //   let s_arr = plist_arr[exam_num].answers.filter(
-                    //   item => item.id == select_arr[j].child_id
-                    // );
-                    // let s_num = s_arr[0].content.options.findIndex(
-                    //   item => item.value == success_arr[o].value
-                    // );
-                    // c_arr[i].childNodes[s_num].className =
-                    //   "oitem_item_none rborder_class";
-                  } else {
-                    let s_arr = plist_arr[exam_num].answers.filter(
-                      item => item.id == select_arr[j].child_id
-                    );
-                    let num = select_arr[j].num
-                      ? select_arr[j].num
-                      : s_arr[0].content.options.findIndex(
-                          item => item.value == select_arr[j].value
-                        );
-                    // 用户有选择
-                    if (select_arr[j].value == success_arr[o].value) {
-                      c_arr[i].childNodes[num].className =
-                        "oitem_item_none rborder_class";
-                    } else {
-                      c_arr[i].childNodes[num].className =
-                        "oitem_item_none eborder_class";
-                      let s_num = s_arr[0].content.options.findIndex(
-                        item => item.value == success_arr[o].value
-                      );
-                      c_arr[i].childNodes[s_num].className =
-                        "oitem_item_none rborder_class";
-                    }
-                  }
-                }
-              }
-            }
-          }
-        } else if (type == 2) {
-          //多选题
-          let select_arr = new_select_arr.filter(item => item.type == 2);
-          let success_arr = new_success_arr.filter(item => item.type == 2);
-          let c_arr = $(`.check_qas_view_more`);
-
-          let new_select_arr_push = [],
-            new_success_arr_push = [];
-          // 用户选择
-          for (let i in select_arr) {
-            select_arr[i].num = select_arr[i].num.split(",");
-            select_arr[i].value = select_arr[i].value.split(",");
-            for (let j in select_arr[i].value) {
-              new_select_arr_push.push({
-                type: type,
-                child_id: select_arr[i].child_id,
-                value: select_arr[i].value[j],
-                num: select_arr[i].num[j]
-              });
-            }
-          }
-          // 正确答案
-          // 用户选择
-          for (let i in success_arr) {
-            success_arr[i].num = success_arr[i].num.split(",");
-            success_arr[i].value = success_arr[i].value.split(",");
-            for (let j in success_arr[i].value) {
-              new_success_arr_push.push({
-                type: success_arr[i].type,
-                child_id: success_arr[i].child_id,
-                value: success_arr[i].value[j],
-                num: success_arr[i].num[j]
-              });
-            }
-          }
-
-          select_arr = new_select_arr_push;
-          success_arr = new_success_arr_push;
-
-          // 多选题加载
-          for (let p = 0; p < c_arr.length; p++) {
-            for (let j in select_arr) {
-              for (let o in success_arr) {
-                if (
-                  select_arr[j].child_id == c_arr[p].id &&
-                  success_arr[o].child_id == c_arr[p].id
-                ) {
-                  // 用户没有选择
-                  if (select_arr[j].value.length == 0) {
-                    //   let s_arr = plist_arr[exam_num].answers.filter(
-                    //   item => item.id == select_arr[j].child_id
-                    // );
-                    // let s_num = s_arr[0].content.options.findIndex(
-                    //   item => item.value == success_arr[o].value
-                    // );
-                    // c_arr[i].childNodes[s_num].className =
-                    //   "oitem_item_none rborder_class";
-                  } else {
-                    let s_arr = plist_arr[exam_num].answers.filter(
-                      item => item.id == select_arr[j].child_id
-                    );
-                    let num = select_arr[j].num
-                      ? select_arr[j].num
-                      : s_arr[0].content.options.findIndex(
-                          item => item.value == select_arr[j].value
-                        );
-                    if (select_arr[j].value == success_arr[o].value) {
-                      c_arr[p].childNodes[num].className =
-                        "oitem_item_none rborder_class";
-                    } else {
-                      c_arr[p].childNodes[num].className =
-                        "oitem_item_none eborder_class";
-
-                      let s_num = s_arr[0].content.options.findIndex(
-                        item => item.value == success_arr[o].value
-                      );
-                      c_arr[p].childNodes[s_num].className =
-                        "oitem_item_none rborder_class";
-                    }
-                  }
-                }
-              }
-            }
-          }
-        } else if (type == 3) {
-          //填空题
-          let select_arr = new_select_arr.filter(item => item.type == 3);
-          let success_arr = new_success_arr.filter(item => item.type == 3);
-
-          for (let i in select_arr) {
-            for (let j in success_arr) {
-              if (select_arr[i].child_id == success_arr[j].child_id) {
-                if (select_arr[i].value.length == 0) {
-                  // let child_id = success_arr[i].child_id;
-                  // $(`#${child_id}`)[0].value = success_arr[j].value;
-                } else {
-                  if (select_arr[i].value == success_arr[j].value) {
-                    let child_id = select_arr[i].child_id;
-                    $(`#${child_id}`)[0].value = success_arr[j].value;
-                    $(`#${child_id}`)[0].className = "rclass";
-                  } else {
-                    let child_id = select_arr[i].child_id;
-                    $(`#${child_id}`)[0].value = select_arr[i].value;
-                    $(`#${child_id}`)[0].className = "eclass";
-                  }
-                }
-              }
-            }
-          }
-        } else if (type == 4) {
           //连线题
-          let select_arr = new_select_arr.filter(item => item.type == 4);
-          let success_arr = new_success_arr.filter(item => item.type == 4);
+          
 
           for (let i in select_arr) {
             for (let j in success_arr) {
               if (select_arr[i].child_id == success_arr[j].child_id) {
                 let c_id = select_arr[i].child_id;
+                console.log(c_id)
                 let select_l_data = select_arr[i].line_data;
                 let success_l_data = success_arr[j].line_data;
 
                 var c = document.getElementById(`${c_id}_myCanvas`);
-
+                let all_canvas= $("canvas")
+               
                 let view_width = $(`.Connection_view_center_${c_id}`)[0]
                     .clientWidth,
                   view_height = $(`.Connection_view_center_${c_id}`)[0]
@@ -282,11 +165,13 @@ export default {
                 let color_text = "#000",
                   left_top = 0,
                   right_top = 0;
+                  console.log(select_l_data,success_l_data)
                 for (let k in select_l_data) {
                   for (let l in success_l_data) {
                     if (select_l_data[k].value == success_l_data[l].value) {
                       if (select_l_data[k].text == success_l_data[l].text) {
                         color_text = "green";
+                        
                         left_top =
                           $(`.left_${k}_${c_id}`).position().top +
                           $(`.left_${k}_${c_id}`)[0].clientHeight / 2;
@@ -340,25 +225,42 @@ export default {
               }
             }
           }
-        }
-      }
+      
     },
     updateIt(){
       this.$emit("updateit") 
     },
+    return_data(){
+      let {content}=this
+      this.$emit("get_data",content) 
+
+    },
+     draw_line(canvas, width, left_top, right_top, color) {
+      canvas.beginPath();
+      canvas.lineCap = "round";
+      canvas.strokeStyle = color;
+      canvas.lineWidth = 3;
+      canvas.fillStyle = color;
+      canvas.moveTo(0, left_top);
+      canvas.lineTo(width, right_top);
+      canvas.stroke();
+    },
     info(data){
+      console.log(data)
       let {content_type}=this
-      console.log(content_type)
-      let plist_arr =[]
-      let plist=[
+      let plist_arr =[],plist=[]
+         plist_arr =[]
+        plist=[
         {content:data}
       ]
-      let num=0
+      let num=1
       for(let p in plist){
 
           for(let i in plist[p].content){
       for (let j in plist[p].content[i].qas) {
-          
+        if(content_type==1){
+          plist[p].content[i].qas[j].qri=this.$till.htmlspecialchars_decode(plist[p].content[i].qas[j].qri)
+        }
             plist[p].content[i].qas[j].title =
               num + ". " + plist[p].content[i].qas[j].title;
             plist[p].content[i].qas[j].num = num;
@@ -373,26 +275,56 @@ export default {
             ].content = this.$till.htmlspecialchars_decode(
               plist[p].content[i].qas[j].content
             );
-
             for (let k in plist[p].content[i].qas[j].answers) {
               let html_text = "";
+              let is_class_change=0,
+                  type_num=plist[p].content[i].qas[j].answers[k].type,
+                 answer_id=plist[p].content[i].qas[j].answers[k].id,
+                 ranswer="",uanswer="";
               if (
-                plist[p].content[i].qas[j].answers[k].type == 1 ||
-                plist[p].content[i].qas[j].answers[k].type == 2
+                 type_num== 1 ||type_num == 2
               ) {
+                
                 for (let o in plist[p].content[i].qas[j].answers[k].content
                   .options) {
-                    let ranswer=plist[p].content[i].qas[j].answers[k].ranswer,
-                        uanswer=plist[p].content[i].qas[j].answers[k].uanswer,
-                        options_value=plist[p].content[i].qas[j].answers[k].content.options[o].value,
-                         is_class_change=0
+                    if(content_type==1){
+                     ranswer= plist[p].content[i].qas[j][`answer_${answer_id}`]
+                        uanswer=plist[p].content[i].qas[j][`uanswer_${answer_id}`]
+                       let options_value=plist[p].content[i].qas[j].answers[k].content.options[o].value;
                         if(uanswer.length==0){
                           is_class_change=0
                         }else{
                           if(uanswer==options_value){
                           is_class_change=ranswer==uanswer?1:2
+                          }else{
+                          is_class_change=0
+
                           }
                         }
+
+                        if(type_num==2){
+                          if(uanswer.length==0){
+                              is_class_change=0
+                          }else{
+                            let r_arr=ranswer.split(","),u_arr=uanswer.split(",")
+                            for(let r in r_arr){
+                              for(let u in u_arr){
+                                if(u_arr[u]==options_value&&r_arr[r]==options_value){
+                                  if(r_arr[r]==u_arr[u]){
+                                  is_class_change=1
+
+                                  }else{
+                                  is_class_change=2
+
+                                  }
+                                }
+                              }
+                            }
+
+                          }
+                        }
+                    }
+                       
                   if (
                     plist[p].content[i].qas[j].answers[k].content.options[
                       o
@@ -405,34 +337,46 @@ export default {
                         o
                       ].text.substring(5)
                     );
-                    html_text += `<div class="oitem_item_none ${is_class_change==0?'':is_class_change==1?'rborder_class':'eborder_class'} " data-type='${plist[p].content[i].qas[j].answers[k].type}' ><span>${plist[p].content[i].qas[j].answers[k].content.options[o].value}</span> <img src="${plist[p].content[i].qas[j].answers[k].content.options[o].url}"></img></span>
+                    html_text += `<div class="oitem_item_none ${is_class_change==0?'':is_class_change==1?'rborder_class':'eborder_class'} " data-type='${type_num}' ><span>${plist[p].content[i].qas[j].answers[k].content.options[o].value}</span> <img src="${plist[p].content[i].qas[j].answers[k].content.options[o].url}"></img></span>
                  </div>`;
                   } else {
-                    html_text += `<div class="oitem_item_none ${is_class_change==0?'':is_class_change==1?'rborder_class':'eborder_class'} " data-type='${plist[p].content[i].qas[j].answers[k].type}' ><span>${plist[p].content[i].qas[j].answers[k].content.options[o].value}</span> <span>${plist[p].content[i].qas[j].answers[k].content.options[o].text}</span></span>
+                    html_text += `<div class="oitem_item_none ${is_class_change==0?'':is_class_change==1?'rborder_class':'eborder_class'} " data-type='${type_num}' ><span>${plist[p].content[i].qas[j].answers[k].content.options[o].value}</span> <span>${plist[p].content[i].qas[j].answers[k].content.options[o].text}</span></span>
                  </div>`;
                   }
                 }
                 let allhtml = `<div class="check_qas_view ${
-                  plist[p].content[i].qas[j].answers[k].type == 2
+                  type_num == 2
                     ? "check_qas_view_more"
                     : "check_qas_view_one"
                 } " id="${
-                  plist[p].content[i].qas[j].answers[k].id
+                  answer_id
                 }">${html_text}</div>`;
                 plist[p].content[i].qas[j].content = plist[p].content[i].qas[
                   j
                 ].content.replace(
-                  `卍${plist[p].content[i].qas[j].answers[k].id}卍`,
+                  `卍${answer_id}卍`,
                   allhtml
                 );
-              } else if (plist[p].content[i].qas[j].answers[k].type == 3) {
+              } else if (type_num == 3) {//填空题
+                if(content_type==1){
+                  
+                   ranswer= plist[p].content[i].qas[j][`answer_${answer_id}`]
+                      uanswer=plist[p].content[i].qas[j][`uanswer_${answer_id}`]
+                        if(uanswer.length==0){
+                          is_class_change=0
+                        }else{
+                          is_class_change=ranswer==uanswer?1:2
+                         
+                        }
+                }
+               
                 plist[p].content[i].qas[j].content = plist[p].content[i].qas[
                   j
                 ].content.replace(
-                  `卍${plist[p].content[i].qas[j].answers[k].id}卍`,
-                  `<input id='${plist[p].content[i].qas[j].answers[k].id}' data-type='${plist[p].content[i].qas[j].answers[k].type}'  data-aformat="${plist[p].content[i].qas[j].answers[k].content.aformat}"  disabled  class='exam_input' value="" >`
+                  `卍${answer_id}卍`,
+                  `<input id='${answer_id}' class= " exam_input ${is_class_change==0?'':is_class_change==1?'rclass':'eclass'}" data-type='${type_num}'  data-aformat="${plist[p].content[i].qas[j].answers[k].content.aformat}"  disabled   value="${uanswer}" >`
                 );
-              } else if (plist[p].content[i].qas[j].answers[k].type == 4) {
+              } else if (type_num == 4) {
                 let line_html = "",
                   all_line_html = "",
                   left_html = "",
@@ -440,7 +384,7 @@ export default {
                   canvas_html = "";
                 let top_arr =
                   plist[p].content[i].qas[j].answers[k].content.options;
-
+               
                 let left_arr = [],
                   right_arr = [];
                 for (let g in top_arr) {
@@ -454,9 +398,9 @@ export default {
                     num: g
                   });
                   left_html += `<p data-sort="${g}" class="left_${g}_${
-                    plist[p].content[i].qas[j].answers[k].id
+                    answer_id
                   }" data-type='${
-                    plist[p].content[i].qas[j].answers[k].type
+                    type_num
                   }' >${
                     top_arr[i].value.indexOf("img:") != -1
                       ? `<img src='${this.$till.change_file_url(
@@ -465,9 +409,9 @@ export default {
                       : `<span>${top_arr[g].value}</span>`
                   }</p>`;
                   right_html += `<p data-sort="${g}" class="right_${g}_${
-                    plist[p].content[i].qas[j].answers[k].id
+                    answer_id
                   }" data-type='${
-                    plist[p].content[i].qas[j].answers[k].type
+                    type_num
                   }' >${
                     top_arr[i].text.indexOf("img:") != -1
                       ? `<img src='${this.$till.change_file_url(
@@ -486,8 +430,7 @@ export default {
                     num: g
                   });
                 }
-
-                canvas_html = ` <div class=" Connection_view_center Connection_view_center_${plist[p].content[i].qas[j].answers[k].id}" data-id="${plist[p].content[i].qas[j].answers[k].id}"  data-type='${plist[p].content[i].qas[j].answers[k].type}'  > <canvas id="${plist[p].content[i].qas[j].answers[k].id}_myCanvas"   ></canvas> </div>  `;
+                 canvas_html = ` <div class=" Connection_view_center Connection_view_center_${plist[p].content[i].qas[j].answers[k].id}" data-id="${plist[p].content[i].qas[j].answers[k].id}"  data-type='${plist[p].content[i].qas[j].answers[k].type}'  > <canvas id="${plist[p].content[i].qas[j].answers[k].id}_myCanvas"  data-it="${plist[p].content[i].qas[j].answers[k].id}"   ></canvas> </div>  `;
                 left_html = `<div class="Connection_view_left" data-id="${plist[p].content[i].qas[j].answers[k].id}" data-type='${plist[p].content[i].qas[j].answers[k].type}' >${left_html}</div>`;
                 right_html = `<div class="Connection_view_right" data-id="${plist[p].content[i].qas[j].answers[k].id}" data-type='${plist[p].content[i].qas[j].answers[k].type}' >${right_html}</div>`;
                 line_html = `<div class="Connection_view" data-id="${
@@ -495,6 +438,7 @@ export default {
                 }" data-type='${
                   plist[p].content[i].qas[j].answers[k].type
                 }' >${left_html + canvas_html + right_html}</div>`;
+                
                 plist[p].content[i].qas[j].answers[k].left_arr = left_arr;
                 plist[p].content[i].qas[j].answers[k].right_arr = right_arr;
                 plist[p].content[i].qas[j].answers[k].line_list = [];
@@ -502,7 +446,7 @@ export default {
                 plist[p].content[i].qas[j].content = plist[p].content[i].qas[
                   j
                 ].content.replace(
-                  `卍${plist[p].content[i].qas[j].answers[k].id}卍`,
+                  `卍${answer_id}卍`,
                   line_html
                 );
                 
@@ -519,6 +463,9 @@ export default {
       }
            }
 
+           console.log(plist)
+           
+
           return plist
     },
     
@@ -529,10 +476,13 @@ export default {
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
+
   },
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
-  beforeUpdate() {}, //生命周期 - 更新之前
+  beforeUpdate() {
+    
+  }, //生命周期 - 更新之前
   updated() {}, //生命周期 - 更新之后
   beforeDestroy() {}, //生命周期 - 销毁之前
   destroyed() {}, //生命周期 - 销毁完成
@@ -541,7 +491,7 @@ export default {
 </script>
 <style  >
 /* //@import url(); 引入公共css类 */
-.html_view::-webkit-scrollbar {
+.html_view::-webkit-scrollbar,.Connection_view::-webkit-scrollbar {
   /*滚动条整体样式*/
   width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
   height: 1px;
@@ -572,7 +522,7 @@ export default {
 }
 .oitem_item_none {
   display: flex;
-  min-width: 50vw;
+  min-width: 500px;
   min-height: 74px;
   background: rgba(255, 255, 255, 1);
   border-radius: 9px;
@@ -624,9 +574,22 @@ export default {
 }
 .right_text{
   display: flex;
-  align-items: center;
-  margin-bottom: 15px;
+  align-items: flex-start;
+  margin-bottom: 20px;
 
+}
+.exam_input{
+      display: inline-block;
+    border: 2px solid #bdbdbd;
+    width: 200px;
+    padding: 5px 5px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    font-size: 25px;
+    margin: 0 10px;
+    text-align: center;
+    font-weight: 700;
+    color: #000;
 }
 .right_text_left{
   font-size: 24px;
@@ -647,5 +610,103 @@ export default {
 .rborder_class {
   border: 8px solid #00ad56 !important;
   box-sizing: border-box;
+}
+.Connection_view {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  overflow-y: scroll;
+  /* position: relative; */
+}
+.Connection_view img {
+  max-width: 200px;
+  max-height: 200px;
+}
+.Connection_view_center {
+  width: 100%;
+  display: flex;
+  justify-content: space-between !important;
+  flex-direction: row !important;
+  position: relative;
+}
+.Connection_view_center p {
+  opacity: 0;
+}
+.Connection_view_center > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+canvas {
+  display: block;
+  position: absolute;
+
+  /* pointer-events: none; */
+  top: 0;
+  left: 0;
+  z-index: 6;
+  width: 100%;
+  height: 100%;
+}
+.Connection_view > div,
+.Connection_view_center_right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.Connection_view_left > p,
+.Connection_view_center_left > p {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  box-sizing: border-box;
+  font-size: 40px;
+}
+
+.eclass {
+  font-size: 40px;
+  color: #fa6060 !important ;
+  font-weight: bold;
+  box-sizing: border-box;
+}
+.rclass {
+  font-size: 40px;
+  color: #00ad56 !important;
+  box-sizing: border-box;
+}
+.bot_view div {
+  width: 407px;
+  height: 126px;
+  border-radius: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 43px;
+}
+
+.Connection_view_right > p,
+.Connection_view_center_right > p {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  box-sizing: border-box;
+  font-size: 40px;
+}
+.Connection_view_left > p span,
+.Connection_view_center_left > p span,
+.Connection_view_right > p span,
+.Connection_view_center_right > p span {
+  height: 90px;
+  width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

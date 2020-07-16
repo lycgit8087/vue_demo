@@ -4,7 +4,7 @@
       <back @updateit="GetInfo" ></back>
       <p class="ExamDetail_left_title">答题卡</p>
       <div class="ExamDetail_left_list" v-infinite-scroll="left_load" style="overflow:auto">
-        <div v-for="item in content" :key="item.partname">
+        <div v-for="item in exam_list_content" :key="item.partname">
           <p>{{item.partname}}</p>
           <div class="ExamDetail_left_list_item">
             <p
@@ -17,34 +17,7 @@
       </div>
     </div>
     <div class="ExamDetail_right" v-infinite-scroll="right_load" style="overflow:auto">
-      <p class="ExamDetail_right_title">{{plist.title}}</p>
-      <p class="ExamDetail_right_text">分数：{{plist.count}}分 </p>
-      <!-- 时间：{{plist.qminute}}分钟 -->
-
-      <div v-for="item in content" :key="item.tcid" class="qas_view">
-        <p class="exam_list_left_title">{{item.partname}}</p>
-        <div v-for="qitem in item.qas" :key="qitem.id">
-          <p class="exam_list_left_title_item">{{qitem.title}}</p>
-
-          <div class="html_div" v-html="qitem.content"></div>
-          
-          <!-- 选择题答案项显示 -->
-          <!-- <div v-if="qitem.type==1||qitem.type==2"  >
-            <div class="check_qas_view" v-for=" aitem in  qitem.answers" :key="aitem.id" >
-              
-              <div v-for="oitem in aitem.content.options " class="oitem_item" :key="oitem.value" >
-              <span  >{{oitem.value}}</span> 
-                <span v-if='oitem.text.indexOf("img:")==-1'  >{{oitem.text}}</span>  
-                  <el-image v-else :src="oitem.url">
-                    <div slot="error" class="image-slot">
-                      <i class="el-icon-picture-outline"></i>
-                    </div>
-                  </el-image>
-              </div>
-            </div>
-          </div> -->
-        </div>
-      </div>
+      <html-view :content="content" :des="tsocre" :title="paper_title" :content_type="0" @get_data="get_data"  ></html-view>
     </div>
 
     <!-- 题目弹出框 -->
@@ -54,22 +27,11 @@
           <span>{{rq_title}}</span>
          
         </div>
-        <div class="html_div" v-html="qas_content"></div>
-         <!-- 选择题答案项显示 -->
-          <!-- <div v-if="qtype==1||qtype==2" class="check_qas_view_parent" >
-          <div class="check_qas_view" v-for=" aitem in  answer_data" :key="aitem.id" >
-            <p>{{aitem.name}}</p>
-            <div v-for="oitem in aitem.content.options " class="oitem_item" :key="oitem.value" >
-             <span  >{{oitem.value}}</span> 
-              <span v-if='oitem.text.indexOf("img:")==-1' >{{oitem.text}}</span>
-                <el-image v-else :src="oitem.url">
-             <div slot="error" class="image-slot">
-              <i class="el-icon-picture-outline"></i>
-            </div>
-          </el-image>
-            </div>
-          </div>
-          </div> -->
+        <div class="answer_center_des"  >
+
+           <html-view :content="qas_content"  :content_type="3"   ></html-view>
+        </div>
+     
 
         <!-- 答案解析 -->
         <div class="answer_konw" @click="change_right_toggle" v-show="!right_toggle"  >
@@ -182,14 +144,17 @@ export default {
       bluebot,
       blacktop,
       closeIcon: require("../assets/detail_close_icon.png"),
+      paper_title:"",
+      tsocre:"",
 
       centerDialogVisible: false,
       BookImage: require("../assets/open_book.png"),
       pid: 0,
       content: [],
+      exam_list_content:[],
       right_toggle: false,
       plist: {},
-      qas_content: "",
+      qas_content:[],
       answer_toggle: false,
       is_change_before: false,
       is_change_next: false,
@@ -215,9 +180,9 @@ export default {
      this.GetInfo();
    }else{
      let data=this.$till.get_local(this.$route.name,this.$route.query.pid)
-      let {content,plist}=data
+      let {content}=data
       this.content=content
-      this.plist=plist
+      this.exam_list_content=content
    }
   },
   mounted() {},
@@ -238,6 +203,14 @@ export default {
       });
       this.answer_toggle = true;
     },
+    get_data(e){
+      this.exam_list_content=e
+      // 设置缓存
+        let page_data={
+          content:e,
+        }
+       localStorage.setItem("user_local",JSON.stringify(this.$till.set_local(this.$route.name,this.$route.query.pid,page_data)))  
+    },
     // 获取信息
     async GetInfo() {
       let { pid } = this;
@@ -246,61 +219,12 @@ export default {
         is_content: 1
       }).then(res => {
         let plist = res.data[0];
-        let count = 0;
-        let num=1
-        
         let { content } = plist;
-        if (plist.content.length) {
-          for (let i in plist.content) {
-            count += plist.content[i].partscore;
-          }
-        }
-        // NoToChinese
-        let sub_num=0
-        for (let i in content) {
-          for (let j in content[i].qas) {
-           content[i].qas[j].title=num+". "+content[i].qas[j].title
-           content[i].qas[j].num=num
-           num++
-            content[i].qas[j].content =  this.$till.htmlspecialchars_decode(
-              content[i].qas[j].content
-            );
-              
-            for(let k in content[i].qas[j].answers){
-              if(content[i].qas[j].answers[k].type==1){
-                  let html_text=""
-                for(let o in content[i].qas[j].answers[k].content.options){
-                  if(content[i].qas[j].answers[k].content.options[o].text.indexOf("img:")!=-1){
-                    content[i].qas[j].answers[k].content.options[o].url=this.$till.change_file_url(content[i].qas[j].answers[k].content.options[o].text.substring(5)) 
-                    html_text+=`<div class="oitem_item"><span>${content[i].qas[j].answers[k].content.options[o].value}</span> <img src="${content[i].qas[j].answers[k].content.options[o].url}"></img></span>
-                 </div>`
-                  }else{
-                    html_text+=`<div class="oitem_item"><span>${content[i].qas[j].answers[k].content.options[o].value}</span> <span>${content[i].qas[j].answers[k].content.options[o].text}</span></span>
-                 </div>`
-                  }
-                }
-                let allhtml=`<div class="check_qas_view">${html_text}</div>`
-                content[i].qas[j].content=content[i].qas[j].content.replace(`卍${content[i].qas[j].answers[k].id}卍`, allhtml)
-              }else{
-                content[i].qas[j].content=content[i].qas[j].content.replace(`卍${content[i].qas[j].answers[k].id}卍`, "")
-              }
-              
-            }
-            content[i].qas[j].content=content[i].qas[j].content.replace(/卍.*?卍/g, "")
-          }
-        }
-
-        plist.count = count;
+        this.tsocre=`${plist.qcount}分`
+        this.paper_title=plist.title
         this.content = content;
-        console.log(content)
-        this.plist = plist;
 
-        // 设置缓存
-        let page_data={
-          content:content,
-          plist:plist,
-        }
-       localStorage.setItem("user_local",JSON.stringify(this.$till.set_local(this.$route.name,this.$route.query.pid,page_data)))  
+        
 
       });
       this.centerDialogVisible = true;
@@ -323,32 +247,17 @@ export default {
         is_loadstus:1
 
       }).then(res => {
-        res.qas_content =  this.$till.htmlspecialchars_decode(res.content);
-        //选择题转换
+        this.qas_content=[]
         for(let i in res.answer_data){
-          if(res.answer_data[i].type==1){
-            let html_text=""
-             for(let o in res.answer_data[i].content.options){
-            
-               if(res.answer_data[i].content.options[o].text.indexOf("img:")!=-1){
-                    res.answer_data[i].content.options[o].url=this.$till.change_file_url(res.answer_data[i].content.options[o].text.substring(5)) 
-                     html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <img src="${res.answer_data[i].content.options[o].url}"></img></span>
-                  </div>`
-                  }else{
-                     html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <span>${res.answer_data[i].content.options[o].text}</span></span>
-                  </div>`
-                  }
-                   }
-                    let allhtml=`<div class="check_qas_view">${html_text}</div>`
-                res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, allhtml)
-              }else{
-                    res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, "")
+          res.answer_data[i].partname=""
+          res.answer_data[i].title=""
 
-              }
-         
         }
-        res.qas_content=res.qas_content.replace(/卍.*?卍/g, "")
-
+        let qas_content=[
+           {qas:[
+             {content:res.content,answers:res.answer_data,title:""}
+           ]} 
+        ]
         // 答错
         for(let i in res.ns_data){
           res.ns_data[i].avatar=this.$till.change_file_url(res.ns_data[i].avatar)
@@ -363,7 +272,7 @@ export default {
         this.ys_data = res.ys_data;
         this.rq_rate = res.rq_rate;
         this.rq_title = res.title;
-        this.qas_content = res.qas_content;
+        this.qas_content = qas_content;
         if(res.qri){
           res.qri =  this.$till.htmlspecialchars_decode(res.qri);
         }
@@ -374,6 +283,7 @@ export default {
         this.is_change = false;
         this.is_change_before = false;
         this.is_change_next = false;
+        
       });
     },
     next() {
@@ -728,6 +638,9 @@ box-sizing: border-box;
 }
 .answer_center_top p span:nth-child(2) {
   color: #00ad56;
+}
+.answer_center_des{
+  width: 100%;
 }
 .answer_konw {
   display: flex;

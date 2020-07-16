@@ -321,7 +321,10 @@
         <div class="answer_center_top">
           <span>{{rq_title}}</span>
         </div>
-        <div class="html_div" v-html="qas_content"></div>
+        <div class="q_view" >
+          <html-view :content="qas_content"  :content_type="3"   ></html-view>
+        </div>
+        
 
         <div class="right_answer_view" v-if="sid" >
           <span>正确答案是：</span>
@@ -567,7 +570,7 @@
 
           </div>
           <div class="konwledge_center_left_html"  >
-            <html-view  ></html-view>
+            <html-view :content="konw_content"  :content_type="3"   ></html-view>
 
           </div>
 
@@ -615,7 +618,7 @@
               </el-image>
               <img v-if="item.is_check" :src="CheckedImage" >
               <span>{{item.name}}</span>
-              <p>20%</p>
+              <p>{{item.rp_rate}}%</p>
 
 
               </div>
@@ -713,6 +716,9 @@ export default {
 
 
       push_toggle:false,
+      qas_content:[],
+     konw_content:[],
+
       other_list:[],
       pid: 0,
       over_view: {
@@ -763,7 +769,6 @@ export default {
       rq_rate: 0,
       rq_title: "",
       qtype:-1,
-      qas_content: "",
       right_toggle: false,
        answer_data:[],
       error_toggle:true,
@@ -981,6 +986,10 @@ export default {
       }).then(res=>{
         let push_ns_data=res.ns_data
         let push_ys_data=res.ys_data
+        let kp_data=res.kp_data
+        let konw_content=[
+           {qas:[kp_data[0].qas_data[0]]} 
+        ]
         for(let i in push_ns_data){
           push_ns_data[i].avatar=this.$till.change_file_url(push_ns_data[i].avatar)
           push_ns_data[i].is_check=true
@@ -990,10 +999,9 @@ export default {
           push_ys_data[i].avatar=this.$till.change_file_url(push_ys_data[i].avatar)
           push_ys_data[i].is_check=false
         }
-
+        this.konw_content=konw_content
         this.error_students=push_ns_data
         this.right_students=push_ys_data
-        console.log(push_ns_data)
 
       })
 
@@ -1147,58 +1155,14 @@ export default {
         is_loadstus:1
       }).then(res => {
         
-        res.qas_content = this.$till.htmlspecialchars_decode(res.content);
         let answer_arr=[]
-           //选择题转换
-        for(let i in res.answer_data){
-          if(sid){
-             answer_arr.push(res.uanswers[`answer_${res.answer_data[i].id}`])
-          }
-         
-          if(res.answer_data[i].type==1){
-            let html_text=""
-            
-            
-             for(let o in res.answer_data[i].content.options){
-               
-               if(res.answer_data[i].content.options[o].text.indexOf("img:")!=-1){
-                    res.answer_data[i].content.options[o].url=this.$till.change_file_url(res.answer_data[i].content.options[o].text.substring(5)) 
-                      if(sid){
-                          html_text+=`<div class="oitem_item ${((res.uanswers[`uanswer_${res.answer_data[i].id}`]==res.answer_data[i].content.options[o].value)&&res.uanswers[`uanswer_${res.answer_data[i].id}`]!=res.uanswers[`answer_${res.answer_data[i].id}`])?'eborder_class':''}  ${res.uanswers[`answer_${res.answer_data[i].id}`]==res.answer_data[i].content.options[o].value?'rborder_class':''} "><span>${res.answer_data[i].content.options[o].value}</span> <img src="${res.answer_data[i].content.options[o].url}"></img></span>
-                  </div>`
-                      }else{
-                          html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <img src="${res.answer_data[i].content.options[o].url}"></img></span>
-                  </div>`
-                      }
-                  }else{
-                    if(sid){
-                      html_text+=`<div class="oitem_item ${((res.uanswers[`uanswer_${res.answer_data[i].id}`]==res.answer_data[i].content.options[o].value)&&res.uanswers[`uanswer_${res.answer_data[i].id}`]!=res.uanswers[`answer_${res.answer_data[i].id}`])?'eborder_class':''} ${res.uanswers[`answer_${res.answer_data[i].id}`]==res.answer_data[i].content.options[o].value?'rborder_class':''} "><span>${res.answer_data[i].content.options[o].value}</span> <span>${res.answer_data[i].content.options[o].text}</span></span>
-                  </div>`
-                    }else{
-                      html_text+=`<div class="oitem_item"><span>${res.answer_data[i].content.options[o].value}</span> <span>${res.answer_data[i].content.options[o].text}</span></span>
-                  </div>`
-                    }
-                     
-                  }
-                   }
-                 let allhtml=`<div class="check_qas_view">${html_text}</div>`
-                res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, allhtml)
-              }else{
-
-                if(sid){
-                  // "<span class='eclass' ></span>"  "<span class='rclass' ></span>"
-                  res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, res.uanswers[`uanswer_${res.answer_data[i].id}`]==res.uanswers[`answer_${res.answer_data[i].id}`]?`<span class='rclass' >${res.uanswers[`uanswer_${res.answer_data[i].id}`]}</span>`:`<span class='eclass' >${res.uanswers[`uanswer_${res.answer_data[i].id}`]}</span>`)
-
-                }else{
-                  res.qas_content=res.qas_content.replace(`卍${res.answer_data[i].id}卍`, "")
-                }
-                    
-
-              }
-         
-        }
+        let qas_content=[
+           {qas:[
+             {content:res.content,answers:res.answer_data,title:""}
+           ]} 
+        ]
+        
         res.answer_arr=answer_arr
-        res.qas_content=res.qas_content.replace(/卍.*?卍/g, "")
         // 答错
         for(let i in res.ns_data){
           res.ns_data[i].avatar=this.$till.change_file_url(res.ns_data[i].avatar)
@@ -1208,7 +1172,7 @@ export default {
         for(let i in res.ys_data){
           res.ys_data[i].avatar=this.$till.change_file_url(res.ys_data[i].avatar)
         }
-        this.qas_content = res.qas_content;
+        this.qas_content = qas_content;
         this.ns_data = res.ns_data;
         this.ys_data = res.ys_data;
         this.rq_rate = res.rq_rate;
@@ -2353,6 +2317,9 @@ margin-left: 30px;
 }
 .konwledge_view .el-dialog__body{
   padding: 0;
+}
+.q_view{
+  width: 100%;
 }
 .span_error {
   background: #fa6060 !important;
