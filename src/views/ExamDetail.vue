@@ -181,8 +181,10 @@ export default {
    }else{
      let data=this.$till.get_local(this.$route.name,this.$route.query.pid)
       let {content}=data
+      console.log(content)
       this.content=content
       this.exam_list_content=content
+      this.$forceUpdate()
    }
   },
   mounted() {},
@@ -204,12 +206,11 @@ export default {
       this.answer_toggle = true;
     },
     get_data(e){
+      let {old_content}=this
       this.exam_list_content=e
-      // 设置缓存
-        let page_data={
-          content:e,
-        }
-       localStorage.setItem("user_local",JSON.stringify(this.$till.set_local(this.$route.name,this.$route.query.pid,page_data)))  
+      this.$forceUpdate()
+      
+       
     },
     // 获取信息
     async GetInfo() {
@@ -220,9 +221,13 @@ export default {
       }).then(res => {
         let plist = res.data[0];
         let { content } = plist;
-        this.tsocre=`${plist.qcount}分`
+        this.tsocre=`${plist.tscore}分`
         this.paper_title=plist.title
         this.content = content;
+        let page_data={
+          content:content,
+        }
+        localStorage.setItem("user_local",JSON.stringify(this.$till.set_local(this.$route.name,this.$route.query.pid,page_data)))  
 
         
 

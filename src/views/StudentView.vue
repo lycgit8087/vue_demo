@@ -25,13 +25,14 @@
               v-infinite-scroll="exam_student_list_scroll"
               style="overflow:auto"
             >
-              <div v-for="(item,index) in info.qa_results" :key="index">
+              <div v-for="(item,index) in info.qa_results"  :key="index">
                 <p class="exam_student_list_title">{{item.partname}}</p>
                 <p class="exam_student_list_span">
                   <span
                     :class="qitem.result==1?'span_success':qitem.result==3?'span_error':''"
                     v-for="(qitem,qindex) in item.qas"
                     :key="qindex"
+                    @click="scroll_to(qitem.id)"
                   >{{qitem.num}}</span>
                 </p>
               </div>
@@ -59,7 +60,7 @@
       </div>
       <div class="student_view_des_right">
 
-            <html-view :content="content" :des="tsocre" :title="paper_title" :content_type="1"  ></html-view>
+            <html-view ref="child" :content="content" :des="tsocre" :title="paper_title" :content_type="1"  ></html-view>
 
 
       </div>
@@ -94,7 +95,6 @@ export default {
   created() {
     this.pid = this.$route.query.pid;
     this.sid = this.$route.query.sid;
-    console.log(this.$route.query);
     this.GetInfo();
     this.get_paper_result()
     this.get_etag_grasp()
@@ -125,8 +125,6 @@ export default {
 
         this.left_arr = left_arr;
         this.info = info;
-        console.log(left_arr);
-        console.log(info);
       });
     },
     get_paper_result(){
@@ -137,7 +135,6 @@ export default {
         is_result:0
       }).then(res=>{
         let {paper_title,tsocre,qa_results}=res
-        console.log(res)
         this.tsocre= `分数：${tsocre}分` 
         this.paper_title=paper_title
         this.content=qa_results
@@ -153,16 +150,17 @@ export default {
         pid: pid,
 
       }).then(res=>{
-        console.log(res)
         let etag_list=res.data
         this.etag_list=etag_list
       })
     },
     exam_student_list_scroll() {},
     handleClick(tab, event) {
-      // console.log(tab, event);
     },
-    load() {}
+    load() {},
+    scroll_to(id){
+      this.$refs.child.scroll_it(id)
+    },
   }
 };
 </script>

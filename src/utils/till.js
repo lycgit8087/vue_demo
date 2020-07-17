@@ -90,7 +90,7 @@
   function set_local(page,id,data){
     let user_local_data=localStorage.getItem("user_local")
     user_local_data=JSON.parse(user_local_data)
-    let num =user_local_data.page_data.findIndex(item=>item.id==id)
+    let num =user_local_data.page_data.findIndex(item=>item.id==id&&item.page==page)
     if(num==-1){
       user_local_data.page_data.push({
         id:id,

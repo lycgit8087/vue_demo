@@ -1,13 +1,13 @@
 <!-- back -->
 <template>
-  <div class="html_view"  v-infinite-scroll="html_view_scroll"
+  <div class="html_view" ref="html_scroll"  v-infinite-scroll="html_view_scroll"
               style="overflow:auto" >
-      <p class="html_view_title" v-if="title" >{{title}}</p>
+      <p class="html_view_title" v-if="title" @click="scroll_it" >{{title}}</p>
       <p class="html_view_des" v-if="des" >{{des}}</p>
 
        <div v-for="item in content" :key="item.tcid" class="qas_view">
         <p class="exam_list_left_title" v-if="item.partname" >{{item.partname}}</p>
-        <div v-for="qitem in item.qas" :key="qitem.id">
+        <div v-for="qitem in item.qas" :key="qitem.id" :id="qitem.id" >
           <p class="exam_list_left_title_item" v-if="qitem.title" >{{qitem.title}}</p>
           <div class="html_div" v-html="qitem.content"></div>
           <div class="right_text" v-if="content_type==1" >
@@ -77,11 +77,11 @@ export default {
            val=this.info(val)
            if(content_type==0){
              this.return_data()
-           }else{
+           }else if(content_type==2||content_type==1){
              setTimeout(()=>{
              this.set_class()
 
-             },1500)
+             },500)
            }
 
       },
@@ -89,6 +89,11 @@ export default {
   //方法集合
   methods: {
     html_view_scroll(){
+
+    },
+    scroll_it(id){
+
+      document.getElementById(`${id}`).scrollIntoView({block: "start", behavior : "smooth"})
 
     },
      // 设置正确或者错误
@@ -110,7 +115,9 @@ export default {
                     // 正确选择
                     for(let a in answer_arr){
                       let all_line=answer_arr[a].split("")
-                        left_line_data.push({value:all_line[0],text:all_line[1]})
+                        let o_arr=all_line.filter((item,index)=>index!=0)
+
+                        left_line_data.push({value:all_line[0],text:o_arr.join(",")})
 
                     }
                     success_arr.push({
@@ -123,8 +130,9 @@ export default {
 
                     for(let u in uanswer_arr){
                       let all_line=uanswer_arr[u].split("")
-                     
-                        right_line_data.push({value:all_line[0],text:all_line[1]})
+                        let o_arr=all_line.filter((item,index)=>index!=0)
+                        let f_arr=all_line.filter((item,index)=>index==0)
+                        right_line_data.push({value:f_arr.join(","),text:o_arr.join(",")})
 
                     }
                     select_arr.push({
@@ -137,8 +145,8 @@ export default {
             
           }
         }
-        console.log(success_arr)
-        console.log(select_arr)
+        // console.log(success_arr)
+        // console.log(select_arr)
       
 
           //连线题
@@ -148,7 +156,6 @@ export default {
             for (let j in success_arr) {
               if (select_arr[i].child_id == success_arr[j].child_id) {
                 let c_id = select_arr[i].child_id;
-                console.log(c_id)
                 let select_l_data = select_arr[i].line_data;
                 let success_l_data = success_arr[j].line_data;
 
@@ -165,7 +172,6 @@ export default {
                 let color_text = "#000",
                   left_top = 0,
                   right_top = 0;
-                  console.log(select_l_data,success_l_data)
                 for (let k in select_l_data) {
                   for (let l in success_l_data) {
                     if (select_l_data[k].value == success_l_data[l].value) {
@@ -194,7 +200,7 @@ export default {
                           right_top,
                           color_text
                         );
-                      } else {
+                      } else if(select_l_data[k].text.length!=0) {
                         color_text = "red";
                         left_top =
                           $(`.left_${k}_${c_id}`).position().top +
@@ -246,7 +252,6 @@ export default {
       canvas.stroke();
     },
     info(data){
-      console.log(data)
       let {content_type}=this
       let plist_arr =[],plist=[]
          plist_arr =[]
@@ -460,12 +465,9 @@ export default {
 
             plist_arr.push(plist[p].content[i].qas[j]);
           }
-      }
+          }
            }
-
-           console.log(plist)
            
-
           return plist
     },
     
@@ -476,6 +478,11 @@ export default {
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
+    let {content,content_type}=this
+   this.info(content)
+   if(content_type==0){
+     this.return_data()
+   }
 
   },
   beforeCreate() {}, //生命周期 - 创建之前

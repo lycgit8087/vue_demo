@@ -836,24 +836,44 @@ export default {
   },
   components: {},
   created() {
-    let {is_change_data}=this
     this.pid = this.$route.query.pid;
     this.gid=this.$route.query.gid;
     this.subject=this.$route.query.subject;
-    console.log(is_change_data)
-    if(is_change_data){
-       this.GetRightList();
-    this.GetPaperOverview();
+    let data=this.$till.get_local(this.$route.name,this.$route.query.pid)
+    console.log(data)
+    if(JSON.stringify(data)!="{}"&&JSON.stringify(data)!=undefined){
+               let {left_arr,over_view,other_list,topic_list}=data
+               this.over_view=over_view
+               this.other_list=other_list
+               this.topic_list=topic_list
+    }else{
+        this.GetRightList();
+      this.GetPaperOverview();
     }
+     
+  
    
   },
   beforeRouteLeave(to, from, next) {
         // 设置下一个路由的 meta
         if(to.name=="StudentView"){
-          console.log(1)
+          let {left_arr,over_view,other_list,topic_list}=this
           this.is_change_data=false
+          let page_data={
+          left_arr:left_arr,
+          over_view:over_view,
+          other_list:other_list,
+          topic_list:topic_list
+        }
+        localStorage.setItem("user_local",JSON.stringify(this.$till.set_local(this.$route.name,this.$route.query.pid,page_data)))  
         }else{
-          this.is_change_data=true
+          let user_local_data=localStorage.getItem("user_local")
+          user_local_data=JSON.parse(user_local_data)
+          let num =user_local_data.page_data.findIndex(item=>item.id==this.$route.query.pid&&item.page==this.$route.name)
+          if(num!=-1){
+           user_local_data.page_data= user_local_data.page_data.filter(item=>item.id!=this.$route.query.pid&&item.page!=this.$route.name)
+            localStorage.setItem("user_local",JSON.stringify(user_local_data))
+          }
 
         }
         next();
