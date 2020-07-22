@@ -702,6 +702,14 @@ export default {
   font-size: 26px !important;
 
 }
+ .ExamList table{
+  border: 1px solid #202020;
+  width: 100%;
+}
+.ExamList table td {
+  border: 1px solid #202020;
+
+}
 .ExamList {
   display: flex;
   width: 100%;
@@ -716,7 +724,7 @@ export default {
   width: 1118px;
   height: 100%;
   background: #f8f8ff;
-  padding: 100px 100px 30px 20px;
+  padding: 100px 40px 30px 20px;
   box-sizing: border-box;
 }
 .exam_list_right {
@@ -1050,8 +1058,11 @@ export default {
 .people_view_item_image .el-image:nth-child(1) {
   height: 90px;
   width: 90px;
-  border-radius: 50%;
   background: rgba(216, 216, 216, 0.4);
+}
+.people_view_item_image .el-image:nth-child(1) img{
+  border-radius: 50%;
+
 }
 .file_list_view_top{
   width: 25%;
@@ -1095,12 +1106,15 @@ export default {
     transform: translate(-50%,0%);
 }
 .people_view_item_image .el-image:nth-child(2) {
-  width: 43px;
-  height: 43px;
+  
   position: absolute;
   bottom: -15px;
   left: 50%;
   transform: translate(-50%, 0%);
+}
+.people_view_item_image .el-image:nth-child(2) img{
+  width: 43px;
+  height: 43px;
 }
 .image_bg {
   width: 90px;

@@ -3,7 +3,8 @@
     <back></back>
 
     <div class="student_view_des">
-      <div class="student_view_des_left">
+      <div class="student_view_des_left" v-infinite-scroll="exam_student_list_scroll"
+              style="overflow:auto" >
         <el-image :src="info.avatar" fit="cover">
           <div slot="error" class="image-slot">
             <i class="el-icon-picture-outline"></i>
@@ -22,8 +23,7 @@
           <el-tab-pane label="答题卡" name="first">
             <div
               class="exam_student_list"
-              v-infinite-scroll="exam_student_list_scroll"
-              style="overflow:auto"
+              
             >
               <div v-for="(item,index) in info.qa_results"  :key="index">
                 <p class="exam_student_list_title">{{item.partname}}</p>
@@ -41,8 +41,6 @@
           <el-tab-pane label="知识点掌握率" name="second">
             <div
               class="exam_student_list"
-              v-infinite-scroll="exam_student_list_scroll"
-              style="overflow:auto"
             >
               <div class="exam_konwledge_view" v-for="(item,index) in etag_list" :key="index" >
                 <div class="exam_konwledge_view_top">
@@ -225,23 +223,28 @@ font-weight:400;
 color:rgba(32,32,32,1);
 }
 .student_view_des_left .el-image {
+  
+  margin-top: 16px;
+  margin-bottom: 18px;
+}
+.student_view_des_left .el-image img{
   width: 162px;
   height: 162px;
   border-radius: 50%;
-  margin-top: 16px;
-  margin-bottom: 18px;
 }
 .el-tabs {
   /* width: 100%; */
   height: 100px;
 }
-.el-tabs__item {
-  width: 300px;
-  height: 100px;
-  display: flex;
+ .student_view_page .el-tabs__item {
+  width: 300px !important;
+  height: auto !important;
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
+  font-size: 30px !important;
+  box-sizing: border-box !important;
+  padding: 15px 0 !important;
 }
 .exam_student_list {
   display: flex;
@@ -249,10 +252,11 @@ color:rgba(32,32,32,1);
   width: 100%;
   padding-top: 36px;
   box-sizing: border-box;
+  height: 53vh;
 }
 .exam_student_list_title {
   font-size: 26px;
-  font-weight: 500;
+  font-weight: 700;
   color: rgba(32, 32, 32, 1);
   margin-bottom: 20px;
 }
@@ -262,8 +266,8 @@ color:rgba(32,32,32,1);
   width: 100%;
 }
 .exam_student_list_span > span {
-  width: 76px;
-  height: 76px;
+  width: 70px;
+  height: 70px;
   background: rgba(255, 255, 255, 1);
   border: 1px solid rgba(135, 139, 148, 1);
   display: flex;
@@ -272,15 +276,15 @@ color:rgba(32,32,32,1);
   font-size: 28px;
   color: #4b4b4b;
   border-radius: 50%;
-  margin-right: 25px;
+  margin-right: 24px;
   margin-bottom: 20px;
 }
 .el-tabs__active-bar {
-  height: 6px;
-  background-color: #545dff;
+  height: 6px !important;
+  background-color: #545dff !important;
 }
 .el-tabs__item.is-active {
-  color: #545dff;
+  color: #545dff !important;
 }
 .span_error {
   background: #fa6060 !important;
@@ -356,6 +360,11 @@ color:rgba(32,32,32,1);
   width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
   height: 1px;
 }
+.student_view_des_left::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 1px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
+}
 .student_scroll_view_item {
   display: flex;
   flex-direction: column;
@@ -388,11 +397,9 @@ color:rgba(32,32,32,1);
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin-bottom: 40px;
 }
-.exam_konwledge_view {
-  display: flex;
-  flex-direction: column;
-}
+
 .tab_des_view {
   width: 100%;
   display: flex;

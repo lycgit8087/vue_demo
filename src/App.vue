@@ -73,6 +73,9 @@ export default {
 .viewer-close::before{
   left: 50% !important;
 }
+.el-progress-bar__outer{
+  background: #e2e4e6 !important;
+}
 .viewer-list{
   height: 90px !important;
 }
@@ -98,6 +101,19 @@ export default {
 .viewer-toolbar > ul > li:nth-child(1)::before{
   background-image: url('./assets/v_add.png') !important;
 
+}
+.el-input__suffix{
+  margin-right: 10px;
+}
+.el-icon-circle-close:before{
+  font-size: 30px !important;
+  display: flex !important;
+  height: 100% !important;
+  align-items: center !important;
+
+}
+.el-checkbox.is-bordered{
+  border: none !important;
 }
 .viewer-toolbar > ul > li:nth-child(2)::before{
   background-image: url('./assets/v_cut.png') !important;
@@ -130,6 +146,9 @@ export default {
 .viewer-toolbar > ul > li:nth-child(9)::before{
   background-image: url('./assets/v_to.png') !important;
 
+}
+.el-image{
+  overflow:inherit !important;
 }
 .viewer-toolbar > ul > li:nth-child(10)::before{
   background-image: url('./assets/v_left_right.png') !important;

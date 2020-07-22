@@ -718,8 +718,11 @@ box-sizing: border-box;
 .poeple_view_item > div .el-image {
   width: 72px;
   height: 72px;
-  border-radius: 50%;
   margin-bottom: 10px;
+}
+.poeple_view_item > div .el-image  img{
+  border-radius: 50%;
+
 }
 .student_high {
   display: flex;

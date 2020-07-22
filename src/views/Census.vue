@@ -322,7 +322,7 @@
           <span>{{rq_title}}</span>
         </div>
         <div class="q_view" >
-          <html-view :content="qas_content"  :content_type="3"   ></html-view>
+          <html-view :content="qas_content"  :content_type="4"   ></html-view>
         </div>
         
 
@@ -449,7 +449,7 @@
 
         </div>
         </template>
-        <p class="push_text_des" >每道题推送相似题数量</p>
+        <p class="push_text_des" >每个知识点推送相似题数目</p>
         
         <div class="push_text_des_view" >
             <p :class="push_check_num==i?'des_action':''" v-for="i in 10" :key="i" @click="change_push_num(i)"  >{{i}}</p>
@@ -462,7 +462,7 @@
         <!--答错学生列表 -->
         <div class="student_list_view_push" v-if="error_students.length!=0" >
           <div class="student_list_view_push_top" >
-            <div class="student_list_view_push_top_left" >
+            <div class="student_list_view_push_top_left" @click="change_error_view" >
               <span>答错学生</span> 
             <span class="error_stundets" >{{error_students.length}}</span> 
               <el-image :src="error_is_show?blacktop:blackbot" fit="cover">
@@ -474,7 +474,7 @@
             <div class="student_list_view_push_top_right" ><el-checkbox v-model="error_students_check" border size="medium">全选</el-checkbox></div>
 
           </div >
-          <div  class="student_list_view_push_bot" >
+          <div  class="student_list_view_push_bot" v-if="error_is_show" >
               <div v-for="(item,index) in error_students" :key="item.sid" @click="change_error_student(index)" >
                 <el-image  :class="item.is_check?'student_check':''" :src="item.avatar" fit="cover">
                  <div slot="error" class="image-slot">
@@ -496,9 +496,9 @@
         <!-- 答对学生  success_stundets -->
         <div class="student_list_view_push" v-if="right_students.length!=0" >
           <div class="student_list_view_push_top" >
-            <div class="student_list_view_push_top_left" >
+            <div class="student_list_view_push_top_left" @click="change_right_view" >
               <span>答对学生</span> 
-            <span class="success_stundets" >{{right_students.length}}</span> 
+              <span class="success_stundets" >{{right_students.length}}</span> 
               <el-image :src="right_is_show?blacktop:blackbot" fit="cover">
                  <div slot="error" class="image-slot">
                   <i class="el-icon-picture-outline"></i>
@@ -508,7 +508,7 @@
             <div class="student_list_view_push_top_right" ><el-checkbox v-model="right_students_check" border size="medium">全选</el-checkbox></div>
 
           </div >
-          <div  class="student_list_view_push_bot" >
+          <div  class="student_list_view_push_bot" v-if="right_is_show" >
               <div v-for="(item,index) in right_students" :key="item.sid" @click="change_right_student(index)"  >
                 <el-image :class="item.is_check?'student_check':''" :src="item.avatar" fit="cover">
                  <div slot="error" class="image-slot">
@@ -547,21 +547,17 @@
 
     <!-- 知识点弹出框 -->
     <el-dialog :visible.sync="konwledge_toggle" custom-class="konwledge_view" :show-close="false" >
-      
-      <div class="konwledge_center" >
-  
-        <div class="konwledge_center_left" >
-          <div class="konwledge_center_left_title" >
+      <div class="konwledge_center_left_title" >
             <p class="konwledge_center_left_title_des" >{{konwledge_name}}</p>
             <p class="konwledge_center_left_title_tag" >知识点</p>
             
-            <el-image :src="Konw_left" fit="cover" @click="change_konwledge(0)" >
+            <el-image :src="kindex==1?No_Konw_left:Konw_left" fit="cover" @click="change_konwledge(0)" >
                  <div slot="error" class="image-slot">
                   <i class="el-icon-picture-outline"></i>
                 </div>
               </el-image> 
 
-               <el-image :src="Konw_right" fit="cover" @click="change_konwledge(1)" >
+               <el-image :src="kindex==other_list.length?No_Konw_right:Konw_right" fit="cover" @click="change_konwledge(1)" >
                  <div slot="error" class="image-slot">
                   <i class="el-icon-picture-outline"></i>
                 </div>
@@ -569,8 +565,12 @@
 
 
           </div>
-          <div class="konwledge_center_left_html"  >
-            <html-view :content="konw_content"  :content_type="3"   ></html-view>
+      <div class="konwledge_center" >
+
+        <div class="konwledge_center_left" >
+          
+          <div class="konwledge_center_left_html"   >
+            <html-view :content="konw_content"  :content_type="3" :content_num="kindex"   ></html-view>
 
           </div>
 
@@ -581,7 +581,7 @@
         </div>
         <div class="konwledge_center_right" >
 
-           <p class="push_text_des" >每道题推送相似题数量</p>
+           <p class="push_text_des" >每个知识点推送相似题数目</p>
         
         <div class="push_text_des_view" >
             <p :class="push_check_num==i?'des_action':''" v-for="i in 10" :key="i" @click="change_push_num(i)"  >{{i}}</p>
@@ -596,7 +596,7 @@
          <!--答错学生列表 -->
         <div class="student_list_view_push" v-if="error_students.length!=0" >
           <div class="student_list_view_push_top" >
-            <div class="student_list_view_push_top_left" >
+            <div class="student_list_view_push_top_left" @click="change_error_view" >
               <span>答错学生知识点掌握率</span> 
             <span class="error_stundets" >{{error_students.length}}</span> 
               <el-image :src="error_is_show?blacktop:blackbot" fit="cover">
@@ -608,7 +608,7 @@
             <div class="student_list_view_push_top_right" ><el-checkbox v-model="error_students_check" border size="medium">全选</el-checkbox></div>
 
           </div >
-          <div  class="student_list_view_push_bot" >
+          <div  class="student_list_view_push_bot" v-if="error_is_show" >
               <div v-for="(item,index) in error_students" :key="item.sid" @click="change_error_student(index)" >
                 <el-image  :class="item.is_check?'student_check':''" :src="item.avatar" fit="cover">
                  <div slot="error" class="image-slot">
@@ -631,7 +631,7 @@
         <!-- 答对学生  success_stundets -->
         <div class="student_list_view_push" v-if="right_students.length!=0" >
           <div class="student_list_view_push_top" >
-            <div class="student_list_view_push_top_left" >
+            <div class="student_list_view_push_top_left" @click="change_right_view" >
               <span>答对学生</span> 
             <span class="success_stundets" >{{right_students.length}}</span> 
               <el-image :src="right_is_show?blacktop:blackbot" fit="cover">
@@ -643,7 +643,7 @@
             <div class="student_list_view_push_top_right" ><el-checkbox v-model="right_students_check" border size="medium">全选</el-checkbox></div>
 
           </div >
-          <div  class="student_list_view_push_bot" >
+          <div  class="student_list_view_push_bot" v-if="right_is_show" >
               <div v-for="(item,index) in right_students" :key="item.sid" @click="change_right_student(index)"  >
                 <el-image :class="item.is_check?'student_check':''" :src="item.avatar" fit="cover">
                  <div slot="error" class="image-slot">
@@ -694,6 +694,7 @@ export default {
       konwledge_toggle:false,
       answer_toggle: false,
       student_toggle:false,
+      kindex:1,
       checked:false,
       CheckedImage: require("../assets/check_it.png"),
       BookImage: require("../assets/open_book.png"),
@@ -713,12 +714,13 @@ export default {
       ThreeIcon: require("../assets/there_icon.png"),
       Konw_left: require("../assets/konw_left.png"),
       Konw_right: require("../assets/konw_right.png"),
-
+       No_Konw_left: require("../assets/no_left.png"),
+      No_Konw_right: require("../assets/no_right.png"),
 
       push_toggle:false,
       qas_content:[],
      konw_content:[],
-
+      konwledge_id:0,
       other_list:[],
       pid: 0,
       over_view: {
@@ -840,14 +842,15 @@ export default {
     this.gid=this.$route.query.gid;
     this.subject=this.$route.query.subject;
     let data=this.$till.get_local(this.$route.name,this.$route.query.pid)
-    console.log(data)
+    
     if(JSON.stringify(data)!="{}"&&JSON.stringify(data)!=undefined){
                let {left_arr,over_view,other_list,topic_list}=data
                this.over_view=over_view
                this.other_list=other_list
                this.topic_list=topic_list
     }else{
-        this.GetRightList();
+      // 初始化
+      this.GetRightList();
       this.GetPaperOverview();
     }
      
@@ -857,6 +860,7 @@ export default {
   beforeRouteLeave(to, from, next) {
         // 设置下一个路由的 meta
         if(to.name=="StudentView"){
+          // 设置当前页缓存
           let {left_arr,over_view,other_list,topic_list}=this
           this.is_change_data=false
           let page_data={
@@ -867,6 +871,7 @@ export default {
         }
         localStorage.setItem("user_local",JSON.stringify(this.$till.set_local(this.$route.name,this.$route.query.pid,page_data)))  
         }else{
+          // 清空当前页缓存
           let user_local_data=localStorage.getItem("user_local")
           user_local_data=JSON.parse(user_local_data)
           let num =user_local_data.page_data.findIndex(item=>item.id==this.$route.query.pid&&item.page==this.$route.name)
@@ -893,7 +898,7 @@ export default {
     change_konwledge(num){
       let {other_list,konwledge_id}=this
       let knum=other_list.findIndex(item=>item.id==konwledge_id)
-      console.log(num,knum)
+      
       if((knum==0&&num==0)||(knum==other_list.length-1&&num==1)){
         return
       }
@@ -993,7 +998,7 @@ export default {
     },
     // 获取知识点错误学生
     get_qa_student_list(){
-      let {knowledge_list,pid}=this
+      let {knowledge_list,pid,konwledge_toggle,konwledge_id}=this
       let kid=[]
       for(let i in knowledge_list){
         kid.push(knowledge_list[i].id)
@@ -1007,9 +1012,13 @@ export default {
         let push_ns_data=res.ns_data
         let push_ys_data=res.ys_data
         let kp_data=res.kp_data
-        let konw_content=[
+        if(konwledge_id!=0){
+            let konw_content=[
            {qas:[kp_data[0].qas_data[0]]} 
         ]
+          this.konw_content=konw_content
+        }
+      
         for(let i in push_ns_data){
           push_ns_data[i].avatar=this.$till.change_file_url(push_ns_data[i].avatar)
           push_ns_data[i].is_check=true
@@ -1019,7 +1028,7 @@ export default {
           push_ys_data[i].avatar=this.$till.change_file_url(push_ys_data[i].avatar)
           push_ys_data[i].is_check=false
         }
-        this.konw_content=konw_content
+        
         this.error_students=push_ns_data
         this.right_students=push_ys_data
 
@@ -1048,18 +1057,22 @@ export default {
 
     // 知识点查看
    async change_konwledge_toggle(id=0,name=""){
-     
+    //  判断知识点显示
+
         let {konwledge_toggle,rightcheckList,knowledge_list,other_list}=this
       knowledge_list=[{id:id}]
       this.knowledge_list=knowledge_list
-     console.log(id)
+     
       if(id==0){
       this.konwledge_toggle=false
+      this.konwledge_id=0
 
       }else{
          this.konwledge_name=name
         this.konwledge_id=id
        await this.get_qa_student_list()
+       let kindex=other_list.findIndex(item=>item.id==id)
+       this.kindex=kindex+1
       this.konwledge_toggle=true
 
       }
@@ -1165,8 +1178,9 @@ export default {
 
     //查看题目
     async CheckQas(code) {
-      let { pid,is_send,sid } = this;
-      
+      let { pid,is_send,sid ,qas_content,other_list} = this;
+      console.log(other_list)
+      // this.kindex=
       this.qas_code = code;
       await this.$post("qa_content", "/?c=api", {
         student_id:sid,
@@ -1176,13 +1190,9 @@ export default {
       }).then(res => {
         
         let answer_arr=[]
-        let qas_content=[
-           {qas:[
-             {content:res.content,answers:res.answer_data,title:""}
-           ]} 
-        ]
+        qas_content=[]
         
-        res.answer_arr=answer_arr
+       answer_arr= res.answer_arr
         // 答错
         for(let i in res.ns_data){
           res.ns_data[i].avatar=this.$till.change_file_url(res.ns_data[i].avatar)
@@ -1192,6 +1202,16 @@ export default {
         for(let i in res.ys_data){
           res.ys_data[i].avatar=this.$till.change_file_url(res.ys_data[i].avatar)
         }
+        let pdata={
+          content:res.content,
+             answers:res.answer_data,
+             title:''
+        }
+         qas_content=[
+           {qas:[
+             pdata
+           ]} 
+        ]
         this.qas_content = qas_content;
         this.ns_data = res.ns_data;
         this.ys_data = res.ys_data;
@@ -1227,6 +1247,16 @@ export default {
         this.CheckQas(topic_list[parseInt(num) + 1].code);
       }
     
+    },
+
+    change_error_view(){
+      let {error_is_show}=this
+      this.error_is_show=!error_is_show
+    },
+
+    change_right_view(){
+      let {right_is_show}=this
+      this.right_is_show=!right_is_show
     },
       GetInfo(){
       let {sid,pid,left_arr}=this
@@ -1389,8 +1419,11 @@ export default {
   width: 74px;
   height: 74px;
   margin-bottom: 10px;
-  border-radius: 50%;
   opacity: 0.5;
+}
+.student_list_view_push_bot>div .el-image img{
+  border-radius: 50%;
+
 }
 .student_check{
   opacity: 1 !important;
@@ -1472,8 +1505,11 @@ border-radius:37px;
 .poeple_right .el-image {
   width: 43px;
   height: 43px;
-  border-radius: 50%;
   margin-right: 4px;
+}
+.poeple_right .el-image img{
+  border-radius: 50%;
+
 }
 .right_number{
   display: flex;
@@ -1515,12 +1551,16 @@ border-radius:37px;
   color: #202020;
   font-size: 25px;
   padding-left:40px;
+  box-sizing: border-box;
 }
 .stunde_name .el-image {
   width: 54px;
   height: 54px;
   margin-right: 24px;
+}
+.stunde_name .el-image img{
   border-radius: 50%;
+
 }
 
 .Census {
@@ -1903,7 +1943,10 @@ border-radius:19px;
   width: 61px;
   height: 61px;
   margin-right: 23px;
+}
+.student_view_right_scroll > div .el-image  img{
   border-radius: 50%;
+
 }
 .student_view_right > p {
   font-size: 25px;
@@ -1913,6 +1956,12 @@ border-radius:19px;
 }
 .progress_view > p span:nth-child(2) {
   color: #bdbdbd;
+}
+.el-dialog__footer{
+  padding-right: 0 !important;
+}
+.send_confrm{
+  margin-right: 35px !important;
 }
 .Census_right {
   width: 912px;
@@ -1963,7 +2012,7 @@ border-radius:19px;
   box-shadow: 0px 9px 27px 0px rgba(253, 104, 125, 0.3);
   border-radius: 9px;
   font-size: 24px;
-  margin-right: 27px;
+  margin-right: 35px !important;
 }
 .send_confrm {
   width: 180px;
@@ -2146,13 +2195,18 @@ margin-left: 41px;
   width: 130px;
   height: 130px;
   margin-bottom: 15px;
+}
+.stundet_msg_top .el-image img{
   border-radius: 50%;
 }
 .poeple_view_item > div .el-image {
   width: 72px;
   height: 72px;
-  border-radius: 50%;
   margin-bottom: 10px;
+}
+.poeple_view_item > div .el-image img{
+  border-radius: 50%;
+
 }
 .push_text_des_view input{
   font-size: 24px;
@@ -2179,7 +2233,6 @@ margin-left: 41px;
 .student_view_left_scroll > div>div>div:nth-child(2){
   width: 220px;
   display: flex;
-  /* justify-content: center; */
 }
 .web_view{
   width: 10px;
@@ -2286,7 +2339,7 @@ student_view_right_scroll .no_data_view .el-image {
 }
 
 .konwledge_view{
-  width: 1300px;
+  width: auto !important;
 }
 .konwledge_center{
   display: flex;
@@ -2295,9 +2348,13 @@ student_view_right_scroll .no_data_view .el-image {
 .konwledge_center>div{
   display: flex;
   flex-direction: column;
+  max-height: 75vh;
 }
 .konwledge_center_left{
   width: 581px;
+}
+.konwledge_center_left_html .html_view{
+  height: 100%;
 }
 .konwledge_center_right{
   padding-right: 35px;
@@ -2341,6 +2398,7 @@ margin-left: 30px;
 .q_view{
   width: 100%;
 }
+
 .span_error {
   background: #fa6060 !important;
   color: #fff;
@@ -2363,7 +2421,8 @@ margin-left: 30px;
 .push_title{
 font-size:33px;
 color:rgba(32,32,32,1);
-margin-bottom: 14px;
+font-weight: 600;
+margin-bottom: 17px;
 }
 .push_text{
 font-size:27px;
@@ -2427,5 +2486,6 @@ border-radius:7px;
   padding-left: 40px;
   box-sizing: border-box;
   margin-top: 16px;
+  height: 100%;
 }
 </style>

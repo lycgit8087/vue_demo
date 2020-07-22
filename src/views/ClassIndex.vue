@@ -109,22 +109,6 @@
 
 
       </div>
-      
-      <!-- <div slot="footer">
-        <el-button
-          type="danger"
-          @click="cancle_data"
-
-          class="send_cancle"
-        >取消</el-button>
-
-        <el-button
-          type="primary"
-          @click="confrm_data"
-          class="send_confrm"
-        >确定</el-button>
-      </div> -->
-
 
       </div>
     </div>
@@ -140,36 +124,12 @@
           </el-image>
           <div class="CLassIndex_Right_Top_Msg">
             <p>{{UserInfo.name}}</p>
-            <!-- <p class="ResetLogin"  >退出登录</p> -->
-
-            <!-- <el-dropdown trigger="click" @command="handleCommand">
-      <span class="el-dropdown-link">
-        设置<i class="el-icon-caret-bottom el-icon--right"></i>
-      </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="1" >清空缓存</el-dropdown-item>
-          <el-dropdown-item command="0" >退出登录</el-dropdown-item>
-
-        </el-dropdown-menu>
-      </el-dropdown> -->
           </div>
         </div>
 
-        <!-- <el-button type="primary" @click="SeeSubject" >教材目录</el-button> -->
 
       </div>
-       <!-- 时间筛选 -->
-        <!-- <el-date-picker
-          v-model="time_value"
-          type="daterange"
-          align="right"
-          unlink-panels
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          :picker-options="pickerOptions"
-          value-format="yyyy/MM/dd"
-        ></el-date-picker> -->
+      
 
     
 
@@ -968,6 +928,9 @@ border-radius:0px 0px 15px 0px;
   border-radius: 50%;
   margin-right: 19px;
 }
+.CLassIndex_Right_Top .el-image img{
+  border-radius: 50%;
+}
 .image-slot{
   width: 100%;
   height: 100%;
@@ -1134,8 +1097,6 @@ border-radius:0px 0px 15px 0px;
 .el-calendar-table td {
   border: none !important;
   width: 70px;
-  /* height: 70px;
-  border-radius: 50%; */
 }
 .CLassIndex  .send_cancle{
  width: 180px;
@@ -1220,12 +1181,16 @@ border-radius:0px 0px 15px 0px;
   padding: 0 !important;
 }
 .el-button {
-  border: 1px solid #dcdfe6 !important;
+  border: none !important;
   padding: 12px 20px;
   box-sizing: border-box;
 }
+ .el-input__suffix{
+  display: flex !important;
+
+ }
 tbody {
-  border: none !important;
+  /* border: none !important; */
 }
 .ResetLogin {
   font-size: 24px;

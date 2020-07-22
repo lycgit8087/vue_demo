@@ -8,7 +8,7 @@
        <div v-for="item in content" :key="item.tcid" class="qas_view">
         <p class="exam_list_left_title" v-if="item.partname" >{{item.partname}}</p>
         <div v-for="qitem in item.qas" :key="qitem.id" :id="qitem.id" >
-          <p class="exam_list_left_title_item" v-if="qitem.title" >{{qitem.title}}</p>
+          <p class="exam_list_left_title_item" v-if="qitem.title&&content_type!=4" >{{qitem.title}}</p>
           <div class="html_div" v-html="qitem.content"></div>
           <div class="right_text" v-if="content_type==1" >
             <span class="right_text_left" >【正确答案】：</span>
@@ -51,6 +51,10 @@ export default {
       }
     },
     content_type:{
+      type:Number,
+      default:0//  0:只是显示    1:显示解析以及做题情况  2:显示做题情况  3:单题显示
+    },
+    content_num:{
       type:Number,
       default:0//  0:只是显示    1:显示解析以及做题情况  2:显示做题情况  3:单题显示
     },
@@ -101,7 +105,6 @@ export default {
       let { content } = this;
       let select_arr =[] ;
           let success_arr = [];
-      console.log(content)
       for(let i in content){
         for(let j in content[i].qas){
           for(let q in content[i].qas[j].answers){
@@ -252,13 +255,15 @@ export default {
       canvas.stroke();
     },
     info(data){
-      let {content_type}=this
+      let {content_type,content_num}=this
+      console.log(content_type)
       let plist_arr =[],plist=[]
          plist_arr =[]
         plist=[
         {content:data}
       ]
-      let num=1
+      let num=content_num==0?1:content_num
+      
       for(let p in plist){
 
           for(let i in plist[p].content){
@@ -518,6 +523,7 @@ export default {
     margin-bottom: 0.135417rem;
     width: 100%;
     text-align: center;
+    margin-top: 30px;
 }
 .html_view_des{
       font-size: 0.151042rem;
@@ -602,10 +608,15 @@ export default {
   font-size: 24px;
   color: #545DFF;
   margin-right: 10px;
+  width: 200px;
+  line-height: 2;
 }
 .right_text_right{
   font-size: 24px;
   color: #202020;
+  line-height: 2;
+  width: 800px;
+
 }
 .right_text_right span{
   margin-right: 15px;
