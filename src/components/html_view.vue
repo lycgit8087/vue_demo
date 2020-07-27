@@ -105,10 +105,12 @@ export default {
       let { content } = this;
       let select_arr =[] ;
           let success_arr = [];
+          console.log(content)
       for(let i in content){
         for(let j in content[i].qas){
           for(let q in content[i].qas[j].answers){
-            if(content[i].qas[j].answers[q].type==4){
+            let type=content[i].qas[j].answers[q].type
+            if(type==4){
               let id=content[i].qas[j].answers[q].id,
                  left_line_data=[],right_line_data=[],
                   uanswer=content[i].qas[j][`uanswer_${id}`],
@@ -142,6 +144,35 @@ export default {
                       child_id:id,
                       line_data:right_line_data
                     })
+                    }else if(type==2){
+                      let ranswer=content[i].qas[j].answers[q].ranswer.split(","),
+                          uanswer=content[i].qas[j].answers[q].uanswer.split(","),
+                          id=content[i].qas[j].answers[q].id;
+                          if(uanswer.length!=0){
+                            let c_arr = $(`.check_qas_view_more`);
+                        for(let v=0;v<c_arr.length;v++){
+                          if(c_arr[v].id==id){
+                            for(let u in uanswer ){
+                              let num=ranswer.findIndex(item=>item==uanswer[u])
+                              if(num!=-1){
+                                let value_num=content[i].qas[j].answers[q].content.options.findIndex(item=>item.value==uanswer[u])
+                                
+                                c_arr[v].childNodes[value_num].className =
+                        "oitem_item_none rborder_class"
+
+                              }else{
+                                let value_num=content[i].qas[j].answers[q].content.options.findIndex(item=>item.value==uanswer[u])
+                                c_arr[v].childNodes[value_num].className =
+                        "oitem_item_none eborder_class"
+                              }
+                              
+                            }
+
+                          }
+                        }
+
+                          }
+                
                     }
               
             }
@@ -256,7 +287,7 @@ export default {
     },
     info(data){
       let {content_type,content_num}=this
-      console.log(content_type)
+      console.log(data)
       let plist_arr =[],plist=[]
          plist_arr =[]
         plist=[
